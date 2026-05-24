@@ -26,10 +26,19 @@
     "meilisearch": "^0.58.0",
     "morgan": "^1.10.1",
     "multer": "^2.1.1",
-    "prisma": "^7.8.0",
     "sharp": "^0.34.5",
     "uuid": "^14.0.0",
     "winston": "^3.19.0",
     "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^25.9.1",
+    "prisma": "^7.8.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^6.0.3"
   }
 }
