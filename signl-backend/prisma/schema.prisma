@@ -1,0 +1,146 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  EDITOR
+}
+
+enum ArticleType {
+  ARTICLE
+  ANALYSIS
+  BRIEF
+  LEARN
+}
+
+model User {
+  id              String @id @default(cuid())
+  email           String @unique
+  password        String
+  name            String
+
+  role            UserRole @default(USER)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  bookmarks       Bookmark[]
+  readingHistory  ReadingHistory[]
+}
+
+model Author {
+  id          String @id @default(cuid())
+
+  name        String
+  bio         String?
+  avatar      String?
+
+  articles    Article[]
+}
+
+model Article {
+
+  id              String @id @default(cuid())
+
+  title           String
+  slug            String @unique
+
+  summary         String
+  content         Json
+
+  coverImage      String?
+
+  premium         Boolean @default(false)
+
+  articleType     ArticleType
+
+  published       Boolean @default(false)
+
+  readTime        Int
+
+  views           Int @default(0)
+
+  createdAt       DateTime @default(now())
+
+  updatedAt       DateTime @updatedAt
+
+  authorId        String
+  author          Author @relation(fields: [authorId], references: [id])
+
+  categoryId      String
+  category        Category @relation(fields: [categoryId], references: [id])
+
+  tags            ArticleTag[]
+
+  bookmarks       Bookmark[]
+
+  readingHistory  ReadingHistory[]
+}
+
+model Category {
+  id          String @id @default(cuid())
+
+  name        String @unique
+
+  articles    Article[]
+}
+
+model Tag {
+  id          String @id @default(cuid())
+
+  name        String @unique
+
+  articles    ArticleTag[]
+}
+
+model ArticleTag {
+  articleId String
+  tagId     String
+
+  article   Article @relation(fields: [articleId], references: [id])
+  tag       Tag @relation(fields: [tagId], references: [id])
+
+  @@id([articleId, tagId])
+}
+
+model Bookmark {
+
+  userId     String
+  articleId  String
+
+  user        User @relation(fields: [userId], references: [id])
+  article     Article @relation(fields: [articleId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@id([userId, articleId])
+}
+
+model ReadingHistory {
+
+  id          String @id @default(cuid())
+
+  userId      String
+  articleId   String
+
+  progress    Float
+
+  lastReadAt  DateTime @default(now())
+
+  user        User @relation(fields: [userId], references: [id])
+
+  article     Article @relation(fields: [articleId], references: [id])
+}
