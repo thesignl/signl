@@ -1,12 +1,12 @@
 import { Request, Response } from 'express'
 
 import { articleService }
-from './article.service'
+from './article.service.js'
 
 import {
   createArticleSchema
 }
-from './article.validation'
+from './article.validation.js'
 import { any } from 'zod'
 
 export const articleController = {

@@ -1,8 +1,8 @@
 import prisma
-from '../../infrastructure/prisma/client'
+from '../../infrastructure/prisma/client.js'
 
 import { CreateArticleDTO }
-from './article.types'
+from './article.types.js'
 
 export const articleRepository = {
 

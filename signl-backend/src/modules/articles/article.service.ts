@@ -1,8 +1,8 @@
 import { articleRepository }
-from './article.repository'
+from './article.repository.js'
 
 import { CreateArticleDTO }
-from './article.types'
+from './article.types.js'
 
 export const articleService = {
 

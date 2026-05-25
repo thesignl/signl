@@ -11,6 +11,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 enum UserRole {
@@ -27,17 +28,27 @@ enum ArticleType {
 }
 
 model User {
-  id              String @id @default(cuid())
-  email           String @unique
-  password        String
-  name            String
 
-  role            UserRole @default(USER)
+  id          String @id @default(cuid())
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  email       String @unique
+
+  password    String
+
+  name        String
+
+  role        UserRole @default(USER)
+
+  avatar      String?
+
+  verified    Boolean @default(false)
+
+  createdAt   DateTime @default(now())
+
+  updatedAt   DateTime @updatedAt
 
   bookmarks       Bookmark[]
+
   readingHistory  ReadingHistory[]
 }
 
@@ -59,7 +70,9 @@ model Article {
   slug            String @unique
 
   summary         String
+
   content         Json
+  contentText     String?
 
   coverImage      String?
 
@@ -69,13 +82,16 @@ model Article {
 
   published       Boolean @default(false)
 
+  featured        Boolean @default(false)
+
   readTime        Int
 
   views           Int @default(0)
 
   createdAt       DateTime @default(now())
-
   updatedAt       DateTime @updatedAt
+
+  publishedAt     DateTime?
 
   authorId        String
   author          Author @relation(fields: [authorId], references: [id])
@@ -88,6 +104,12 @@ model Article {
   bookmarks       Bookmark[]
 
   readingHistory  ReadingHistory[]
+
+  @@index([slug])
+  @@index([published])
+  @@index([articleType])
+  @@index([createdAt])
+  @@index([views])
 }
 
 model Category {
