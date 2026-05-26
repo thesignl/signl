@@ -4,13 +4,9 @@ import {
   articleController
 }
 from './article.controller.js'
+import { authenticate, authorize } from '../auth/auth.middleware.js'
 
 const router = Router()
-
-router.post(
-  '/',
-  articleController.create
-)
 
 router.get(
   '/',
@@ -20,6 +16,73 @@ router.get(
 router.get(
   '/:slug',
   articleController.getBySlug
+)
+
+router.post(
+
+  '/',
+
+  authenticate,
+
+  authorize(
+    'ADMIN',
+    'EDITOR'
+  ),
+
+  articleController.create
+)
+
+router.patch(
+
+  '/:id',
+
+  authenticate,
+
+  authorize(
+    'ADMIN',
+    'EDITOR'
+  ),
+
+  articleController.update
+)
+
+router.patch(
+
+  '/:id/publish',
+
+  authenticate,
+
+  authorize(
+    'ADMIN',
+    'EDITOR'
+  ),
+
+  articleController.publish
+)
+
+router.patch(
+
+  '/:id/unpublish',
+
+  authenticate,
+
+  authorize(
+    'ADMIN',
+    'EDITOR'
+  ),
+
+  articleController.unpublish
+)
+
+router.delete(
+
+  '/:id',
+
+  authenticate,
+
+  authorize('ADMIN'),
+
+  articleController.delete
 )
 
 export default router

@@ -2,30 +2,65 @@ import { z } from 'zod'
 
 export const createArticleSchema = z.object({
 
-  title: z.string().min(5),
+  title:
+    z.string().min(5),
 
-  slug: z.string().min(5),
+  slug:
+    z.string(),
 
-  summary: z.string().min(20),
+  summary:
+    z.string(),
 
-  content: z.any(),
+  content:
+    z.any(),
 
-  coverImage: z.string().optional(),
+  contentText:
+    z.string().optional(),
 
-  premium: z.boolean(),
+  coverImage:
+    z.string().optional(),
 
-  articleType: z.enum([
-    'ARTICLE',
-    'ANALYSIS',
-    'BRIEF',
-    'LEARN'
-  ]),
+  premium:
+    z.boolean().default(false),
 
-  published: z.boolean(),
+  featured:
+    z.boolean().default(false),
 
-  readTime: z.number(),
+  articleType:
+    z.enum([
+      'ARTICLE',
+      'ANALYSIS',
+      'BRIEF',
+      'LEARN'
+    ]),
 
-  authorId: z.string(),
+  status:
+    z.enum([
+      'DRAFT',
+      'REVIEW',
+      'PUBLISHED',
+      'ARCHIVED'
+    ])
+    .default('DRAFT'),
 
-  categoryId: z.string()
+  readTime:
+    z.number(),
+
+  seoTitle:
+    z.string().optional(),
+
+  seoDescription:
+    z.string().optional(),
+
+  seoKeywords:
+    z.string().optional(),
+
+  canonicalUrl:
+    z.string().optional(),
+
+  authorId:
+    z.string(),
+
+  categoryId:
+    z.string()
 })

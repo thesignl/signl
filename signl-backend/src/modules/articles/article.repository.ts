@@ -18,30 +18,34 @@ export const articleRepository = {
 
   findAll: async () => {
 
-    return prisma.article.findMany({
+  return prisma.article.findMany({
 
-      where: {
-        published: true
-      },
+    where: {
 
-      include: {
+      status: 'PUBLISHED',
 
-        author: true,
+      deletedAt: null
+    },
 
-        category: true,
+    include: {
 
-        tags: {
-          include: {
-            tag: true
-          }
+      author: true,
+
+      category: true,
+
+      tags: {
+
+        include: {
+          tag: true
         }
-      },
-
-      orderBy: {
-        createdAt: 'desc'
       }
-    })
-  },
+    },
+
+    orderBy: {
+      createdAt: 'desc'
+    }
+  })
+},
 
   findBySlug: async (
     slug: string
@@ -62,6 +66,36 @@ export const articleRepository = {
             tag: true
           }
         }
+      }
+    })
+  },
+
+  update: async (
+
+    articleId: string,
+
+    data: any
+
+  ) => {
+
+    return prisma.article.update({
+
+      where: {
+        id: articleId
+      },
+
+      data
+    })
+  },
+
+  delete: async (
+    articleId: string
+  ) => {
+
+    return prisma.article.delete({
+
+      where: {
+        id: articleId
       }
     })
   },

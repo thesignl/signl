@@ -51,5 +51,83 @@ export const articleService = {
     )
 
     return article
-  }
+  },
+
+  updateArticle: async (
+
+    articleId: string,
+
+    data: any,
+
+    user: any
+
+  ) => {
+
+    const verified = user.role === 'ADMIN'
+
+    return articleRepository.update(
+
+      articleId,
+
+      {
+
+        ...data,
+
+        verified,
+
+        updatedById: user.id
+      }
+    )
+  },
+
+  publishArticle: async (
+
+    articleId: string,
+
+    user: any
+
+  ) => {
+
+    const verified = (user.role === 'ADMIN');
+
+    return articleRepository.update(
+
+      articleId,
+
+      {
+
+        status: 'PUBLISHED',
+
+        verified,
+
+        publishedAt: new Date(),
+
+        updatedById: user.id
+      }
+    )
+  },
+
+  unpublishArticle: async (
+    articleId: string
+  ) => {
+
+    return articleRepository.update(
+
+      articleId,
+
+      {
+        status: 'DRAFT'
+      }
+    )
+  },
+
+  deleteArticle: async (
+    articleId: string
+  ) => {
+
+    return articleRepository.delete(
+      articleId
+    )
+  },
+
 }

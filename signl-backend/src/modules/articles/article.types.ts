@@ -25,4 +25,6 @@ export interface CreateArticleDTO {
   authorId: string
 
   categoryId: string
+
+  updatedById?: string
 }

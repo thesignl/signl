@@ -27,124 +27,188 @@ enum ArticleType {
   LEARN
 }
 
+enum ArticleStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
 model User {
+  id String @id @default(cuid())
 
-  id          String @id @default(cuid())
+  email String @unique
 
-  email       String @unique
+  password String
 
-  password    String
+  name String
 
-  name        String
+  role UserRole @default(USER)
 
-  role        UserRole @default(USER)
+  avatar String?
 
-  avatar      String?
+  emailVerified Boolean @default(false)
 
-  verified    Boolean @default(false)
+  googleId String? @unique
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 
-  updatedAt   DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 
-  bookmarks       Bookmark[]
+  updatedArticles Article[] @relation("UpdatedArticles")
 
-  readingHistory  ReadingHistory[]
+  bookmarks Bookmark[]
+
+  readingHistory ReadingHistory[]
 }
 
 model Author {
-  id          String @id @default(cuid())
+  id String @id @default(cuid())
 
-  name        String
-  bio         String?
-  avatar      String?
+  name String
 
-  articles    Article[]
+  bio String?
+
+  avatar String?
+
+  twitter String?
+
+  linkedin String?
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @default(now()) @updatedAt
+
+  articles Article[]
 }
 
 model Article {
+  id String @id @default(cuid())
 
-  id              String @id @default(cuid())
+  title String
 
-  title           String
-  slug            String @unique
+  slug String? @unique
 
-  summary         String
+  summary String
 
-  content         Json
-  contentText     String?
+  content Json
 
-  coverImage      String?
+  contentText String?
 
-  premium         Boolean @default(false)
+  coverImage String?
 
-  articleType     ArticleType
+  premium Boolean @default(false)
 
-  published       Boolean @default(false)
+  verified Boolean @default(false)
 
-  featured        Boolean @default(false)
+  featured Boolean @default(false)
 
-  readTime        Int
+  articleType ArticleType
 
-  views           Int @default(0)
+  status ArticleStatus @default(DRAFT)
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  publishedAt DateTime?
 
-  publishedAt     DateTime?
+  readTime Int
 
-  authorId        String
-  author          Author @relation(fields: [authorId], references: [id])
+  views Int @default(0)
 
-  categoryId      String
-  category        Category @relation(fields: [categoryId], references: [id])
+  seoTitle String?
 
-  tags            ArticleTag[]
+  seoDescription String?
 
-  bookmarks       Bookmark[]
+  seoKeywords String?
 
-  readingHistory  ReadingHistory[]
+  canonicalUrl String?
+
+  deletedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @default(now()) @updatedAt
+
+  authorId String
+
+  author Author @relation(fields: [authorId], references: [id])
+
+  categoryId String
+
+  category Category @relation(fields: [categoryId], references: [id])
+
+  updatedById String?
+
+  updatedBy User? @relation("UpdatedArticles", fields: [updatedById], references: [id])
+
+  tags ArticleTag[]
+
+  bookmarks Bookmark[]
+
+  readingHistory ReadingHistory[]
 
   @@index([slug])
-  @@index([published])
+  @@index([status])
   @@index([articleType])
   @@index([createdAt])
   @@index([views])
+  @@index([featured])
+  @@index([verified])
+  @@index([publishedAt])
+  @@index([deletedAt])
+  @@index([status, createdAt])
+  @@index([featured, status])
+  @@index([premium, status])
 }
 
 model Category {
-  id          String @id @default(cuid())
+  id String @id @default(cuid())
 
-  name        String @unique
+  name String @unique
 
-  articles    Article[]
+  slug String? @unique
+
+  description String?
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @default(now()) @updatedAt
+
+  articles Article[]
 }
 
 model Tag {
-  id          String @id @default(cuid())
+  id String @id @default(cuid())
 
-  name        String @unique
+  name String @unique
 
-  articles    ArticleTag[]
+  slug String? @unique
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @default(now()) @updatedAt
+
+  articles ArticleTag[]
 }
 
 model ArticleTag {
   articleId String
-  tagId     String
 
-  article   Article @relation(fields: [articleId], references: [id])
-  tag       Tag @relation(fields: [tagId], references: [id])
+  tagId String
+
+  article Article @relation(fields: [articleId], references: [id])
+
+  tag Tag @relation(fields: [tagId], references: [id])
 
   @@id([articleId, tagId])
 }
 
 model Bookmark {
+  userId String
 
-  userId     String
-  articleId  String
+  articleId String
 
-  user        User @relation(fields: [userId], references: [id])
-  article     Article @relation(fields: [articleId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  article Article @relation(fields: [articleId], references: [id])
 
   createdAt DateTime @default(now())
 
@@ -152,17 +216,19 @@ model Bookmark {
 }
 
 model ReadingHistory {
+  id String @id @default(cuid())
 
-  id          String @id @default(cuid())
+  userId String
 
-  userId      String
-  articleId   String
+  articleId String
 
-  progress    Float
+  progress Float
 
-  lastReadAt  DateTime @default(now())
+  lastReadAt DateTime @default(now())
 
-  user        User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
-  article     Article @relation(fields: [articleId], references: [id])
+  article Article @relation(fields: [articleId], references: [id])
+
+  @@unique([userId, articleId])
 }
