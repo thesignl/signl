@@ -47,6 +47,92 @@ export const articleRepository = {
   })
 },
 
+search: async (
+    query: string
+  ) => {
+
+    return prisma.article.findMany({
+
+      where: {
+
+        status: 'PUBLISHED',
+
+        deletedAt: null,
+
+        OR: [
+
+          {
+            title: {
+
+              contains: query,
+
+              mode: 'insensitive'
+            }
+          },
+
+          {
+            summary: {
+
+              contains: query,
+
+              mode: 'insensitive'
+            }
+          },
+
+          {
+            category: {
+
+              name: {
+
+                contains: query,
+
+                mode: 'insensitive'
+              }
+            }
+          },
+
+          {
+            tags: {
+
+              some: {
+
+                tag: {
+
+                  name: {
+
+                    contains: query,
+
+                    mode: 'insensitive'
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+
+      include: {
+
+        author: true,
+
+        category: true,
+
+        tags: {
+
+          include: {
+            tag: true
+          }
+        }
+      },
+
+      orderBy: {
+        publishedAt: 'desc'
+      },
+
+      take: 10
+    })
+  },
+
   findBySlug: async (
     slug: string
   ) => {
@@ -122,5 +208,117 @@ export const articleRepository = {
         }
       }
     })
-  }
+  },
+
+  getAnalysisArticles: async () => {
+
+    return prisma.article.findMany({
+
+      where: {
+
+        status: 'PUBLISHED',
+
+        deletedAt: null,
+
+        articleType: 'ANALYSIS'
+      },
+
+      include: {
+
+      author: true,
+
+      category: true,
+
+      tags: {
+
+        include: {
+          tag: true
+        }
+      }
+    }, 
+    orderBy: {
+
+      publishedAt: 'desc'
+    }
+  })
+  },
+
+  getBriefs: async () => {
+
+  return prisma.article.findMany({
+
+    where: {
+
+      status: 'PUBLISHED',
+
+      articleType: 'BRIEF'
+    },
+
+    include: {
+
+      author: true,
+
+      category: true,
+
+      tags: {
+        include: {
+          tag: true
+        }
+      }
+    },
+
+    orderBy: {
+
+      createdAt: 'desc'
+    }
+  })
+},
+
+getAnalysis: async () => {
+
+  return prisma.article.findMany({
+
+    where: {
+
+      status: 'PUBLISHED',
+
+      articleType: 'ANALYSIS'
+    },
+
+    include: {
+
+      author: true,
+
+      category: true
+    },
+
+    orderBy: {
+
+      views: 'desc'
+    }
+  })
+},
+
+getFeatured: async () => {
+
+  return prisma.article.findMany({
+
+    where: {
+
+      status: 'PUBLISHED',
+
+      featured: true
+    },
+
+    include: {
+
+      author: true,
+
+      category: true
+    },
+
+    take: 1
+  })
+}
+
 }

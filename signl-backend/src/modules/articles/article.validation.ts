@@ -64,3 +64,8 @@ export const createArticleSchema = z.object({
   categoryId:
     z.string()
 })
+
+export type CreateArticleInput =
+  z.infer<
+    typeof createArticleSchema
+  >

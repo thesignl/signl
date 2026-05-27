@@ -75,6 +75,39 @@ export const articleController = {
     }
   },
 
+  search: async (
+    req: Request,
+    res: Response
+  ) => {
+
+    try {
+
+      const query =
+        req.query.q as string
+
+      const results =
+        await articleService.searchArticles(
+          query
+        )
+
+      return res.json({
+
+        success: true,
+
+        data: results
+      })
+
+    } catch (error: any) {
+
+      return res.status(500).json({
+
+        success: false,
+
+        message: error.message
+      })
+    }
+  },
+
   getBySlug: async (
     req: Request,
     res: Response
@@ -97,6 +130,35 @@ export const articleController = {
     } catch (error: any) {
 
       return res.status(404).json({
+
+        success: false,
+
+        message: error.message
+      })
+    }
+  },
+
+  getAnalysis: async (
+    _: Request,
+    res: Response
+  ) => {
+
+    try {
+
+      const articles =
+        await articleService
+          .getAnalysisFeed()
+
+      return res.json({
+
+        success: true,
+
+        data: articles
+      })
+
+    } catch (error: any) {
+
+      return res.status(500).json({
 
         success: false,
 
@@ -227,6 +289,90 @@ export const articleController = {
     } catch (error: any) {
 
       return res.status(400).json({
+
+        success: false,
+
+        message: error.message
+      })
+    }
+  },
+
+  getBriefs: async (
+  _: Request,
+  res: Response
+) => {
+
+  try {
+
+    const articles =
+      await articleService.getBriefArticles()
+
+    return res.json({
+
+      success: true,
+
+      data: articles
+    })
+
+  } catch (error: any) {
+
+    return res.status(500).json({
+
+      success: false,
+
+      message: error.message
+    })
+  }
+},
+
+getAnalysis2: async (
+    _: Request,
+    res: Response
+  ) => {
+
+    try {
+
+      const articles =
+        await articleService.getAnalysisArticles()
+
+      return res.json({
+
+        success: true,
+
+        data: articles
+      })
+
+    } catch (error: any) {
+
+      return res.status(500).json({
+
+        success: false,
+
+        message: error.message
+      })
+    }
+  },
+
+  getFeatured: async (
+    _: Request,
+    res: Response
+  ) => {
+
+    try {
+
+      const article =
+        await articleService.getFeaturedArticle()
+
+      return res.json({
+
+        success: true,
+
+        data: article
+      })
+
+    } catch (error: any) {
+
+      return res.status(500).json({
 
         success: false,
 

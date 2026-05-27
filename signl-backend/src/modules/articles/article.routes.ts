@@ -14,6 +14,31 @@ router.get(
 )
 
 router.get(
+  '/search',
+  articleController.search
+)
+
+router.get(
+  '/analysis/feed',
+  articleController.getAnalysis
+)
+
+router.get(
+  '/briefs',
+  articleController.getBriefs
+)
+
+router.get(
+  '/analysis',
+  articleController.getAnalysis2
+)
+
+router.get(
+  '/featured',
+  articleController.getFeatured
+)
+
+router.get(
   '/:slug',
   articleController.getBySlug
 )

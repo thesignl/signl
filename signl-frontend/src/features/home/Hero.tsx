@@ -1,14 +1,10 @@
-import { Article }
-from '@/types/article'
+import Link from 'next/link'
 
 export default function Hero({
 
   article
 
-}: {
-
-  article: Article
-}) {
+}: any) {
 
   return (
 
@@ -22,15 +18,20 @@ export default function Hero({
 
             <div className="hero-tag">
 
-              {article.category.name}
-
+              Featured
             </div>
 
-            <h1 className="hero-headline">
+            <Link
+              href={`/article/${article.slug}`}
+            >
 
-              {article.title}
+              <h1 className="hero-headline">
 
-            </h1>
+                {article.title}
+
+              </h1>
+
+            </Link>
 
             <p className="hero-deck">
 
@@ -48,19 +49,11 @@ export default function Hero({
 
               <span>
 
-                {new Date(article.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                {article.readTime}
+                {' '}
+                min read
 
               </span>
-
-              {article.verified && (
-
-                <span>
-
-                  ✔ Verified
-
-                </span>
-
-              )}
 
             </div>
 

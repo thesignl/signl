@@ -6,6 +6,7 @@ import {
   useAuthStore
 }
 from '@/store/auth.store'
+import { useSearchStore } from '@/store/search.store'
 
 export default function Navbar() {
 
@@ -15,6 +16,11 @@ export default function Navbar() {
     logout
 
   } = useAuthStore()
+
+  const openSearch =
+  useSearchStore(
+    state => state.openSearch
+  )
 
   return (
 
@@ -29,11 +35,24 @@ export default function Navbar() {
 
       </Link>
 
+
+
       <div className="nav-right">
 
         {!user ? (
 
           <>
+
+            <button
+
+              className="icon-btn"
+
+              onClick={openSearch}
+            >
+
+              🔍
+
+            </button>
 
             <Link
               href="/login"
@@ -43,9 +62,18 @@ export default function Navbar() {
               Sign in
 
             </Link>
-
+            
             <Link
               href="/signup"
+              className="btn-ghost"
+            >
+
+              Sign up
+
+            </Link>
+
+            <Link
+              href="/newsletter"
               className="btn-primary"
             >
 

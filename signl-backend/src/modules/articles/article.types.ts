@@ -18,7 +18,13 @@ export interface CreateArticleDTO {
     | 'BRIEF'
     | 'LEARN'
 
-  published: boolean
+  status:
+
+    | 'DRAFT'
+    | 'REVIEW'
+    | 'PUBLISHED'
+    | 'ARCHIVED'
+
 
   readTime: number
 

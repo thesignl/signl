@@ -53,6 +53,26 @@ export const articleService = {
     return article
   },
 
+  getAnalysisFeed: async () => {
+
+    return articleRepository
+      .getAnalysisArticles()
+  },
+  
+  searchArticles: async (
+    query: string
+  ) => {
+
+    if (!query) {
+
+      return []
+    }
+
+    return articleRepository.search(
+      query
+    )
+  },
+
   updateArticle: async (
 
     articleId: string,
@@ -128,6 +148,21 @@ export const articleService = {
     return articleRepository.delete(
       articleId
     )
+  },
+
+  getBriefArticles: async () => {
+
+    return articleRepository.getBriefs()
+  },
+
+  getAnalysisArticles: async () => {
+
+    return articleRepository.getAnalysis()
+  },
+
+  getFeaturedArticle: async () => {
+
+    return articleRepository.getFeatured()
   },
 
 }

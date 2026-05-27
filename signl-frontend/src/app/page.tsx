@@ -1,8 +1,13 @@
 import Footer from '@/components/layout/Footer'
 import Navbar from '@/components/layout/Navbar'
+import NewsletterStrip from '@/components/layout/NewsletterStrip'
+import Ticker from '@/components/layout/Ticker'
+import HomeAnalysisSection from '@/features/analysis/HomeAnalysisSection'
+import HomeBriefSection from '@/features/briefs/HomeBriefSection'
 import Hero
 from '@/features/home/Hero'
 import HomeFeed from '@/features/home/HomeFeed'
+import IntelligenceGrid from '@/features/home/IntelligenceGrid'
 
 import {
   getFeed
@@ -18,6 +23,8 @@ export default async function HomePage() {
 
     <main>
 
+      <Ticker/>
+
       <Navbar/>
       
       <Hero
@@ -28,7 +35,15 @@ export default async function HomePage() {
         articles={articles.slice(1)}
       />
 
-      <Footer/>
+      <HomeAnalysisSection />
+
+      <HomeBriefSection />
+
+      <IntelligenceGrid />
+
+      <NewsletterStrip />
+
+      <Footer />
 
     </main>
   )
