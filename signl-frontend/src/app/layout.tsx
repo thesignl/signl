@@ -1,16 +1,11 @@
 import './globals.css'
 
-import Ticker
-from '@/app/components/layout/Ticker'
+import AuthProvider
+from '@/components/common/AuthProvider'
+import BookmarkProvider from '@/components/common/BookmarkProvider'
 
 import Navbar
-from '@/app/components/layout/Navbar'
-
-import SectionNav
-from '@/app/components/layout/SectionNav'
-
-import Footer
-from '@/app/components/layout/Footer'
+from '@/components/layout/Navbar'
 
 export default function RootLayout({
 
@@ -19,7 +14,6 @@ export default function RootLayout({
 }: {
 
   children: React.ReactNode
-
 }) {
 
   return (
@@ -28,15 +22,17 @@ export default function RootLayout({
 
       <body>
 
-        <Ticker />
+        <AuthProvider>
+          
+          <BookmarkProvider>
 
-        <Navbar />
+            {/* <Navbar /> */}
 
-        <SectionNav />
+            {children}
+          
+          </BookmarkProvider>
 
-        {children}
-
-        <Footer />
+        </AuthProvider>
 
       </body>
 

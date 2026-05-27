@@ -1,5 +1,8 @@
+import Footer from '@/components/layout/Footer'
+import Navbar from '@/components/layout/Navbar'
 import Hero
-from '@/app/features/home/Hero'
+from '@/features/home/Hero'
+import HomeFeed from '@/features/home/HomeFeed'
 
 import {
   getFeed
@@ -15,9 +18,17 @@ export default async function HomePage() {
 
     <main>
 
+      <Navbar/>
+      
       <Hero
         article={articles[0]}
       />
+
+      <HomeFeed
+        articles={articles.slice(1)}
+      />
+
+      <Footer/>
 
     </main>
   )

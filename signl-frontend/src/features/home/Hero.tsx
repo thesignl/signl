@@ -26,9 +26,7 @@ export default function Hero({
 
             </div>
 
-            <h1
-              className="hero-headline"
-            >
+            <h1 className="hero-headline">
 
               {article.title}
 
@@ -39,6 +37,32 @@ export default function Hero({
               {article.summary}
 
             </p>
+
+            <div className="hero-meta">
+
+              <span>
+
+                {article.author.name}
+
+              </span>
+
+              <span>
+
+                {new Date(article.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+
+              </span>
+
+              {article.verified && (
+
+                <span>
+
+                  ✔ Verified
+
+                </span>
+
+              )}
+
+            </div>
 
           </div>
 

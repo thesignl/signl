@@ -8,6 +8,14 @@ export interface Article {
 
   summary: string
 
+  content: {
+
+    type: string
+
+    value: string
+
+  }[]
+
   coverImage?: string
 
   premium: boolean

@@ -51,9 +51,16 @@ export const articleRepository = {
     slug: string
   ) => {
 
-    return prisma.article.findUnique({
+    return prisma.article.findFirst({
 
-      where: { slug },
+      where: {
+
+        slug,
+
+        status: 'PUBLISHED',
+
+        deletedAt: null
+      },
 
       include: {
 
@@ -62,6 +69,7 @@ export const articleRepository = {
         category: true,
 
         tags: {
+
           include: {
             tag: true
           }
