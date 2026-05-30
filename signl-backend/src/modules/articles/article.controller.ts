@@ -381,4 +381,33 @@ getAnalysis2: async (
     }
   },
 
+  getLearn: async (
+    _: Request,
+    res: Response
+  ) => {
+
+    try {
+
+      const articles =
+        await articleService
+          .getLearnFeed()
+
+      return res.json({
+
+        success: true,
+
+        data: articles
+      })
+
+    } catch (error: any) {
+
+      return res.status(500).json({
+
+        success: false,
+
+        message: error.message
+      })
+    }
+  },
+
 }

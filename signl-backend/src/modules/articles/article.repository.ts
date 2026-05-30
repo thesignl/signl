@@ -319,6 +319,31 @@ getFeatured: async () => {
 
     take: 1
   })
-}
+},
+
+getLearnArticles: async () => {
+
+  return prisma.article.findMany({
+
+    where: {
+
+      status: 'PUBLISHED',
+
+      articleType: 'LEARN'
+    },
+
+    include: {
+
+      author: true,
+
+      category: true
+    },
+
+    orderBy: {
+
+      createdAt: 'desc'
+    }
+  })
+},
 
 }

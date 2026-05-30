@@ -39,6 +39,11 @@ router.get(
 )
 
 router.get(
+  '/learn/feed',
+  articleController.getLearn
+)
+
+router.get(
   '/:slug',
   articleController.getBySlug
 )

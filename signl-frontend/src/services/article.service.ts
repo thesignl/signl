@@ -80,3 +80,14 @@ async () => {
 
   return response.data.data[0]
 }
+
+export const getLearnFeed =
+  async () => {
+
+    const response =
+      await api.get(
+        '/articles/learn/feed'
+      )
+
+    return response.data.data
+  }

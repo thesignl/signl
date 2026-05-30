@@ -762,3 +762,292 @@ footer{background:var(--ink);color:rgba(247,245,240,.5);padding:40px 0}
       translateX(-50%);
   }
 }
+
+
+
+.nl-message {
+
+  margin-top: 18px;
+
+  margin-left: 40vw;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 14px 18px;
+
+  border-radius: 12px;
+
+  font-size: 0.92rem;
+
+  line-height: 1.6;
+
+  max-width: 560px;
+
+  animation:
+    fadeUp 0.35s ease;
+}
+
+.nl-message.success {
+
+  background:
+    rgba(76, 175, 125, 0.08);
+
+  border:
+    1px solid rgba(
+      76,
+      175,
+      125,
+      0.18
+    );
+
+  color: #b8e7c8;
+}
+
+.nl-message.error {
+
+  background:
+    rgba(224, 92, 92, 0.08);
+
+  border:
+    1px solid rgba(
+      224,
+      92,
+      92,
+      0.18
+    );
+
+  color: #f0b3b3;
+}
+
+.nl-icon {
+
+  width: 24px;
+
+  height: 24px;
+
+  border-radius: 999px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  background:
+    rgba(255,255,255,0.08);
+
+  font-size: 0.82rem;
+
+  flex-shrink: 0;
+}
+
+@keyframes fadeUp {
+
+  from {
+
+    opacity: 0;
+
+    transform:
+      translateY(8px);
+  }
+
+  to {
+
+    opacity: 1;
+
+    transform:
+      translateY(0);
+  }
+}
+
+
+
+.learn-page {
+
+  padding-top: 48px;
+}
+
+.learn-hero {
+
+  padding: 64px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.learn-label {
+
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #666;
+  margin-bottom: 16px;
+}
+
+.learn-title {
+
+  font-family:
+    'Libre Baskerville',
+    serif;
+
+  font-size: 56px;
+
+  line-height: 1.1;
+
+  margin-bottom: 16px;
+}
+
+.learn-sub {
+
+  font-size: 18px;
+
+  color: #666;
+
+  max-width: 700px;
+
+  line-height: 1.7;
+}
+
+.learning-tracks {
+
+  display: flex;
+
+  gap: 12px;
+
+  overflow-x: auto;
+
+  padding: 24px 0;
+
+  border-bottom: 1px solid #ddd;
+}
+
+.track-pill {
+
+  border: 1px solid #ccc;
+
+  padding: 8px 16px;
+
+  border-radius: 999px;
+
+  background: white;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+
+  transition: all 0.2s ease;
+}
+
+.track-pill:hover {
+
+  background: black;
+
+  color: white;
+}
+
+.learn-grid {
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fit, minmax(320px, 1fr));
+
+  gap: 32px;
+
+  padding: 48px 0;
+}
+
+.learn-card {
+
+  border: 1px solid #ddd;
+
+  padding: 24px;
+
+  transition: all 0.25s ease;
+
+  background: white;
+}
+
+.learn-card:hover {
+
+  transform: translateY(-4px);
+
+  border-color: black;
+}
+
+.learn-card-top {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 16px;
+}
+
+.learn-tag {
+
+  font-size: 12px;
+
+  text-transform: uppercase;
+
+  letter-spacing: 1px;
+
+  color: #666;
+}
+
+.level-pill {
+
+  font-size: 12px;
+
+  border: 1px solid #ccc;
+
+  padding: 4px 10px;
+
+  border-radius: 999px;
+}
+
+.learn-card-title {
+
+  font-family:
+    'Libre Baskerville',
+    serif;
+
+  font-size: 28px;
+
+  line-height: 1.3;
+
+  margin-bottom: 16px;
+}
+
+.learn-card-summary {
+
+  color: #555;
+
+  line-height: 1.7;
+
+  margin-bottom: 24px;
+}
+
+.learn-card-meta {
+
+  display: flex;
+
+  gap: 10px;
+
+  font-size: 13px;
+
+  color: #888;
+}
+
+button {
+
+  font: inherit;
+
+  border: none;
+
+  background: none;
+}

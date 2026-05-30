@@ -1,5 +1,62 @@
+
+'use client'
+
+import { useState }
+from 'react'
+
+import {
+  subscribeNewsletter
+}
+from '@/services/newsletter.service'
+
 export default function
 NewsletterStrip() {
+
+  const [email, setEmail] =
+
+    useState('')
+
+  const [loading, setLoading] =
+
+    useState(false)
+
+  const [message, setMessage] =
+
+    useState('')
+
+  const handleSubscribe =
+    async () => {
+
+      try {
+
+        setLoading(true)
+
+        const response =
+
+          await subscribeNewsletter(
+            email
+          )
+
+        setMessage(
+          response.message
+        )
+
+        setEmail('')
+
+      } catch (error: any) {
+
+        setMessage(
+
+          error.response?.data?.message ||
+
+          'Something went wrong'
+        )
+
+      } finally {
+
+        setLoading(false)
+      }
+    }
 
   return (
 
@@ -43,16 +100,34 @@ NewsletterStrip() {
 
             <input
 
-              placeholder="Email"
+              type="email"
+
+              value={email}
+
+              onChange={(e) =>
+
+                setEmail(
+                  e.target.value
+                )
+              }
+
+              placeholder="your@email.com"
 
               className="nl-input"
             />
 
             <button
               className="nl-btn"
+              onClick={handleSubscribe}
+              disabled={loading}
             >
 
-              Subscribe
+              {
+
+                loading
+                  ? '...'
+                  : 'Subscribe'
+              }
 
             </button>
 
@@ -61,6 +136,73 @@ NewsletterStrip() {
         </div>
 
       </div>
+
+       {message && (
+
+  <div
+
+    className={
+
+      `nl-message ${
+        message.includes('successfully')
+
+          ? 'success'
+          : 'error'
+      }`
+    }
+  >
+
+    {
+
+      message.includes('successfully')
+
+      ? (
+
+        <>
+
+          <span className="nl-icon">
+
+            ✓
+
+          </span>
+
+          <span>
+
+            You're subscribed to
+            The SIGNL Brief.
+            Daily intelligence
+            will arrive before
+            market open.
+
+          </span>
+
+        </>
+      )
+
+      : (
+
+        <>
+
+          <span className="nl-icon">
+
+            •
+
+          </span>
+
+          <span>
+
+            This email is already
+            receiving SIGNL updates.
+
+          </span>
+
+        </>
+      )
+    }
+
+  </div>
+)}
+
 
     </section>
   )

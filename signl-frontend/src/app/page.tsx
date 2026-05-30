@@ -8,11 +8,13 @@ import Hero
 from '@/features/home/Hero'
 import HomeFeed from '@/features/home/HomeFeed'
 import IntelligenceGrid from '@/features/home/IntelligenceGrid'
+import LearningTracks from '@/features/learn/LearningTracks'
 
 import {
   getFeed
 }
 from '@/services/article.service'
+import LearnPage from './learn/page'
 
 export default async function HomePage() {
 
@@ -26,14 +28,20 @@ export default async function HomePage() {
       <Ticker/>
 
       <Navbar/>
+
+      
       
       <Hero
         article={articles[0]}
       />
 
+      
+
       <HomeFeed
         articles={articles.slice(1)}
       />
+
+      <LearnPage/>
 
       <HomeAnalysisSection />
 

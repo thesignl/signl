@@ -165,4 +165,10 @@ export const articleService = {
     return articleRepository.getFeatured()
   },
 
+  getLearnFeed: async () => {
+
+  return articleRepository
+      .getLearnArticles()
+  },
+
 }
