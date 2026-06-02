@@ -1,74 +1,23 @@
 import api from '@/lib/axios'
+import type { Bookmark } from '@/types/bookmark'
 
-export const saveBookmark =
-async (
+// The axios interceptor in src/lib/axios.ts attaches the JWT
+// automatically. The legacy `token` parameters are kept for
+// backwards compatibility with existing call sites but no longer
+// have any effect on the request itself.
 
-  articleId: string,
-
-  token: string
-
-) => {
-
-  return api.post(
-
-    '/bookmarks',
-
-    {
-      articleId
-    },
-
-    {
-      headers: {
-
-        Authorization:
-          `Bearer ${token}`
-      }
-    }
-  )
+export const saveBookmark = async (articleId: string, _token?: string) => {
+  void _token
+  return api.post('/bookmarks', { articleId })
 }
 
-export const removeBookmark =
-async (
-
-  articleId: string,
-
-  token: string
-
-) => {
-
-  return api.delete(
-
-    `/bookmarks/${articleId}`,
-
-    {
-      headers: {
-
-        Authorization:
-          `Bearer ${token}`
-      }
-    }
-  )
+export const removeBookmark = async (articleId: string, _token?: string) => {
+  void _token
+  return api.delete(`/bookmarks/${articleId}`)
 }
 
-
-export const getBookmarks =
-async (
-  token: string
-) => {
-
-  const response =
-    await api.get(
-
-      '/bookmarks',
-
-      {
-        headers: {
-
-          Authorization:
-            `Bearer ${token}`
-        }
-      }
-    )
-
-  return response.data.data
+export const getBookmarks = async (_token?: string): Promise<Bookmark[]> => {
+  void _token
+  const response = await api.get('/bookmarks')
+  return response.data?.data ?? []
 }

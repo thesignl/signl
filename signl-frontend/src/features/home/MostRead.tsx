@@ -1,80 +1,40 @@
 import Link from 'next/link'
+import type { Article } from '@/types/article'
 
-import {
-  getFeed
-}
-from '@/services/article.service'
-
-export default async function
-MostRead() {
-
-  const articles =
-    await getFeed()
-
-  const sorted =
-    [...articles]
-
-      .sort(
-
-        (a:any,b:any) =>
-
-          b.views - a.views
-      )
-
-      .slice(0,5)
+/**
+ * Optional sidebar widget (currently unused on home — kept for the
+ * /analysis right-rail). Receives articles to avoid an extra fetch.
+ */
+export default function MostRead({ articles = [] }: { articles?: Article[] }) {
+  const sorted = [...articles].sort((a, b) => b.views - a.views).slice(0, 5)
+  if (sorted.length === 0) return null
 
   return (
-
-    <aside className="most-read">
-
-      <div className="section-title">
-
-        Most Read
-
+    <aside aria-label="Most read">
+      <div className="section-header">
+        <div className="section-title">Most read</div>
       </div>
-
-      {sorted.map(
-
-        (
-          article: any,
-          index: number
-        ) => (
-
+      <div className="article-stack">
+        {sorted.map((article, index) => (
           <Link
-
             key={article.id}
-
             href={`/article/${article.slug}`}
-
-            className="mr-item"
+            className="article-item"
           >
-
-            <div className="mr-number">
-
-              0{index + 1}
-
-            </div>
-
             <div>
-
-              <div className="mr-category">
-
-                {article.category.name}
-
+              <div className="art-meta-top">
+                <span className="art-tag">
+                  {String(index + 1).padStart(2, '0')} ·{' '}
+                  {article.category?.name}
+                </span>
               </div>
-
-              <div className="mr-headline">
-
+              <h3 className="art-headline" style={{ fontSize: 16 }}>
                 {article.title}
-
-              </div>
-
+              </h3>
             </div>
-
           </Link>
-        )
-      )}
-
+        ))}
+      </div>
     </aside>
   )
 }

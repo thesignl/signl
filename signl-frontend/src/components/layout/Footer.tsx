@@ -1,134 +1,53 @@
 import Link from 'next/link'
 
-export default function
-Footer() {
+export default function Footer() {
+  const year = new Date().getFullYear()
 
   return (
-
-    <footer className="footer">
-
+    <footer className="footer" aria-labelledby="footer-heading">
       <div className="container">
+        <h2 id="footer-heading" className="sr-only" style={{ position: 'absolute', left: -10000 }}>
+          Site footer
+        </h2>
 
         <div className="footer-top">
-
-          <div className="footer-brand">
-
+          <div>
             <div className="footer-logo">
-
-              SIGNL
-
+              Signl<span>.</span>
             </div>
-
-            <p className="footer-copy">
-
-              Intelligence-first
-              editorial platform
-              for markets, macro,
-              geopolitics and systems.
-
+            <p className="footer-tagline">
+              Intelligence-first editorial. One signal daily — for investors,
+              operators, analysts and the intellectually curious.
             </p>
-
           </div>
 
           <div className="footer-links">
-
             <div className="footer-column">
-
-              <div className="footer-heading">
-
-                Sections
-
-              </div>
-
-              <Link href="/analysis">
-
-                Analysis
-
-              </Link>
-
-              <Link href="/briefs">
-
-                Briefs
-
-              </Link>
-
-              <Link href="/markets">
-
-                Markets
-
-              </Link>
-
+              <div className="footer-heading">Read</div>
+              <Link href="/">Home</Link>
+              <Link href="/analysis">Analysis</Link>
+              <Link href="/learn">Learn</Link>
             </div>
 
             <div className="footer-column">
-
-              <div className="footer-heading">
-
-                Company
-
-              </div>
-
-              <Link href="/about">
-
-                About
-
-              </Link>
-
-              <Link href="/careers">
-
-                Careers
-
-              </Link>
-
-              <Link href="/contact">
-
-                Contact
-
-              </Link>
-
+              <div className="footer-heading">Company</div>
+              <Link href="/about">About</Link>
+              <Link href="/contact">Contact</Link>
             </div>
 
             <div className="footer-column">
-
-              <div className="footer-heading">
-
-                Social
-
-              </div>
-
-              <a href="#">
-
-                X / Twitter
-
-              </a>
-
-              <a href="#">
-
-                LinkedIn
-
-              </a>
-
-              <a href="#">
-
-                Instagram
-
-              </a>
-
+              <div className="footer-heading">Account</div>
+              <Link href="/signup">Get started</Link>
+              <Link href="/login">Sign in</Link>
             </div>
-
           </div>
-
         </div>
 
         <div className="footer-bottom">
-
-          © 2026 SIGNL Media.
-          All rights reserved.
-
+          <span>© {year} Signl Media. All rights reserved.</span>
+          <span>Calm intelligence, before the market reacts.</span>
         </div>
-
       </div>
-
     </footer>
   )
 }

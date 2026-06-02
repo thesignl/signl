@@ -1,31 +1,8 @@
+import type { Article } from './article'
+
 export interface Bookmark {
-
-  id: string
-
-  article: {
-
-    id: string
-
-    title: string
-
-    slug: string
-
-    summary: string
-
-    premium: boolean
-
-    verified: boolean
-
-    readTime: number
-
-    category: {
-
-      name: string
-    }
-
-    author: {
-
-      name: string
-    }
-  }
+  userId?: string
+  articleId?: string
+  createdAt?: string
+  article: Article
 }

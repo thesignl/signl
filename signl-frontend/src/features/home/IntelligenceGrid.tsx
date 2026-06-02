@@ -1,144 +1,77 @@
 import Link from 'next/link'
+import type { Article } from '@/types/article'
 
-import {
-  getFeed
+interface Props {
+  /** When provided, no extra request is made. */
+  articles?: Article[]
 }
-from '@/services/article.service'
 
-export default async function
-IntelligenceGrid() {
+export default function IntelligenceGrid({ articles = [] }: Props) {
+  // Light client-side bucketing by category name. Resilient to
+  // the API not returning these particular categories.
+  const macro = articles
+    .filter((a) => a.category?.name === 'Macro')
+    .slice(0, 3)
+  const markets = articles
+    .filter((a) => a.category?.name === 'Markets')
+    .slice(0, 3)
 
-  const articles =
-    await getFeed()
+  if (macro.length === 0 && markets.length === 0) return null
 
-  const macro =
-    articles.filter(
-
-      (a: any) =>
-
-        a.category.name ===
-        'Macro'
-    )
-
-  const markets =
-    articles.filter(
-
-      (a: any) =>
-
-        a.category.name ===
-        'Markets'
-    )
+  const renderColumn = (
+    title: string,
+    items: Article[],
+    headingId: string,
+  ) => (
+    <div>
+      <div className="section-header">
+        <h2 id={headingId} className="section-title">
+          {title}
+        </h2>
+      </div>
+      <div className="article-stack">
+        {items.map((article) => (
+          <Link
+            key={article.id}
+            href={`/article/${article.slug}`}
+            className="article-item"
+          >
+            <div>
+              <div className="art-meta-top">
+                <span className="art-tag">{article.category?.name}</span>
+              </div>
+              <h3 className="art-headline">{article.title}</h3>
+              <p className="art-deck">{article.summary}</p>
+              <div className="art-meta">
+                <span>{article.author?.name}</span>
+                <span className="sep">·</span>
+                <span>{article.readTime} min read</span>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  )
 
   return (
-
-    <section className="intel-grid">
-
+    <section
+      className="home-feed"
+      style={{ paddingTop: 0 }}
+      aria-label="Macro and Markets"
+    >
       <div className="container">
-
-        <div className="intel-two-col">
-
-          <div>
-
-            <div className="section-header">
-
-              <div className="section-title">
-
-                Macro & Policy
-
-              </div>
-
-            </div>
-
-            {macro.slice(0,3).map(
-
-              (article: any) => (
-
-                <Link
-
-                  key={article.id}
-
-                  href={`/article/${article.slug}`}
-
-                  className="intel-item"
-                >
-
-                  <div className="intel-tag">
-
-                    {article.category.name}
-
-                  </div>
-
-                  <div className="intel-headline">
-
-                    {article.title}
-
-                  </div>
-
-                  <div className="intel-summary">
-
-                    {article.summary}
-
-                  </div>
-
-                </Link>
-              )
-            )}
-
-          </div>
-
-          <div>
-
-            <div className="section-header">
-
-              <div className="section-title">
-
-                Markets & Capital
-
-              </div>
-
-            </div>
-
-            {markets.slice(0,3).map(
-
-              (article: any) => (
-
-                <Link
-
-                  key={article.id}
-
-                  href={`/article/${article.slug}`}
-
-                  className="intel-item"
-                >
-
-                  <div className="intel-tag">
-
-                    {article.category.name}
-
-                  </div>
-
-                  <div className="intel-headline">
-
-                    {article.title}
-
-                  </div>
-
-                  <div className="intel-summary">
-
-                    {article.summary}
-
-                  </div>
-
-                </Link>
-              )
-            )}
-
-          </div>
-
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: macro.length && markets.length ? '1fr 1fr' : '1fr',
+            gap: 48,
+          }}
+        >
+          {macro.length > 0 ? renderColumn('Macro & Policy', macro, 'macro-h') : null}
+          {markets.length > 0 ? renderColumn('Markets & Capital', markets, 'markets-h') : null}
         </div>
-
       </div>
-
     </section>
   )
 }

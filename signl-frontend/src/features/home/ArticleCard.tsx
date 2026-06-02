@@ -1,75 +1,68 @@
+import Image from 'next/image'
 import Link from 'next/link'
 
-import { Article }
-from '@/types/article'
+import Badge from '@/components/ui/Badge'
+import BookmarkButton from '@/features/bookmarks/BookmarkButton'
+import type { Article } from '@/types/article'
 
-export default function ArticleCard({
+function formatDate(value: string) {
+  try {
+    return new Date(value).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    })
+  } catch {
+    return ''
+  }
+}
 
-  article
-
-}: {
-
-  article: Article
-}) {
+export default function ArticleCard({ article }: { article: Article }) {
+  const initial = article.category?.name?.charAt(0)?.toUpperCase() ?? 'S'
 
   return (
-
-    <Link
-      href={`/article/${article.slug}`}
-      className="article-item"
-    >
-
+    <Link href={`/article/${article.slug}`} className="article-item">
       <div>
-
         <div className="art-meta-top">
-
-          <span className="art-tag">
-
-            {article.category.name}
-
-          </span>
-
-          {article.verified && (
-
-            <span className="verified-badge">
-
-              ✔ Verified
-
-            </span>
-          )}
-
+          <span className="art-tag">{article.category?.name}</span>
+          {article.premium ? <Badge variant="pro">Pro</Badge> : null}
+          {article.verified ? <Badge variant="verified">Verified</Badge> : null}
         </div>
 
-        <h2 className="art-headline">
-
-          {article.title}
-
-        </h2>
-
-        <p className="art-deck">
-
-          {article.summary}
-
-        </p>
+        <h2 className="art-headline">{article.title}</h2>
+        <p className="art-deck">{article.summary}</p>
 
         <div className="art-meta">
-
-          <span>
-            {article.author.name}
+          <span>{article.author?.name}</span>
+          <span className="sep">·</span>
+          <span>{formatDate(article.publishedAt ?? article.createdAt)}</span>
+          {article.readTime ? (
+            <>
+              <span className="sep">·</span>
+              <span>{article.readTime} min read</span>
+            </>
+          ) : null}
+          <span className="sep">·</span>
+          <span>{article.views?.toLocaleString() ?? 0} views</span>
+          <span style={{ marginLeft: 'auto' }}>
+            <BookmarkButton article={article} variant="compact" />
           </span>
-
-          <span>
-            {new Date(article.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-          </span>
-
-          <span>
-            {article.views} views
-          </span>
-
         </div>
-
       </div>
 
+      <div className="art-thumb" aria-hidden>
+        {article.coverImage ? (
+          <Image
+            src={article.coverImage}
+            alt=""
+            width={280}
+            height={210}
+            unoptimized
+          />
+        ) : (
+          <span className="art-thumb-placeholder">{initial}</span>
+        )}
+      </div>
     </Link>
   )
 }

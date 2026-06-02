@@ -1,75 +1,26 @@
 import Link from 'next/link'
 
-export default function BriefCard({
+import Badge from '@/components/ui/Badge'
+import type { Article } from '@/types/article'
 
-  article
-
-}: any) {
-
+export default function BriefCard({ article }: { article: Article }) {
   return (
-
-    <Link
-
-      href={`/article/${article.slug}`}
-
-      className="brief-card"
-    >
-
+    <Link href={`/article/${article.slug}`} className="brief-card">
       <div className="brief-card-tag">
-
-        <span>
-
-          {article.category.name}
-
-        </span>
-
-        <span>
-
-          {article.readTime}
-          {' '}
-          min
-        </span>
-
+        <span className="cat">{article.category?.name}</span>
+        <span>{article.readTime} min</span>
       </div>
 
-      <h3 className="brief-card-headline">
-
-        {article.title}
-
-      </h3>
-
-      <p className="brief-card-body">
-
-        {article.summary}
-
-      </p>
+      <h3 className="brief-card-headline">{article.title}</h3>
+      <p className="brief-card-body">{article.summary}</p>
 
       <div className="brief-card-footer">
-
-        <span className="brief-signal">
-
-          {article.author.name}
-
+        <span>{article.author?.name}</span>
+        <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <span>{article.views?.toLocaleString() ?? 0} views</span>
+          {article.premium ? <Badge variant="pro">Pro</Badge> : null}
         </span>
-
-        <span className="brief-signal">
-
-                    {article.views}
-                    {' '}
-                    views
-
-        </span>
-
-        {article.premium && (
-
-          <span className="depth-badge pro">
-
-            PRO
-          </span>
-        )}
-
       </div>
-
     </Link>
   )
 }
