@@ -1,21 +1,52 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import type { Metadata } from 'next'
 
 import Badge from '@/components/ui/Badge'
 import BookmarkButton from '@/features/bookmarks/BookmarkButton'
 import StoryPaywall from '@/features/article/StoryPaywell'
 import StorySignal from '@/features/article/StorySignal'
 import StoryContent from '@/features/article/StoryContent'
+import ReadingProgress from '@/features/article/ReadingProgress'
+import ShareActions from '@/features/article/ShareActions'
+import RelatedStories from '@/features/article/RelatedStories'
 
 import { getArticle } from '@/services/article.service'
 import type { Article } from '@/types/article'
 
-export default async function ArticlePage({
-  params,
-}: {
+interface PageProps {
   params: Promise<{ slug: string }>
-}) {
+}
+
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  try {
+    const { slug } = await params
+    const article: Article | null = await getArticle(slug)
+    if (!article) return { title: 'Article not found' }
+    return {
+      title: article.title,
+      description: article.summary,
+      openGraph: {
+        title: article.title,
+        description: article.summary,
+        type: 'article',
+        images: article.coverImage ? [{ url: article.coverImage }] : undefined,
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: article.title,
+        description: article.summary,
+      },
+    }
+  } catch {
+    return { title: 'Article' }
+  }
+}
+
+export default async function ArticlePage({ params }: PageProps) {
   const { slug } = await params
 
   let article: Article | null = null
@@ -42,6 +73,8 @@ export default async function ArticlePage({
 
   return (
     <article className="story-page">
+      <ReadingProgress />
+
       <div className="story-container">
         <div className="story-eyebrow">
           <Link href="/analysis" style={{ color: 'inherit' }}>
@@ -111,7 +144,14 @@ export default async function ArticlePage({
 
         {article.signal ? <StorySignal signal={article.signal} /> : null}
 
+        <ShareActions title={article.title} slug={article.slug} />
+
         {article.premium ? <StoryPaywall /> : null}
+
+        <RelatedStories
+          currentSlug={article.slug}
+          category={article.category?.name}
+        />
       </div>
     </article>
   )
