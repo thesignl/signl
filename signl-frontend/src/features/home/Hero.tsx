@@ -1,14 +1,22 @@
 import Link from 'next/link'
+import HeroSidebar from './HeroSidebar'
 import type { Article } from '@/types/article'
 
-export default function Hero({ article }: { article: Article }) {
+interface HeroProps {
+  article: Article
+  supporting?: Article[]
+}
+
+export default function Hero({ article, supporting = [] }: HeroProps) {
   return (
     <section className="hero" aria-labelledby="hero-headline">
       <div className="container">
         <div className="hero-grid">
           <div className="hero-lead">
             <div className="hero-tag">
-              {article.featured ? 'Featured Analysis' : article.category?.name ?? 'Editor’s pick'}
+              {article.featured
+                ? 'Featured Analysis'
+                : article.category?.name ?? 'Editor’s pick'}
             </div>
 
             <h1 id="hero-headline" className="hero-headline">
@@ -36,8 +44,7 @@ export default function Hero({ article }: { article: Article }) {
             </div>
           </div>
 
-          {/* Reserved for future: 3-up sidebar of supporting stories.
-              Hidden gracefully on mobile via the .hero-grid responsive rule. */}
+          <HeroSidebar articles={supporting} />
         </div>
       </div>
     </section>
