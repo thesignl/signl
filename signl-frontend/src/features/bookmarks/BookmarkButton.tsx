@@ -1,113 +1,93 @@
 'use client'
 
-import {
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
-  saveBookmark,
+import { saveBookmark, removeBookmark } from '@/services/bookmark.service'
+import { useAuthStore } from '@/store/auth.store'
+import { useBookmarkStore } from '@/store/bookmark.store'
+import { useToast } from '@/components/ui/Toast'
+import { BookmarkIcon } from '@/components/ui/Icon'
+import { cn } from '@/lib/cn'
+import type { Article } from '@/types/article'
 
-  removeBookmark
-
-}
-from '@/services/bookmark.service'
-
-import {
-  useAuthStore
-}
-from '@/store/auth.store'
-
-import {
-  useBookmarkStore
-}
-from '@/store/bookmark.store'
-import { Article } from '@/types/article'
-
-export default function
-BookmarkButton({
-
-  article
-
-}: {
-
+interface BookmarkButtonProps {
   article: Article
-}) {
+  /**
+   * `default` shows label + icon (story page).
+   * `compact` is icon-only (cards).
+   */
+  variant?: 'default' | 'compact'
+}
 
-  const token =
-    useAuthStore(
-      state => state.token
-    )
+export default function BookmarkButton({
+  article,
+  variant = 'default',
+}: BookmarkButtonProps) {
+  const token = useAuthStore((s) => s.token)
+  const { bookmarks, addBookmark, removeBookmark: removeLocal } =
+    useBookmarkStore()
+  const { toast } = useToast()
+  const router = useRouter()
+  const [busy, setBusy] = useState(false)
 
-  const {
+  const exists = bookmarks.some((b) => b.article.id === article.id)
 
-    bookmarks,
-
-    addBookmark,
-
-    removeBookmark:
-      removeLocal
-
-  } = useBookmarkStore()
-
-  const exists =
-    bookmarks.some(
-
-      (b) =>
-        b.article.id === article.id
-    )
-
-  const handleClick =
-  async () => {
+  const handleClick = async (
+    e: React.MouseEvent<HTMLButtonElement>,
+  ) => {
+    e.preventDefault()
+    e.stopPropagation()
 
     if (!token) {
-
-      alert('Login first')
-
+      toast('Sign in to save articles.', 'info')
+      router.push('/login')
       return
     }
 
+    setBusy(true)
     try {
-
       if (exists) {
-
-        await removeBookmark(
-
-          article.id,
-          token
-        )
-
+        await removeBookmark(article.id, token)
         removeLocal(article.id)
-
+        toast('Removed from saved.', 'info')
       } else {
-
-        await saveBookmark(
-
-          article.id,
-          token
-        )
-
-        addBookmark({
-
-          article
-        } as any)
+        await saveBookmark(article.id, token)
+        addBookmark({ article })
+        toast('Saved for later.', 'success')
       }
-
     } catch {
-
-      alert(
-        'Bookmark failed'
-      )
+      toast('Could not update saved articles.', 'error')
+    } finally {
+      setBusy(false)
     }
   }
 
+  if (variant === 'compact') {
+    return (
+      <button
+        type="button"
+        className={cn('bookmark-btn-icon')}
+        onClick={handleClick}
+        aria-pressed={exists}
+        aria-label={exists ? 'Remove from saved' : 'Save for later'}
+        disabled={busy}
+      >
+        <BookmarkIcon size={16} filled={exists} />
+      </button>
+    )
+  }
+
   return (
-
     <button
-      className="save-btn"
+      type="button"
+      className="bookmark-btn"
       onClick={handleClick}
+      aria-pressed={exists}
+      disabled={busy}
     >
-
-      {exists
-        ? 'Saved'
-        : 'Save'}
-
+      <BookmarkIcon size={14} filled={exists} />
+      {exists ? 'Saved' : 'Save'}
     </button>
   )
 }

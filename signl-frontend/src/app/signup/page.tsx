@@ -1,109 +1,141 @@
 'use client'
 
-import { useState }
-from 'react'
+import { useState } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
-import { useRouter }
-from 'next/navigation'
-
-import {
-  signupUser
-}
-from '@/services/auth.service'
+import Field from '@/components/ui/Field'
+import Button from '@/components/ui/Button'
+import { useToast } from '@/components/ui/Toast'
+import { signupUser } from '@/services/auth.service'
 
 export default function SignupPage() {
-
   const router = useRouter()
+  const { toast } = useToast()
 
-  const [name, setName] =
-    useState('')
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [errors, setErrors] = useState<{
+    name?: string
+    email?: string
+    password?: string
+    form?: string
+  }>({})
+  const [submitting, setSubmitting] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
-  const [email, setEmail] =
-    useState('')
+  const validate = () => {
+    const next: typeof errors = {}
+    if (!name.trim()) next.name = 'Please enter your name.'
+    if (!email) next.email = 'Email is required.'
+    else if (!/^\S+@\S+\.\S+$/.test(email)) next.email = 'Enter a valid email address.'
+    if (!password) next.password = 'Choose a password.'
+    else if (password.length < 8)
+      next.password = 'Use at least 8 characters.'
+    setErrors(next)
+    return Object.keys(next).length === 0
+  }
 
-  const [password, setPassword] =
-    useState('')
-
-  const handleSignup =
-  async () => {
-
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!validate()) return
+    setSubmitting(true)
     try {
-
-      await signupUser(
-
-        name,
-        email,
-        password
-      )
-
-      alert('Account created')
-
+      await signupUser(name.trim(), email.trim(), password)
+      toast('Account created. Welcome to Signl.', 'success')
       router.push('/login')
-
-    } catch {
-
-      alert('Signup failed')
+    } catch (err) {
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ?? 'Could not create your account. Please try again.'
+      setErrors({ form: message })
+      toast(message, 'error')
+    } finally {
+      setSubmitting(false)
     }
   }
 
   return (
+    <div className="auth-page">
+      <div className="auth-card">
+        <div className="auth-eyebrow">Signl Account</div>
+        <h1 className="auth-title">Create your account</h1>
+        <p className="auth-sub">
+          One signal daily. Deep analysis, briefs and learn tracks — calibrated
+          for serious readers.
+        </p>
 
-    <main className="story-page">
+        <form className="auth-form" onSubmit={onSubmit} noValidate>
+          <Field
+            label="Full name"
+            type="text"
+            name="name"
+            autoComplete="name"
+            placeholder="Ada Lovelace"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            error={errors.name}
+            required
+          />
 
-      <div className="story-container">
+          <Field
+            label="Email"
+            type="email"
+            name="email"
+            autoComplete="email"
+            inputMode="email"
+            placeholder="you@firm.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            error={errors.email}
+            required
+          />
 
-        <h1 className="story-headline">
-
-          Create your SIGNL account
-
-        </h1>
-
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '16px',
-            marginTop: '32px'
-          }}
-        >
-
-          <input
-            placeholder="Name"
-            onChange={(e) =>
-              setName(e.target.value)
+          <Field
+            label="Password"
+            type={showPassword ? 'text' : 'password'}
+            name="password"
+            autoComplete="new-password"
+            placeholder="At least 8 characters"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            error={errors.password}
+            helper="Minimum 8 characters."
+            required
+            trailing={
+              <button
+                type="button"
+                onClick={() => setShowPassword((s) => !s)}
+                className="btn btn-sm btn-ghost"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                style={{ height: 28, padding: '0 8px' }}
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
             }
           />
 
-          <input
-            placeholder="Email"
-            onChange={(e) =>
-              setEmail(e.target.value)
-            }
-          />
+          {errors.form ? (
+            <p className="field-error" role="alert">
+              {errors.form}
+            </p>
+          ) : null}
 
-          <input
-            type="password"
-            placeholder="Password"
-            onChange={(e) =>
-              setPassword(
-                e.target.value
-              )
-            }
-          />
-
-          <button
-            className="btn-primary"
-            onClick={handleSignup}
+          <Button
+            type="submit"
+            variant="primary"
+            size="lg"
+            loading={submitting}
           >
+            Create account
+          </Button>
+        </form>
 
-            Create Account
-
-          </button>
-
+        <div className="auth-footer">
+          Already have an account? <Link href="/login">Sign in</Link>
         </div>
-
       </div>
-
-    </main>
+    </div>
   )
 }

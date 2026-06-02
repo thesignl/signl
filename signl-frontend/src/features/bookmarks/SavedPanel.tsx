@@ -1,102 +1,77 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
-import {
-  useBookmarkStore
-}
-from '@/store/bookmark.store'
+import Dialog from '@/components/ui/Dialog'
+import EmptyState from '@/components/ui/EmptyState'
+import { useBookmarkStore } from '@/store/bookmark.store'
+import { useAuthStore } from '@/store/auth.store'
 
-export default function
-SavedPanel() {
+/**
+ * Drawer that lists the user's saved articles. Trigger lives in the
+ * Navbar — this component listens to a tiny window-level handle so
+ * the navbar (which can't import this file without a circular ref)
+ * can flip the open state.
+ */
+export default function SavedPanel() {
+  const [open, setOpen] = useState(false)
+  const bookmarks = useBookmarkStore((s) => s.bookmarks)
+  const user = useAuthStore((s) => s.user)
 
-  const bookmarks =
-    useBookmarkStore(
-      state => state.bookmarks
-    )
+  // Expose a tiny imperative handle for the navbar trigger.
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    window.__signl_savedPanel = { open, setOpen }
+    return () => {
+      if (window.__signl_savedPanel) {
+        delete window.__signl_savedPanel
+      }
+    }
+  }, [open])
+
+  if (!user) return null
 
   return (
-
-    <aside className="saved-panel">
-
-      <div className="saved-header">
-
-        <h3>
-          Saved Stories
-        </h3>
-
-        <span>
-
-          {bookmarks.length}
-        </span>
-
+    <Dialog
+      open={open}
+      onClose={() => setOpen(false)}
+      title="Saved articles"
+      variant="drawer"
+      ariaLabel="Saved articles"
+    >
+      <div className="dialog-body">
+        {bookmarks.length === 0 ? (
+          <EmptyState
+            title="Nothing saved yet"
+            description="Tap the bookmark icon on any story to read it later. Your saved list lives here, across devices."
+          />
+        ) : (
+          <div className="saved-list">
+            {bookmarks.map((bookmark) => (
+              <Link
+                key={bookmark.article.id}
+                href={`/article/${bookmark.article.slug}`}
+                className="saved-item"
+                onClick={() => setOpen(false)}
+              >
+                <div className="saved-item-tag">
+                  {bookmark.article.category?.name ?? 'Article'}
+                </div>
+                <div className="saved-item-title">
+                  {bookmark.article.title}
+                </div>
+                <div className="saved-item-meta">
+                  {bookmark.article.author?.name}
+                  {bookmark.article.readTime
+                    ? ` · ${bookmark.article.readTime} min read`
+                    : ''}
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
-
-      <div className="saved-list">
-
-        {bookmarks.map((bookmark) => (
-
-          <Link
-
-            key={bookmark.article.id}
-
-            href={
-              `/article/${bookmark.article.slug}`
-            }
-
-            className="saved-item"
-          >
-
-            <div className="saved-tag">
-
-              {
-                bookmark.article
-                  .category.name
-              }
-
-            </div>
-
-            <div className="saved-title">
-
-              {
-                bookmark.article
-                  .title
-              }
-
-            </div>
-
-            <div className="saved-meta">
-
-              <span>
-
-                {
-                  bookmark.article
-                    .author.name
-                }
-
-              </span>
-
-              <span>
-                •
-              </span>
-
-              <span>
-
-                {
-                  bookmark.article
-                    .readTime
-                } min
-
-              </span>
-
-            </div>
-
-          </Link>
-
-        ))}
-
-      </div>
-
-    </aside>
+    </Dialog>
   )
 }

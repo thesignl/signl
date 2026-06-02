@@ -1,214 +1,118 @@
+import Image from 'next/image'
+import Link from 'next/link'
+import { notFound } from 'next/navigation'
+
+import Badge from '@/components/ui/Badge'
 import BookmarkButton from '@/features/bookmarks/BookmarkButton'
-import {
-  getArticle
-}
-from '@/services/article.service'
+import StoryPaywall from '@/features/article/StoryPaywell'
+import StorySignal from '@/features/article/StorySignal'
+import StoryContent from '@/features/article/StoryContent'
+
+import { getArticle } from '@/services/article.service'
+import type { Article } from '@/types/article'
 
 export default async function ArticlePage({
-
-  params
-
+  params,
 }: {
-
-  params: Promise<{
-    slug: string
-  }>
+  params: Promise<{ slug: string }>
 }) {
+  const { slug } = await params
 
-  const { slug } =
-    await params
+  let article: Article | null = null
+  try {
+    article = await getArticle(slug)
+  } catch {
+    notFound()
+  }
+  if (!article) notFound()
 
-  const article =
-    await getArticle(slug)
+  const dateLabel = (() => {
+    try {
+      return new Date(
+        article.publishedAt ?? article.createdAt,
+      ).toLocaleDateString('en-US', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      })
+    } catch {
+      return ''
+    }
+  })()
 
   return (
-
-    <main className="story-page">
-
+    <article className="story-page">
       <div className="story-container">
-
         <div className="story-eyebrow">
-
-          {article.category.name}
-
+          <Link href="/analysis" style={{ color: 'inherit' }}>
+            {article.category?.name}
+          </Link>
         </div>
 
-        <h1 className="story-headline">
+        <h1 className="story-headline">{article.title}</h1>
 
-          {article.title}
-
-        </h1>
+        {article.summary ? (
+          <div className="synopsis-box" aria-label="Synopsis">
+            <div className="synopsis-label">Synopsis</div>
+            <p className="synopsis-text">{article.summary}</p>
+          </div>
+        ) : null}
 
         <div className="story-meta">
-
-          <span>
-
-            {article.author.name}
-
-          </span>
-
-          <span className="sep">
-
-            •
-
-          </span>
-
-          <span>
-
-            {new Date(
-              article.publishedAt ||
-              article.createdAt
-            ).toLocaleDateString(
-              'en-US',
-              {
-
-                day: 'numeric',
-
-                month: 'long',
-
-                year: 'numeric'
-              }
-            )}
-
-          </span>
-
-          <span className="sep">
-
-            •
-
-          </span>
-
-          <span>
-
-            {article.views}
-            {' '}
-            views
-
-          </span>
-
-          {article.verified && (
-
+          <span className="byline">{article.author?.name}</span>
+          {dateLabel ? (
             <>
-
-              <span className="sep">
-
-                •
-
-              </span>
-
-              <span>
-
-                ✔ Verified
-
-              </span>
-
+              <span className="sep">·</span>
+              <span>{dateLabel}</span>
             </>
-          )}
-
-          {article.premium && (
-
+          ) : null}
+          <span className="sep">·</span>
+          <span>{article.readTime} min read</span>
+          <span className="sep">·</span>
+          <span>{article.views?.toLocaleString() ?? 0} views</span>
+          {article.verified ? (
             <>
-
-              <span className="sep">
-
-                •
-
-              </span>
-
-              <span>
-
-                Premium
-
-              </span>
-
+              <span className="sep">·</span>
+              <Badge variant="verified">Verified</Badge>
             </>
-          )}
-
+          ) : null}
+          {article.premium ? (
+            <>
+              <span className="sep">·</span>
+              <Badge variant="pro">Pro</Badge>
+            </>
+          ) : null}
         </div>
 
-        <BookmarkButton
-          article={article}
+        <div className="story-actions">
+          <BookmarkButton article={article} />
+          <Link href="/" className="btn btn-sm btn-ghost">
+            ← Back to home
+          </Link>
+        </div>
+
+        {article.coverImage ? (
+          <div className="story-cover">
+            <Image
+              src={article.coverImage}
+              alt={article.title}
+              fill
+              sizes="(max-width: 768px) 100vw, 720px"
+              unoptimized
+              priority
+            />
+          </div>
+        ) : null}
+
+        <StoryContent
+          contentText={article.contentText ?? null}
+          blocks={article.blocks}
         />
 
-        <div className="story-summary">
+        {article.signal ? <StorySignal signal={article.signal} /> : null}
 
-          {article.summary}
-
-        </div>
-
-        {article.coverImage && (
-
-          <img
-
-            src={article.coverImage}
-
-            alt={article.title}
-
-            className="story-cover-image"
-          />
-        )}
-
-        <div className="story-summary">
-
-          {article.summary}
-
-        </div>
-
-        <div className="story-body">
-
-          {article.content.blocks.map(
-
-            (
-              block: any,
-              index: number
-            ) => {
-
-              switch (block.type) {
-
-                case 'paragraph':
-
-                  return (
-
-                    <p key={index}>
-
-                      {block.content}
-
-                    </p>
-                  )
-
-                case 'heading':
-
-                  return (
-
-                    <h2 key={index}>
-
-                      {block.content}
-
-                    </h2>
-                  )
-
-                case 'quote':
-
-                  return (
-
-                    <blockquote key={index}>
-
-                      {block.content}
-
-                    </blockquote>
-                  )
-
-                default:
-
-                  return null
-              }
-            }
-          )}
-
-        </div>
-
+        {article.premium ? <StoryPaywall /> : null}
       </div>
-
-    </main>
+    </article>
   )
 }

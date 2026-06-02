@@ -1,209 +1,111 @@
-
 'use client'
 
-import { useState }
-from 'react'
+import { useState } from 'react'
+import Button from '@/components/ui/Button'
+import { subscribeNewsletter } from '@/services/newsletter.service'
+import { useToast } from '@/components/ui/Toast'
 
-import {
-  subscribeNewsletter
-}
-from '@/services/newsletter.service'
+type SubmitState =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'success'; message: string }
+  | { status: 'error'; message: string }
 
-export default function
-NewsletterStrip() {
+export default function NewsletterStrip() {
+  const [email, setEmail] = useState('')
+  const [state, setState] = useState<SubmitState>({ status: 'idle' })
+  const { toast } = useToast()
 
-  const [email, setEmail] =
-
-    useState('')
-
-  const [loading, setLoading] =
-
-    useState(false)
-
-  const [message, setMessage] =
-
-    useState('')
-
-  const handleSubscribe =
-    async () => {
-
-      try {
-
-        setLoading(true)
-
-        const response =
-
-          await subscribeNewsletter(
-            email
-          )
-
-        setMessage(
-          response.message
-        )
-
-        setEmail('')
-
-      } catch (error: any) {
-
-        setMessage(
-
-          error.response?.data?.message ||
-
-          'Something went wrong'
-        )
-
-      } finally {
-
-        setLoading(false)
-      }
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+      setState({
+        status: 'error',
+        message: 'Please enter a valid email address.',
+      })
+      return
     }
+    setState({ status: 'loading' })
+    try {
+      const response = await subscribeNewsletter(email)
+      const successMessage =
+        response?.message ?? 'You are subscribed to The Signl Brief.'
+      setState({ status: 'success', message: successMessage })
+      toast(successMessage, 'success')
+      setEmail('')
+    } catch (err) {
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ?? 'Subscription could not be completed. Please try again.'
+      setState({ status: 'error', message })
+      toast(message, 'error')
+    }
+  }
 
   return (
-
-    <section
-      className="
-        newsletter-strip
-      "
-    >
-
+    <section className="newsletter-strip" aria-labelledby="newsletter-title">
       <div className="container">
-
         <div className="newsletter-inner">
-
           <div>
-
-            <div className="nl-label">
-
-              The SIGNL Brief
-
-            </div>
-
-            <h2 className="nl-title">
-
-              One signal daily.
-              Before the market reacts.
-
+            <div className="nl-eyebrow">The Signl Brief</div>
+            <h2 id="newsletter-title" className="nl-title">
+              One signal daily. Before the market reacts.
             </h2>
-
             <p className="nl-sub">
-
-              Strategic intelligence,
-              deep analysis,
-              macro systems
-              and market structure.
-
+              Strategic intelligence, deep analysis, macro systems and market
+              structure — delivered before market open.
             </p>
-
           </div>
 
-          <div className="nl-form">
-
-            <input
-
-              type="email"
-
-              value={email}
-
-              onChange={(e) =>
-
-                setEmail(
-                  e.target.value
-                )
-              }
-
-              placeholder="your@email.com"
-
-              className="nl-input"
-            />
-
-            <button
-              className="nl-btn"
-              onClick={handleSubscribe}
-              disabled={loading}
+          <form className="nl-form" onSubmit={handleSubscribe} noValidate>
+            <label
+              htmlFor="nl-email"
+              style={{
+                position: 'absolute',
+                left: -10000,
+                width: 1,
+                height: 1,
+                overflow: 'hidden',
+              }}
             >
+              Email address
+            </label>
+            <input
+              id="nl-email"
+              type="email"
+              name="email"
+              autoComplete="email"
+              placeholder="you@firm.com"
+              className="nl-input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              aria-invalid={state.status === 'error' ? true : undefined}
+              required
+            />
+            <Button
+              type="submit"
+              variant="accent"
+              size="md"
+              loading={state.status === 'loading'}
+            >
+              Subscribe
+            </Button>
+          </form>
 
-              {
-
-                loading
-                  ? '...'
-                  : 'Subscribe'
-              }
-
-            </button>
-
-          </div>
-
+          {state.status === 'success' ? (
+            <p className="nl-message success" role="status">
+              <span aria-hidden>✓</span>
+              {state.message}
+            </p>
+          ) : null}
+          {state.status === 'error' ? (
+            <p className="nl-message error" role="alert">
+              <span aria-hidden>!</span>
+              {state.message}
+            </p>
+          ) : null}
         </div>
-
       </div>
-
-       {message && (
-
-  <div
-
-    className={
-
-      `nl-message ${
-        message.includes('successfully')
-
-          ? 'success'
-          : 'error'
-      }`
-    }
-  >
-
-    {
-
-      message.includes('successfully')
-
-      ? (
-
-        <>
-
-          <span className="nl-icon">
-
-            ✓
-
-          </span>
-
-          <span>
-
-            You're subscribed to
-            The SIGNL Brief.
-            Daily intelligence
-            will arrive before
-            market open.
-
-          </span>
-
-        </>
-      )
-
-      : (
-
-        <>
-
-          <span className="nl-icon">
-
-            •
-
-          </span>
-
-          <span>
-
-            This email is already
-            receiving SIGNL updates.
-
-          </span>
-
-        </>
-      )
-    }
-
-  </div>
-)}
-
-
     </section>
   )
 }

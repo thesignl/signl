@@ -1,48 +1,15 @@
-export default function
-SignalCard({
-
+export default function SignalCard({
   title,
-
-  text
-
+  text,
 }: {
-
   title: string
-
   text: string
 }) {
-
   return (
-
-    <div className="signal-card">
-
-      <div
-        className="
-          signal-card-label
-        "
-      >
-
-        LIVE SIGNAL
-      </div>
-
-      <div
-        className="
-          signal-card-title
-        "
-      >
-
-        {title}
-      </div>
-
-      <div
-        className="
-          signal-card-text
-        "
-      >
-
-        {text}
-      </div>
-
-    </div>
+    <article className="signal-card">
+      <div className="signal-card-label">Live signal</div>
+      <h3 className="signal-card-title">{title}</h3>
+      <p className="signal-card-text">{text}</p>
+    </article>
   )
 }
