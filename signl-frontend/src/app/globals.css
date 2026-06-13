@@ -2203,3 +2203,180 @@ a {
     color: #000;
   }
 }
+
+
+.editor-page {
+min-height: 100vh;
+background: #0f1115;
+color: #f8fafc;
+}
+
+.editor-header {
+height: 72px;
+border-bottom: 1px solid #222;
+padding: 0 24px;
+
+display: flex;
+align-items: center;
+justify-content: space-between;
+
+background: #151922;
+
+position: sticky;
+top: 0;
+z-index: 50;
+}
+
+.editor-layout {
+display: grid;
+
+grid-template-columns:
+300px
+minmax(0, 1fr)
+320px;
+
+min-height: calc(100vh - 72px);
+}
+
+.editor-left {
+border-right: 1px solid #222;
+background: #12151c;
+padding: 24px;
+}
+
+.editor-main {
+padding: 32px;
+overflow-y: auto;
+}
+
+.editor-right {
+border-left: 1px solid #222;
+background: #12151c;
+padding: 24px;
+}
+
+.editor-card {
+background: #181d26;
+border: 1px solid #2b3342;
+border-radius: 12px;
+padding: 16px;
+margin-bottom: 16px;
+}
+
+.editor-card h3 {
+font-size: 14px;
+text-transform: uppercase;
+opacity: 0.7;
+margin-bottom: 12px;
+}
+
+.editor-title {
+width: 100%;
+background: transparent;
+border: none;
+font-size: 42px;
+font-weight: 700;
+margin-bottom: 24px;
+color: white;
+}
+
+.editor-title:focus {
+outline: none;
+}
+
+.editor-content {
+max-width: 820px;
+margin: 0 auto;
+}
+
+
+.depth-tabs {
+display: flex;
+gap: 8px;
+margin-bottom: 24px;
+}
+
+.depth-tabs button {
+border: none;
+background: #181d26;
+color: #94a3b8;
+
+padding: 10px 16px;
+border-radius: 10px;
+
+cursor: pointer;
+
+transition: 0.2s;
+}
+
+.depth-tabs button.active {
+background: #2563eb;
+color: white;
+}
+
+
+.block-editor textarea {
+width: 100%;
+min-height: 140px;
+
+border: none;
+
+background: transparent;
+
+color: white;
+
+font-size: 18px;
+line-height: 1.8;
+
+resize: vertical;
+}
+
+.block-editor textarea:focus {
+outline: none;
+}
+
+
+
+.publish-btn {
+width: 100%;
+
+border: none;
+
+padding: 12px;
+
+border-radius: 10px;
+
+background: #2563eb;
+color: white;
+
+font-weight: 600;
+
+cursor: pointer;
+}
+
+.save-btn {
+width: 100%;
+
+border: 1px solid #334155;
+
+background: transparent;
+
+color: white;
+
+padding: 12px;
+
+border-radius: 10px;
+
+margin-bottom: 10px;
+}
+
+/* ┌─────────────────────────────────────────────┐
+│ Header                                      │
+├────────────┬───────────────────┬────────────┤
+│ Metadata   │ Content Editor    │ Publish    │
+│ Sidebar    │                   │ Sidebar    │
+│            │                   │            │
+├────────────┴───────────────────┴────────────┤
+│ Autosave Status                             │
+└─────────────────────────────────────────────┘ */
+

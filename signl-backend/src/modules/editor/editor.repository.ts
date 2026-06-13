@@ -2,6 +2,8 @@ import { DepthType } from '@prisma/client'
 import prisma
 from '../../infrastructure/prisma/client.js'
 
+
+
 export const editorRepository = {
 
   createDraft: async (
@@ -133,5 +135,24 @@ upsertDepth: async (
       description
     }
   })
-}
+},
+
+  async getDraftsByAuthor(
+    authorId: string
+  ) {
+    return prisma.article.findMany({
+      where: {
+        authorId,
+        status: 'DRAFT',
+      },
+
+      orderBy: {
+        updatedAt: 'desc',
+      },
+
+      include: {
+        category: true,
+      },
+    })
+  }
 }

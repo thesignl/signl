@@ -16,7 +16,7 @@ export default function Hero({ article, supporting = [] }: HeroProps) {
             <div className="hero-tag">
               {article.featured
                 ? 'Featured Analysis'
-                : article.category?.name ?? 'Editor’s pick'}
+                : article.category?.name ?? "Editor's pick"}
             </div>
 
             <h1 id="hero-headline" className="hero-headline">

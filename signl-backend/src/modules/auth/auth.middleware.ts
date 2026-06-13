@@ -10,7 +10,7 @@ export const authorize =
 (...roles: string[]) => {
 
   return (
-    req: AuthRequest,
+    req: Request,
 
     res: Response,
 
@@ -34,10 +34,8 @@ export const authorize =
   }
 }
 
-export interface AuthRequest
-extends Request {
-
-  user?: any
+export interface AuthRequest extends Request {
+  user: any
 }
 
 export const authenticate =
@@ -69,14 +67,18 @@ export const authenticate =
 
     const decoded =
       jwt.verify(
-
         token,
-
-        process.env
-          .JWT_ACCESS_SECRET!
+        process.env.JWT_ACCESS_SECRET!
       )
 
-    req.user = decoded
+      if(typeof decoded === 'string') {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid token'
+        })
+      }
+
+    req.user = decoded as Express.UserPayload
 
     next()
 

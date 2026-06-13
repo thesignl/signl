@@ -1,10 +1,11 @@
-import { Request, Response }
+import { NextFunction, Request, Response }
 from 'express'
 
 import {
   editorService
 }
 from './editor.service.js'
+import { editorRepository } from './editor.repository.js'
 
 export const editorController = {
 
@@ -59,7 +60,7 @@ export const editorController = {
         await editorService
           .updateDraft(
 
-            req.params.id,
+            req.params.id as string,
 
             req.user.id,
 
@@ -98,7 +99,7 @@ export const editorController = {
         await editorService
           .publishArticle(
 
-            req.params.id
+            req.params.id as string
           )
 
       return res.json({
@@ -117,5 +118,51 @@ export const editorController = {
         message: error.message
       })
     }
+  },
+
+  getDrafts: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const drafts =
+        await editorService.getDrafts(
+          req.user.id
+        )
+
+      res.status(200).json({
+        success: true,
+        data: drafts,
+      })
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  getOne: async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+  ) => {
+
+  try {
+
+    const article =
+      await editorService
+        .getEditorArticle(
+          req.params.id as string,
+          req.user.id
+        )
+
+    return res.json({
+      success: true,
+      data: article
+    })
+
+  } catch (error) {
+
+    next(error)
+  }
   }
 }

@@ -27,6 +27,10 @@ router.use(
     'EDITOR'
   )
 )
+router.get(
+  '/drafts',
+  editorController.getDrafts
+)
 
 router.post(
   '/draft',
@@ -42,5 +46,11 @@ router.patch(
   '/publish/:id',
   editorController.publish
 )
+
+router.get(
+  '/:id',
+  editorController.getOne
+)
+
 
 export default router

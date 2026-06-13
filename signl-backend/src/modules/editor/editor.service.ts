@@ -49,6 +49,14 @@ export const editorService = {
       )
   },
 
+ async getDrafts(
+    authorId: string
+  ) {
+    return editorRepository
+      .getDraftsByAuthor(
+        authorId
+      )
+  },
   publishArticle: async (
 
     id: string
@@ -68,5 +76,34 @@ export const editorService = {
             new Date()
         }
       )
-  }
+  },
+  getEditorArticle: async (
+    articleId: string,
+    userId: string
+    ) => {
+
+    const article =
+      await editorRepository
+        .getEditorArticle(
+          articleId
+        )
+
+    if (!article) {
+      throw new Error(
+        'Article not found'
+      )
+    }
+
+    if (
+      article.updatedById &&
+      article.updatedById !== userId
+    ) {
+      throw new Error(
+        'Unauthorized'
+      )
+    }
+
+    return article
+  },
+
 }

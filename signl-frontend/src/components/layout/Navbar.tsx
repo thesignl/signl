@@ -68,7 +68,36 @@ export default function Navbar() {
             </Link>
           )
         })}
+      
+
+      {
+        user?.role === 'EDITOR' && (
+
+          <Link
+            href="/editor"
+            className="nav-link"
+          >
+            Editor
+          </Link>
+
+        )
+      }
+
+      {
+        user?.role === 'ADMIN' && (
+
+          <Link
+            href="/admin"
+            className="nav-link"
+          >
+            Admin
+          </Link>
+
+        )
+      }
+
       </div>
+
 
       <div className="nav-right">
         <button
