@@ -11,7 +11,7 @@ import authRoutes from './modules/auth/auth.routes.js'
 import bookmarkRoutes from './modules/bookmark/bookmark.routes.js'
 import newsletterRoutes from './modules/newsletter/newsletter.routes.js'
 import editorRoutes from './modules/editor/editor.routes.js'
-
+import adminRoutes from './modules/admin/admin.routes.js'
 
 const app = express()
 
@@ -51,6 +51,11 @@ app.use(
 app.use(
   '/api/editor',
   editorRoutes
+)
+
+app.use(
+ '/api/admin',
+ adminRoutes
 )
 
 export default app
