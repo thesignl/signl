@@ -135,5 +135,141 @@ deleteUser: async (
       error
     })
   }
-  }
+  },
+
+  authors: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+    ) => {
+
+    try {
+
+      const authors = await adminService.getAuthors()
+
+      return res.status(200).json({
+
+      success: true,
+
+      data: authors
+      })
+
+    } catch (error) {
+      errorHandler(
+        error,
+        req,
+        res,
+        next
+      )
+
+      return res.status(500).json({
+
+      success: false,
+      error: 'An error occurred while fetching authors'
+      })
+    }
+  },
+
+  createAuthor: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+    ) => {
+
+    try {
+
+      const author = await adminService.createAuthor(
+          req.body
+        )
+
+      return res.status(201).json({
+
+      success: true,
+
+      data: author
+      })
+
+    } catch (error) {
+
+      errorHandler(
+        error,
+        req,
+        res,
+        next
+      )
+
+      return res.status(500).json({
+
+      success: false,
+
+      message: 'An error occurred while creating the author'
+      })
+    }
+  },
+
+  updateAuthor: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+    ) => {
+
+    try {
+
+      const author =
+      await adminService
+        .updateAuthor(
+
+          req.params.id as string,
+
+          req.body
+        )
+
+      return res.json({
+
+      success: true,
+
+      data: author
+      })
+
+    } catch (error) {
+
+      return res.status(500).json({
+
+      success: false,
+
+      message: "An error occurred while updating the author"
+      })
+    }
+  },
+
+  deleteAuthor: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+    ) => {
+
+    try {
+
+      await adminService
+      .deleteAuthor(
+        req.params.id as string
+      )
+
+      return res.json({
+
+      success: true
+      })
+
+    } catch (error) {
+
+      return res.status(500).json({
+
+      success: false,
+
+      message: "An error occurred while deleting the author"
+
+      })
+    }
+  },
+
 }

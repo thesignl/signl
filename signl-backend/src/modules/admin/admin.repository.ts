@@ -119,5 +119,73 @@ export const adminRepository = {
         id
       }
     })
-  }
+  },
+
+  getAuthors: async () => {
+
+    return prisma.author.findMany({
+
+      include: {
+
+        _count: {
+
+          select: {
+
+            articles: true
+          }
+        }
+      },
+
+      orderBy: {
+
+        name: 'asc'
+      }
+    })
+  },
+
+  createAuthor: async (
+
+    data: any
+
+  ) => {
+
+    return prisma.author.create({
+
+      data
+    })
+  },
+
+  updateAuthor: async (
+
+    id: string,
+
+    data: any
+
+  ) => {
+
+    return prisma.author.update({
+
+      where: {
+
+        id
+      },
+
+      data
+    })
+  },
+
+  deleteAuthor: async (
+    id: string
+  ) => {
+
+    return prisma.author.delete({
+
+      where: {
+
+        id
+      }
+    })
+  },
+
+  
 }
