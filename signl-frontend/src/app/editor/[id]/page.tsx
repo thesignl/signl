@@ -2,181 +2,79 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
+import Link from 'next/link'
 
-import EditorHeader from '@/features/editor/EditorHeader'
-import EditorSidebar from '@/features/editor/EditorSidebar'
-import DepthTabs from '@/features/editor/DepthTabs'
-import BlockEditor from '@/features/editor/BlockEditor'
-import FrameworkEditor from '@/features/editor/FrameworkEditor'
-import PublishBar from '@/features/editor/PublishBar'
-
-import { getDraft } from '@/services/editor.service'
+import EditorWorkspace from '@/features/editor/EditorWorkspace'
+import { useEditorGuard } from '@/features/editor/useEditorGuard'
 import { useEditorStore } from '@/store/editor.store'
+import { getDraft } from '@/services/editor.service'
 
-import type {
-ContentBlock,
-AnalysisStep,
-} from '@/types/editor'
+export default function EditDraftPage() {
+  const { ready } = useEditorGuard()
+  const params = useParams()
+  const id = params.id as string
+  const hydrate = useEditorStore((s) => s.hydrate)
+  const reset = useEditorStore((s) => s.reset)
 
-export default function EditorPage() {
-const params = useParams()
+  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
 
-const articleId = params.id as string
-
-const {
-article,
-setArticle,
-} = useEditorStore()
-
-const [loading, setLoading] =
-useState(true)
-
-const [selectedDepth, setSelectedDepth] =
-useState('ARTICLE')
-
-const [blocks, setBlocks] =
-useState<ContentBlock[]>([])
-
-const [steps, setSteps] =
-useState<AnalysisStep[]>([])
-
-useEffect(() => {
-    const loadDraft = async () => {
-        try {
-        const draft =
-            await getDraft(articleId)
-
-        setArticle(draft)
-
-        setBlocks(
-            draft.blocks ?? []
-        )
-
-        setSteps(
-            draft.analysisSteps ?? []
-        )
-        } catch (error) {
-        console.error(
-            'Failed to load draft',
-            error
-        )
-        } finally {
-        setLoading(false)
+  useEffect(() => {
+    if (!ready || !id) return
+    let alive = true
+    getDraft(id)
+      .then((article) => {
+        if (alive) {
+          hydrate(article)
+          setStatus('ready')
         }
+      })
+      .catch(() => alive && setStatus('error'))
+    return () => {
+      alive = false
+      reset()
     }
+  }, [ready, id, hydrate, reset])
 
-    if (articleId) {
-        loadDraft()
-    }
-    }, [
-    articleId,
-    setArticle,
-    ])
+  if (!ready) return null
 
-    if (loading) {
-    return ( <div className="flex items-center justify-center min-h-screen">
-    Loading editor... </div>
+  if (status === 'loading') {
+    return (
+      <div
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontFamily: 'var(--font-mono)',
+          color: '#6a6a66',
+        }}
+      >
+        Loading editor…
+      </div>
     )
-}
+  }
 
-if (!article) {
-return ( <div className="flex items-center justify-center min-h-screen">
-Draft not found </div>
-)
-}
-
-return ( 
-
-<div className="editor-page"> <EditorHeader
-     article={article}
-   />
-
-```
-  <div className="editor-layout">
-
-    <aside className="editor-left">
-      <EditorSidebar
-        article={article}
-      />
-    </aside>
-
-    <main className="editor-main">
-      <DepthTabs
-        selected={selectedDepth}
-        onChange={setSelectedDepth}
-      />
-
-      <div className="editor-content">
-
-        <input
-          className="editor-title"
-          value={article.title}
-          placeholder="Article title..."
-          readOnly
-        />
-
-        <BlockEditor
-          blocks={blocks}
-          setBlocks={setBlocks}
-        />
-
-        <FrameworkEditor
-          steps={steps}
-          setSteps={setSteps}
-        />
-
+  if (status === 'error') {
+    return (
+      <div
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'column',
+          gap: 12,
+          fontFamily: 'var(--font-sans)',
+          color: '#2a2a28',
+        }}
+      >
+        <p>This draft could not be loaded.</p>
+        <Link href="/editor" className="ed-btn ed-btn-ghost">
+          ← Back to My Articles
+        </Link>
       </div>
-    </main>
+    )
+  }
 
-    <aside className="editor-right">
-
-      <PublishBar
-        articleId={article.id}
-      />
-
-      <div className="editor-card">
-        <h3>Publication</h3>
-
-        <div>
-          Status: {article.status}
-        </div>
-
-        <div>
-          Type: {article.articleType}
-        </div>
-
-        <div>
-          Read Time: {article.readTime} min
-        </div>
-
-        <div>
-          Views: {article.views}
-        </div>
-      </div>
-
-      <div className="editor-card">
-        <h3>Stats</h3>
-
-        <div>
-          Blocks: {blocks.length}
-        </div>
-
-        <div>
-          Framework Steps: {steps.length}
-        </div>
-
-        <div>
-          Premium: {article.premium ? 'Yes' : 'No'}
-        </div>
-
-        <div>
-          Verified: {article.verified ? 'Yes' : 'No'}
-        </div>
-      </div>
-
-    </aside>
-  </div>
-</div>
-
-)
+  return <EditorWorkspace />
 }

@@ -103,7 +103,7 @@ async function main() {
     }),
   ]);
 
-
+ 
   // --------------------
   // Users
   // --------------------
@@ -179,93 +179,94 @@ async function main() {
     })
   ])
 
-    // --------------------
-    // Tags
-    // --------------------
 
-    const tags = await Promise.all([
-      prisma.tag.upsert({
-        where: { name: "AI" },
-        update: {},
-        create: { name: "AI", slug: "ai" },
-      }),
+  // --------------------
+  // Tags
+  // --------------------
 
-      prisma.tag.upsert({
-        where: { name: "Economy" },
-        update: {},
-        create: { name: "Economy", slug: "economy" },
-      }),
+  const tags = await Promise.all([
+    prisma.tag.upsert({
+      where: { name: "Macro and policy" },
+      update: {},
+      create: { name: "Macro and policy", slug: "macro-and-policy" },
+    }),
 
-      prisma.tag.upsert({
-        where: { name: "Markets" },
-        update: {},
-        create: { name: "Markets", slug: "markets" },
-      }),
+    prisma.tag.upsert({
+      where: { name: "Market and capital" },
+      update: {},
+      create: { name: "Market and capital", slug: "market-and-capital" },
+    }),
 
-      prisma.tag.upsert({
-        where: { name: "Infrastructure" },
-        update: {},
-        create: { name: "Infrastructure", slug: "infrastructure" },
-      }),
+    prisma.tag.upsert({
+      where: { name: "Industry and Systems" },
+      update: {},
+      create: { name: "Industry and Systems", slug: "industry-and-systems" },
+    }),
 
-      prisma.tag.upsert({
-        where: { name: "India" },
-        update: {},
-        create: { name: "India", slug: "india" },
-      }),
-    ]);
+    prisma.tag.upsert({
+      where: { name: "Infrastructure" },
+      update: {},
+      create: { name: "Infrastructure", slug: "infrastructure" },
+    }),
 
-    // --------------------
-    // Articles
-    // --------------------
+    prisma.tag.upsert({
+      where: { name: "India" },
+      update: {},
+      create: { name: "India", slug: "india" },
+    }),
+  ]);
 
-    const article1 = await prisma.article.create({
-      data: {
-        title: "India’s Manufacturing Push: Can PLI Deliver?",
-        slug: "india-manufacturing-pli",
-        summary:
-          "Evaluating India's Production Linked Incentive scheme.",
-        contentText:
-          "The PLI scheme aims to transform India's manufacturing sector.",
-        signal:
-          "Manufacturing competitiveness is becoming central to India's growth.",
-        articleType: "ANALYSIS",
-        status: "PUBLISHED",
-        featured: true,
-        verified: true,
-        views: 1500,
-        readTime: 8,
+  // --------------------
+  // Articles
+  // --------------------
 
-        authorId: users[0].id,
-        categoryId: categories[1].id,
-        publishedAt: new Date(),
-      },
-    });
+  const article1 = await prisma.article.create({
+    data: {
+      title: "India's Manufacturing Push: Can PLI Deliver?",
+      slug: "india-manufacturing-pli",
+      summary:
+        "Evaluating India's Production Linked Incentive scheme.",
+      contentText:
+        "The PLI scheme aims to transform India's manufacturing sector.",
+      signal:
+        "Manufacturing competitiveness is becoming central to India's growth.",
+      articleType: "ANALYSIS",
+      status: "PUBLISHED",
+      featured: true,
+      verified: true,
+      views: 1500,
+      readTime: 8,
 
-    const article2 = await prisma.article.create({
-      data: {
-        title: "Why Bond Markets Matter More Than Ever",
-        slug: "bond-markets-explained",
-        summary: "Understanding the signal hidden inside bond yields.",
-        contentText:
-          "Bond markets frequently provide forward-looking economic signals.",
-        signal:
-          "Yield curves continue to influence monetary expectations.",
-        articleType: "LEARN",
-        status: "PUBLISHED",
-        verified: true,
-        views: 900,
-        readTime: 6,
+      authorId: users[0].id,
+      categoryId: categories[1].id,
+      publishedAt: new Date(),
+    },
+  });
 
-        authorId: users[1].id,
-        categoryId: categories[8].id,
-        publishedAt: new Date(),
-      },
-    });
+  const article2 = await prisma.article.create({
+    data: {
+      title: "Why Bond Markets Matter More Than Ever",
+      slug: "bond-markets-explained",
+      summary: "Understanding the signal hidden inside bond yields.",
+      contentText:
+        "Bond markets frequently provide forward-looking economic signals.",
+      signal:
+        "Yield curves continue to influence monetary expectations.",
+      articleType: "LEARN",
+      status: "PUBLISHED",
+      verified: true,
+      views: 900,
+      readTime: 6,
+
+      authorId: users[1].id,
+      categoryId: categories[8].id,
+      publishedAt: new Date(),
+    },
+  });
 
   const article3 = await prisma.article.create({
     data: {
-      title: "India’s Data Center Boom",
+      title: "India's Data Center Boom",
       slug: "data-center-boom",
       summary:
         "AI demand is driving massive infrastructure investment.",
@@ -330,24 +331,6 @@ async function main() {
       publishedAt: new Date(),
     },
   });
-
-
-  await prisma.articleDepth.createMany({
-    data: [
-      {
-        articleId: article1.id,
-        depthType: 'BEGINNER',
-        description:
-          'Simple overview of the PLI scheme'
-      },
-      {
-        articleId: article1.id,
-        depthType: 'ADVANCED',
-        description:
-          'Detailed manufacturing competitiveness analysis'
-      }
-    ]
-  })
 
   // --------------------
   // Content Blocks
@@ -444,55 +427,6 @@ async function main() {
       },
     ],
   });
-
-  await prisma.analysisStep.createMany({
-    data: [
-      {
-        articleId: article1.id,
-        title: 'Policy Goal',
-        description:
-          'Increase domestic manufacturing',
-        stepNumber: 1
-      },
-      {
-        articleId: article1.id,
-        title: 'Economic Impact',
-        description:
-          'Boost exports and jobs',
-        stepNumber: 2
-      }
-    ]
-  });
-
-  await prisma.homepagePlacement.createMany({
-    data: [
-      {
-        articleId: article1.id,
-        section: 'HERO',
-        priority: 1
-      },
-      {
-        articleId: article3.id,
-        section: 'FEATURED_ANALYSIS',
-        priority: 1
-      }
-    ]
-  });
-
-  await prisma.homepagePlacement.createMany({
-  data: [
-    {
-      articleId: article1.id,
-      section: 'HERO',
-      priority: 1
-    },
-    {
-      articleId: article3.id,
-      section: 'FEATURED_ANALYSIS',
-      priority: 1
-    }
-  ]
-})
 
   console.log("✅ Database seeded successfully");
 }
