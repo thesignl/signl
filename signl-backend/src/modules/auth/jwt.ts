@@ -14,7 +14,10 @@ export const generateAccessToken = (
     process.env.JWT_ACCESS_SECRET!,
 
     {
-      expiresIn: '15m'
+      // No refresh-token flow exists yet, so a short 15m access token
+      // silently logged editors out mid-session. Use a workable session
+      // lifetime until refresh tokens are implemented.
+      expiresIn: '7d'
     }
   )
 }

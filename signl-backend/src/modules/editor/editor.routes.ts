@@ -1,56 +1,27 @@
-import { Router }
-from 'express'
+import { Router } from 'express'
 
-import {
-  editorController
-}
-from './editor.controller.js'
-
-import {
-
-  authenticate,
-
-  authorize
-
-}
-from '../auth/auth.middleware.js'
+import { editorController } from './editor.controller.js'
+import { authenticate, authorize } from '../auth/auth.middleware.js'
 
 const router = Router()
 
-router.use(
-  authenticate
-)
+router.use(authenticate)
+router.use(authorize('ADMIN', 'EDITOR'))
 
-router.use(
-  authorize(
-    'ADMIN',
-    'EDITOR'
-  )
-)
-router.get(
-  '/drafts',
-  editorController.getDrafts
-)
+// Reference data for the editor metadata panel
+router.get('/categories', editorController.getCategories)
+router.get('/authors', editorController.getAuthors)
 
-router.post(
-  '/draft',
-  editorController.createDraft
-)
+// Article list (all statuses owned by the editor)
+router.get('/drafts', editorController.getDrafts)
 
-router.patch(
-  '/draft/:id',
-  editorController.updateDraft
-)
+// Draft lifecycle
+router.post('/draft', editorController.createDraft)
+router.patch('/draft/:id', editorController.updateDraft)
+router.patch('/publish/:id', editorController.publish)
+router.patch('/review/:id', editorController.submitForReview)
 
-router.patch(
-  '/publish/:id',
-  editorController.publish
-)
-
-router.get(
-  '/:id',
-  editorController.getOne
-)
-
+// Single article (keep last — it's the catch-all GET)
+router.get('/:id', editorController.getOne)
 
 export default router

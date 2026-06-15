@@ -1,453 +1,254 @@
-// prisma/seed.ts
+import 'dotenv/config'
+import bcrypt from 'bcrypt'
+import prisma from '../src/infrastructure/prisma/client.js'
 
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
-
+/**
+ * Local seed: an EDITOR user, byline Author, categories, and a realistic set of
+ * articles (published / scheduled / review / draft) with ArticleAnalytics so
+ * the editor list, counts, and My Analytics view look like the reference.
+ */
 async function main() {
-  console.log("🌱 Seeding database...");
+  const password = await bcrypt.hash('editor123', 10)
 
-  // --------------------
-  // Categories
-  // --------------------
+  const editor = await prisma.user.upsert({
+    where: { email: 'editor@signl.local' },
+    update: { role: 'EDITOR' },
+    create: {
+      email: 'editor@signl.local',
+      password,
+      name: 'Priya Nair',
+      role: 'EDITOR',
+      emailVerified: true,
+    },
+  })
 
-  const categories = await Promise.all([
-    prisma.category.upsert({
-      where: { name: "Home" },
-      update: {},
-      create: {
-        name: "Home",
-        slug: "home",
-        description: "Featured stories and editor picks",
-      },
-    }),
+  const author = await prisma.author.upsert({
+    where: { id: 'seed-author-1' },
+    update: {},
+    create: {
+      id: 'seed-author-1',
+      name: 'Priya Nair',
+      bio: 'Senior Macro Correspondent',
+    },
+  })
 
-    prisma.category.upsert({
-      where: { name: "Macro and Policy" },
-      update: {},
-      create: {
-        name: "Macro and Policy",
-        slug: "macro-policy",
-        description: "Macroeconomics and policy",
-      },
-    }),
+  const macro = await prisma.category.upsert({
+    where: { name: 'Macro & Policy' },
+    update: {},
+    create: { name: 'Macro & Policy', slug: 'macro-policy' },
+  })
+  const markets = await prisma.category.upsert({
+    where: { name: 'Markets & Capital' },
+    update: {},
+    create: { name: 'Markets & Capital', slug: 'markets-capital' },
+  })
+  const analysis = await prisma.category.upsert({
+    where: { name: 'Analysis' },
+    update: {},
+    create: { name: 'Analysis', slug: 'analysis' },
+  })
 
-    prisma.category.upsert({
-      where: { name: "Market and Capital" },
-      update: {},
-      create: {
-        name: "Market and Capital",
-        slug: "market-capital",
-        description: "Markets and investments",
-      },
-    }),
+  const para = (text: string, position: number) => ({
+    type: 'TEXT' as const,
+    position,
+    content: { refType: 'paragraph', surface: 'article', text },
+  })
 
-    prisma.category.upsert({
-      where: { name: "Industry and System" },
-      update: {},
-      create: {
-        name: "Industry and System",
-        slug: "industry-system",
-        description: "Industry insights",
-      },
-    }),
+  type Seed = {
+    slug: string
+    title: string
+    summary: string
+    signal?: string
+    category: string
+    type: 'ARTICLE' | 'ANALYSIS' | 'BRIEF' | 'LEARN'
+    status: 'DRAFT' | 'REVIEW' | 'PUBLISHED'
+    premium: boolean
+    featured?: boolean
+    readTime: number
+    views: number
+    saves: number
+    readThrough: number // %
+    publishedDaysAgo?: number
+    scheduledInDays?: number
+  }
 
-    prisma.category.upsert({
-      where: { name: "Infrastructure" },
-      update: {},
-      create: {
-        name: "Infrastructure",
-        slug: "infrastructure",
-        description: "Infrastructure development",
-      },
-    }),
-
-    prisma.category.upsert({
-      where: { name: "Brief" },
-      update: {},
-      create: {
-        name: "Brief",
-        slug: "brief",
-        description: "Quick insights",
-      },
-    }),
-
-    prisma.category.upsert({
-      where: { name: "Articles" },
-      update: {},
-      create: {
-        name: "Articles",
-        slug: "articles",
-        description: "Long-form articles",
-      },
-    }),
-
-    prisma.category.upsert({
-      where: { name: "Analysis" },
-      update: {},
-      create: {
-        name: "Analysis",
-        slug: "analysis",
-        description: "Deep analysis",
-      },
-    }),
-
-    prisma.category.upsert({
-      where: { name: "Learn" },
-      update: {},
-      create: {
-        name: "Learn",
-        slug: "learn",
-        description: "Educational content",
-      },
-    }),
-  ]);
-
-  // --------------------
-  // Authors
-  // --------------------
-
-  const authors = await Promise.all([
-    prisma.author.create({
-      data: {
-        name: "Sarah Mehta",
-        bio: "Policy and Economics Researcher",
-      },
-    }),
-
-    prisma.author.create({
-      data: {
-        name: "Arjun Kapoor",
-        bio: "Capital Markets Analyst",
-      },
-    }),
-
-    prisma.author.create({
-      data: {
-        name: "Neha Bansal",
-        bio: "Infrastructure Journalist",
-      },
-    }),
-
-    prisma.author.create({
-      data: {
-        name: "Rohan Iyer",
-        bio: "Industry Strategist",
-      },
-    }),
-
-    prisma.author.create({
-      data: {
-        name: "Karan Gupta",
-        bio: "Technology Writer",
-      },
-    }),
-  ]);
-
-  // --------------------
-  // Users
-  // --------------------
-
-  const users = await Promise.all([
-    prisma.user.create({
-      data: {
-        email: "admin@signal.com",
-        password: "password123",
-        name: "Signal Admin",
-        role: "ADMIN",
-        emailVerified: true,
-      },
-    }),
-
-    prisma.user.create({
-      data: {
-        email: "editor@signal.com",
-        password: "password123",
-        name: "Signal Editor",
-        role: "EDITOR",
-        emailVerified: true,
-      },
-    }),
-
-    prisma.user.create({
-      data: {
-        email: "john@gmail.com",
-        password: "password123",
-        name: "John Doe",
-      },
-    }),
-
-    prisma.user.create({
-      data: {
-        email: "jane@gmail.com",
-        password: "password123",
-        name: "Jane Doe",
-      },
-    }),
-
-    prisma.user.create({
-      data: {
-        email: "alex@gmail.com",
-        password: "password123",
-        name: "Alex Brown",
-      },
-    }),
-  ]);
-
-  // --------------------
-  // Tags
-  // --------------------
-
-  const tags = await Promise.all([
-    prisma.tag.upsert({
-      where: { name: "AI" },
-      update: {},
-      create: { name: "AI", slug: "ai" },
-    }),
-
-    prisma.tag.upsert({
-      where: { name: "Economy" },
-      update: {},
-      create: { name: "Economy", slug: "economy" },
-    }),
-
-    prisma.tag.upsert({
-      where: { name: "Markets" },
-      update: {},
-      create: { name: "Markets", slug: "markets" },
-    }),
-
-    prisma.tag.upsert({
-      where: { name: "Infrastructure" },
-      update: {},
-      create: { name: "Infrastructure", slug: "infrastructure" },
-    }),
-
-    prisma.tag.upsert({
-      where: { name: "India" },
-      update: {},
-      create: { name: "India", slug: "india" },
-    }),
-  ]);
-
-  // --------------------
-  // Articles
-  // --------------------
-
-  const article1 = await prisma.article.create({
-    data: {
-      title: "India’s Manufacturing Push: Can PLI Deliver?",
-      slug: "india-manufacturing-pli",
+  const seeds: Seed[] = [
+    {
+      slug: 'rbi-silent-tightening',
+      title:
+        "The RBI's silent tightening — and why the next rate move is more complicated than it looks",
       summary:
-        "Evaluating India's Production Linked Incentive scheme.",
-      contentText:
-        "The PLI scheme aims to transform India's manufacturing sector.",
+        "The RBI hasn't cut rates, but real liquidity has tightened by 80 basis points since January.",
       signal:
-        "Manufacturing competitiveness is becoming central to India's growth.",
-      articleType: "ANALYSIS",
-      status: "PUBLISHED",
+        'Watch the 10-year G-Sec yield — a sustained breach above 7.10% telegraphs the next move.',
+      category: macro.id,
+      type: 'ANALYSIS',
+      status: 'PUBLISHED',
+      premium: true,
       featured: true,
-      verified: true,
-      views: 1500,
       readTime: 8,
-
-      authorId: authors[0].id,
-      categoryId: categories[1].id,
-      publishedAt: new Date(),
+      views: 14820,
+      saves: 412,
+      readThrough: 12,
+      publishedDaysAgo: 22,
     },
-  });
-
-  const article2 = await prisma.article.create({
-    data: {
-      title: "Why Bond Markets Matter More Than Ever",
-      slug: "bond-markets-explained",
-      summary: "Understanding the signal hidden inside bond yields.",
-      contentText:
-        "Bond markets frequently provide forward-looking economic signals.",
-      signal:
-        "Yield curves continue to influence monetary expectations.",
-      articleType: "LEARN",
-      status: "PUBLISHED",
-      verified: true,
-      views: 900,
+    {
+      slug: 'sbi-infrastructure-bond-blitz',
+      title:
+        "SBI's infrastructure bond blitz: what ₹40,000 crore in issuances signals about the credit cycle",
+      summary:
+        'A record bond programme tells us more about the credit cycle than the headline number suggests.',
+      signal: 'Track quarterly issuance pace against deposit growth.',
+      category: markets.id,
+      type: 'ARTICLE',
+      status: 'PUBLISHED',
+      premium: false,
       readTime: 6,
-
-      authorId: authors[1].id,
-      categoryId: categories[8].id,
-      publishedAt: new Date(),
+      views: 6440,
+      saves: 148,
+      readThrough: 12,
+      publishedDaysAgo: 23,
     },
-  });
-
-  const article3 = await prisma.article.create({
-    data: {
-      title: "India’s Data Center Boom",
-      slug: "data-center-boom",
+    {
+      slug: 'rupee-pressure-fii-outflows',
+      title: 'Rupee pressure mounts as FII outflows continue for a third week',
       summary:
-        "AI demand is driving massive infrastructure investment.",
-      contentText:
-        "Data centers have become strategic infrastructure assets.",
-      signal:
-        "AI infrastructure spending is accelerating rapidly.",
-      articleType: "ARTICLE",
-      status: "PUBLISHED",
-      featured: true,
-      verified: true,
-      views: 2400,
-      readTime: 10,
-
-      authorId: authors[2].id,
-      categoryId: categories[4].id,
-      publishedAt: new Date(),
+        'Sustained foreign outflows are testing the central bank’s tolerance band.',
+      signal: 'Watch RBI intervention in the NDF market.',
+      category: markets.id,
+      type: 'ARTICLE',
+      status: 'PUBLISHED',
+      premium: false,
+      readTime: 6,
+      views: 4980,
+      saves: 96,
+      readThrough: 12,
+      publishedDaysAgo: 23,
     },
-  });
-
-  const article4 = await prisma.article.create({
-    data: {
-      title: "RBI Holds Rates: What It Means",
-      slug: "rbi-rate-decision",
+    {
+      slug: 'cad-widens-17bn',
+      title:
+        "India's current account deficit widens to $17.2bn — what the numbers actually tell us",
       summary:
-        "Quick brief on the latest RBI monetary policy decision.",
-      contentText:
-        "The RBI maintained rates amid inflation uncertainty.",
-      signal:
-        "Rate stability indicates a cautious monetary stance.",
-      articleType: "BRIEF",
-      status: "PUBLISHED",
-      verified: true,
-      views: 700,
-      readTime: 3,
-
-      authorId: authors[3].id,
-      categoryId: categories[5].id,
-      publishedAt: new Date(),
+        'The deficit widened, but the composition matters more than the level.',
+      category: macro.id,
+      type: 'ARTICLE',
+      status: 'PUBLISHED',
+      premium: false,
+      readTime: 6,
+      views: 0,
+      saves: 0,
+      readThrough: 0,
+      scheduledInDays: 2,
     },
-  });
-
-  const article5 = await prisma.article.create({
-    data: {
-      title: "Understanding AI Agents",
-      slug: "understanding-ai-agents",
+    {
+      slug: 'dollar-slow-erosion',
+      title:
+        "The dollar's slow erosion — and what it means for India's forex reserves strategy",
       summary:
-        "A beginner-friendly guide to agentic systems.",
-      contentText:
-        "AI agents combine planning, memory and tool use.",
-      signal:
-        "Agentic systems are transforming software development.",
-      articleType: "LEARN",
-      status: "PUBLISHED",
-      featured: true,
-      verified: true,
-      views: 1800,
+        'Reserve diversification is quietly reshaping how the RBI manages its book.',
+      category: analysis.id,
+      type: 'ANALYSIS',
+      status: 'REVIEW',
+      premium: true,
       readTime: 12,
-
-      authorId: authors[4].id,
-      categoryId: categories[8].id,
-      publishedAt: new Date(),
+      views: 0,
+      saves: 0,
+      readThrough: 0,
     },
-  });
+    {
+      slug: 'rbi-gold-reserve-diversification',
+      title:
+        'Why the RBI keeps adding gold — and what it tells us about reserve diversification',
+      summary:
+        'Gold accumulation is a signal about confidence in the dollar system.',
+      category: macro.id,
+      type: 'ARTICLE',
+      status: 'DRAFT',
+      premium: false,
+      readTime: 7,
+      views: 0,
+      saves: 0,
+      readThrough: 0,
+    },
+  ]
 
-  // --------------------
-  // Content Blocks
-  // --------------------
+  for (const s of seeds) {
+    const existing = await prisma.article.findFirst({ where: { slug: s.slug } })
+    if (existing) {
+      await prisma.article.delete({ where: { id: existing.id } })
+    }
 
-  await prisma.contentBlock.createMany({
-    data: [
-      {
-        articleId: article1.id,
-        type: "HEADING",
-        content: {
-          text: "India Manufacturing Story",
+    const publishedAt =
+      s.status === 'PUBLISHED' && s.publishedDaysAgo != null
+        ? new Date(Date.now() - s.publishedDaysAgo * 86_400_000)
+        : s.scheduledInDays != null
+          ? new Date(Date.now() + s.scheduledInDays * 86_400_000)
+          : null
+
+    const article = await prisma.article.create({
+      data: {
+        title: s.title,
+        slug: s.slug,
+        summary: s.summary,
+        signal: s.signal ?? null,
+        articleType: s.type,
+        status: s.status,
+        premium: s.premium,
+        verified: s.status === 'PUBLISHED',
+        featured: s.featured ?? false,
+        publishedAt,
+        readTime: s.readTime,
+        views: s.views,
+        authorId: author.id,
+        categoryId: s.category,
+        updatedById: editor.id,
+        blocks: {
+          create: [
+            para(
+              'The Reserve Bank of India has not moved its policy rate since February — yet treasury desks describe the past four months as distinctly tighter.',
+              0,
+            ),
+            {
+              type: 'HEADING',
+              position: 1,
+              content: {
+                refType: 'heading',
+                surface: 'article',
+                text: 'What the data shows',
+              },
+            },
+            para(
+              'System liquidity has shifted from surplus to deficit since January, even without a formal rate move.',
+              2,
+            ),
+          ],
         },
-        position: 1,
       },
+    })
 
-      {
-        articleId: article1.id,
-        type: "TEXT",
-        content: {
-          text: "Manufacturing is becoming a strategic priority.",
-        },
-        position: 2,
+    // Analytics row — read-through encoded via bounceRate (100 - readThrough).
+    await prisma.articleAnalytics.create({
+      data: {
+        articleId: article.id,
+        totalViews: s.views,
+        uniqueViews: Math.round(s.views * 0.82),
+        bookmarks: s.saves,
+        impressions: Math.round(s.views * 3.4),
+        clicks: Math.round(s.views * 1.1),
+        shares: Math.round(s.saves * 0.3),
+        avgReadTime: (s.readThrough / 100) * s.readTime,
+        bounceRate: s.readThrough > 0 ? 100 - s.readThrough : 0,
       },
+    })
+  }
 
-      {
-        articleId: article2.id,
-        type: "TEXT",
-        content: {
-          text: "Bond yields reveal future expectations.",
-        },
-        position: 1,
-      },
-
-      {
-        articleId: article3.id,
-        type: "TEXT",
-        content: {
-          text: "AI is driving data center growth.",
-        },
-        position: 1,
-      },
-
-      {
-        articleId: article5.id,
-        type: "TEXT",
-        content: {
-          text: "Agents combine reasoning and actions.",
-        },
-        position: 1,
-      },
-    ],
-  });
-
-  // --------------------
-  // Analytics
-  // --------------------
-
-  await prisma.articleAnalytics.createMany({
-    data: [
-      {
-        articleId: article1.id,
-        totalViews: 1500,
-        uniqueViews: 1200,
-        bookmarks: 120,
-      },
-
-      {
-        articleId: article2.id,
-        totalViews: 900,
-        uniqueViews: 700,
-        bookmarks: 60,
-      },
-
-      {
-        articleId: article3.id,
-        totalViews: 2400,
-        uniqueViews: 2000,
-        bookmarks: 200,
-      },
-
-      {
-        articleId: article4.id,
-        totalViews: 700,
-        uniqueViews: 650,
-        bookmarks: 40,
-      },
-
-      {
-        articleId: article5.id,
-        totalViews: 1800,
-        uniqueViews: 1500,
-        bookmarks: 110,
-      },
-    ],
-  });
-
-  console.log("✅ Database seeded successfully");
+  console.log('Seed complete. Editor login: editor@signl.local / editor123')
 }
 
 main()
-  .catch(console.error)
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
-  
+  .catch((e) => {
+    console.error(e)
+    process.exit(1)
+  })
+  .finally(() => prisma.$disconnect())
