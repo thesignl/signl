@@ -14,7 +14,7 @@ export const adminRepository = {
 
       totalUsers,
 
-      totalAuthors,
+      totalEditors,
 
       totalBookmarks
 
@@ -40,7 +40,13 @@ export const adminRepository = {
 
       prisma.user.count(),
 
-      prisma.author.count(),
+      prisma.user.count({
+
+        where: {
+
+          role: 'EDITOR'
+        }
+      }),
 
       prisma.bookmark.count()
     ])
@@ -55,7 +61,7 @@ export const adminRepository = {
 
       totalUsers,
 
-      totalAuthors,
+      totalEditors,
 
       totalBookmarks
     }
@@ -119,73 +125,7 @@ export const adminRepository = {
         id
       }
     })
-  },
-
-  getAuthors: async () => {
-
-    return prisma.author.findMany({
-
-      include: {
-
-        _count: {
-
-          select: {
-
-            articles: true
-          }
-        }
-      },
-
-      orderBy: {
-
-        name: 'asc'
-      }
-    })
-  },
-
-  createAuthor: async (
-
-    data: any
-
-  ) => {
-
-    return prisma.author.create({
-
-      data
-    })
-  },
-
-  updateAuthor: async (
-
-    id: string,
-
-    data: any
-
-  ) => {
-
-    return prisma.author.update({
-
-      where: {
-
-        id
-      },
-
-      data
-    })
-  },
-
-  deleteAuthor: async (
-    id: string
-  ) => {
-
-    return prisma.author.delete({
-
-      where: {
-
-        id
-      }
-    })
-  },
+  }
 
   
 }

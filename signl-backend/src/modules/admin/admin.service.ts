@@ -42,44 +42,4 @@ export const adminService = {
       .deleteUser(id)
   },
 
-  getAuthors:
-  async () => {
-
-    return adminRepository
-      .getAuthors()
-  },
-
-  createAuthor:
-  async (
-  data: any
-  ) => {
-
-  return adminRepository
-    .createAuthor(data)
-  },
-
-  updateAuthor:
-  async (
-
-  id: string,
-
-  data: any
-
-  ) => {
-
-  return adminRepository
-    .updateAuthor(
-    id,
-    data
-    )
-  },
-
-  deleteAuthor:
-  async (
-  id: string
-  ) => {
-
-  return adminRepository
-    .deleteAuthor(id)
-  },
 }

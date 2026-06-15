@@ -70,31 +70,13 @@ model User {
 
   updatedAt DateTime @default(now()) @updatedAt
 
-  updatedArticles Article[] @relation("ArticleUpdatedBy")
-
   bookmarks Bookmark[]
 
   readingHistory ReadingHistory[]
-}
 
-model Author {
-  id String @id @default(cuid())
+  updatedArticles Article[] @relation("ArticleUpdatedBy")
 
-  name String
-
-  bio String?
-
-  avatar String?
-
-  twitter String?
-
-  linkedin String?
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @default(now()) @updatedAt
-
-  articles Article[]
+  authoredArticles Article[] @relation("ArticleAuthor")
 }
 
 model NewsletterSubscriber {
@@ -152,7 +134,7 @@ model Article {
 
   authorId String
 
-  author Author @relation(fields: [authorId], references: [id])
+  author User @relation("ArticleAuthor", fields: [authorId], references: [id])
 
   categoryId String
 

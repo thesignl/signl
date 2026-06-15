@@ -103,180 +103,165 @@ async function main() {
     }),
   ]);
 
-  // --------------------
-  // Authors
-  // --------------------
-
-  const authors = await Promise.all([
-    prisma.author.create({
-      data: {
-        name: "Sarah Mehta",
-        bio: "Policy and Economics Researcher",
-      },
-    }),
-
-    prisma.author.create({
-      data: {
-        name: "Arjun Kapoor",
-        bio: "Capital Markets Analyst",
-      },
-    }),
-
-    prisma.author.create({
-      data: {
-        name: "Neha Bansal",
-        bio: "Infrastructure Journalist",
-      },
-    }),
-
-    prisma.author.create({
-      data: {
-        name: "Rohan Iyer",
-        bio: "Industry Strategist",
-      },
-    }),
-
-    prisma.author.create({
-      data: {
-        name: "Karan Gupta",
-        bio: "Technology Writer",
-      },
-    }),
-  ]);
 
   // --------------------
   // Users
   // --------------------
 
   const users = await Promise.all([
-    prisma.user.create({
-      data: {
-        email: "admin@signal.com",
-        password: "password123",
-        name: "Signal Admin",
-        role: "ADMIN",
-        emailVerified: true,
+    prisma.user.upsert({
+      where: {
+        email: 'admin@signl.com'
       },
+      update: {},
+      create: {
+        email: 'admin@signl.com',
+        password: 'password123',
+        name: 'Signal Admin',
+        role: 'ADMIN',
+        emailVerified: true
+      }
     }),
 
-    prisma.user.create({
-      data: {
-        email: "editor@signal.com",
-        password: "password123",
-        name: "Signal Editor",
-        role: "EDITOR",
-        emailVerified: true,
+    prisma.user.upsert({
+      where: {
+        email: 'editor1@signl.com'
       },
+      update: {},
+      create: {
+        email: 'editor1@signl.com',
+        password: 'password123',
+        name: 'Sarah Mehta',
+        role: 'EDITOR',
+        emailVerified: true
+      }
     }),
 
-    prisma.user.create({
-      data: {
-        email: "john@gmail.com",
-        password: "password123",
-        name: "John Doe",
+    prisma.user.upsert({
+      where: {
+        email: 'editor2@signl.com'
       },
+      update: {},
+      create: {
+        email: 'editor2@signl.com',
+        password: 'password123',
+        name: 'Arjun Kapoor',
+        role: 'EDITOR',
+        emailVerified: true
+      }
     }),
 
-    prisma.user.create({
-      data: {
-        email: "jane@gmail.com",
-        password: "password123",
-        name: "Jane Doe",
+    prisma.user.upsert({
+      where: {
+        email: 'editor3@signl.com'
       },
+      update: {},
+      create: {
+        email: 'editor3@signl.com',
+        password: 'password123',
+        name: 'Neha Bansal',
+        role: 'EDITOR',
+        emailVerified: true
+      }
     }),
 
-    prisma.user.create({
-      data: {
-        email: "alex@gmail.com",
-        password: "password123",
-        name: "Alex Brown",
+    prisma.user.upsert({
+      where: {
+        email: 'user@signl.com'
       },
-    }),
-  ]);
-
-  // --------------------
-  // Tags
-  // --------------------
-
-  const tags = await Promise.all([
-    prisma.tag.upsert({
-      where: { name: "AI" },
       update: {},
-      create: { name: "AI", slug: "ai" },
-    }),
+      create: {
+        email: 'user@signl.com',
+        password: 'password123',
+        name: 'John Doe',
+        role: 'USER'
+      }
+    })
+  ])
 
-    prisma.tag.upsert({
-      where: { name: "Economy" },
-      update: {},
-      create: { name: "Economy", slug: "economy" },
-    }),
+    // --------------------
+    // Tags
+    // --------------------
 
-    prisma.tag.upsert({
-      where: { name: "Markets" },
-      update: {},
-      create: { name: "Markets", slug: "markets" },
-    }),
+    const tags = await Promise.all([
+      prisma.tag.upsert({
+        where: { name: "AI" },
+        update: {},
+        create: { name: "AI", slug: "ai" },
+      }),
 
-    prisma.tag.upsert({
-      where: { name: "Infrastructure" },
-      update: {},
-      create: { name: "Infrastructure", slug: "infrastructure" },
-    }),
+      prisma.tag.upsert({
+        where: { name: "Economy" },
+        update: {},
+        create: { name: "Economy", slug: "economy" },
+      }),
 
-    prisma.tag.upsert({
-      where: { name: "India" },
-      update: {},
-      create: { name: "India", slug: "india" },
-    }),
-  ]);
+      prisma.tag.upsert({
+        where: { name: "Markets" },
+        update: {},
+        create: { name: "Markets", slug: "markets" },
+      }),
 
-  // --------------------
-  // Articles
-  // --------------------
+      prisma.tag.upsert({
+        where: { name: "Infrastructure" },
+        update: {},
+        create: { name: "Infrastructure", slug: "infrastructure" },
+      }),
 
-  const article1 = await prisma.article.create({
-    data: {
-      title: "India’s Manufacturing Push: Can PLI Deliver?",
-      slug: "india-manufacturing-pli",
-      summary:
-        "Evaluating India's Production Linked Incentive scheme.",
-      contentText:
-        "The PLI scheme aims to transform India's manufacturing sector.",
-      signal:
-        "Manufacturing competitiveness is becoming central to India's growth.",
-      articleType: "ANALYSIS",
-      status: "PUBLISHED",
-      featured: true,
-      verified: true,
-      views: 1500,
-      readTime: 8,
+      prisma.tag.upsert({
+        where: { name: "India" },
+        update: {},
+        create: { name: "India", slug: "india" },
+      }),
+    ]);
 
-      authorId: authors[0].id,
-      categoryId: categories[1].id,
-      publishedAt: new Date(),
-    },
-  });
+    // --------------------
+    // Articles
+    // --------------------
 
-  const article2 = await prisma.article.create({
-    data: {
-      title: "Why Bond Markets Matter More Than Ever",
-      slug: "bond-markets-explained",
-      summary: "Understanding the signal hidden inside bond yields.",
-      contentText:
-        "Bond markets frequently provide forward-looking economic signals.",
-      signal:
-        "Yield curves continue to influence monetary expectations.",
-      articleType: "LEARN",
-      status: "PUBLISHED",
-      verified: true,
-      views: 900,
-      readTime: 6,
+    const article1 = await prisma.article.create({
+      data: {
+        title: "India’s Manufacturing Push: Can PLI Deliver?",
+        slug: "india-manufacturing-pli",
+        summary:
+          "Evaluating India's Production Linked Incentive scheme.",
+        contentText:
+          "The PLI scheme aims to transform India's manufacturing sector.",
+        signal:
+          "Manufacturing competitiveness is becoming central to India's growth.",
+        articleType: "ANALYSIS",
+        status: "PUBLISHED",
+        featured: true,
+        verified: true,
+        views: 1500,
+        readTime: 8,
 
-      authorId: authors[1].id,
-      categoryId: categories[8].id,
-      publishedAt: new Date(),
-    },
-  });
+        authorId: users[0].id,
+        categoryId: categories[1].id,
+        publishedAt: new Date(),
+      },
+    });
+
+    const article2 = await prisma.article.create({
+      data: {
+        title: "Why Bond Markets Matter More Than Ever",
+        slug: "bond-markets-explained",
+        summary: "Understanding the signal hidden inside bond yields.",
+        contentText:
+          "Bond markets frequently provide forward-looking economic signals.",
+        signal:
+          "Yield curves continue to influence monetary expectations.",
+        articleType: "LEARN",
+        status: "PUBLISHED",
+        verified: true,
+        views: 900,
+        readTime: 6,
+
+        authorId: users[1].id,
+        categoryId: categories[8].id,
+        publishedAt: new Date(),
+      },
+    });
 
   const article3 = await prisma.article.create({
     data: {
@@ -295,7 +280,7 @@ async function main() {
       views: 2400,
       readTime: 10,
 
-      authorId: authors[2].id,
+      authorId: users[2].id,
       categoryId: categories[4].id,
       publishedAt: new Date(),
     },
@@ -317,7 +302,7 @@ async function main() {
       views: 700,
       readTime: 3,
 
-      authorId: authors[3].id,
+      authorId: users[3].id,
       categoryId: categories[5].id,
       publishedAt: new Date(),
     },
@@ -340,11 +325,29 @@ async function main() {
       views: 1800,
       readTime: 12,
 
-      authorId: authors[4].id,
+      authorId: users[4].id,
       categoryId: categories[8].id,
       publishedAt: new Date(),
     },
   });
+
+
+  await prisma.articleDepth.createMany({
+    data: [
+      {
+        articleId: article1.id,
+        depthType: 'BEGINNER',
+        description:
+          'Simple overview of the PLI scheme'
+      },
+      {
+        articleId: article1.id,
+        depthType: 'ADVANCED',
+        description:
+          'Detailed manufacturing competitiveness analysis'
+      }
+    ]
+  })
 
   // --------------------
   // Content Blocks
@@ -441,6 +444,55 @@ async function main() {
       },
     ],
   });
+
+  await prisma.analysisStep.createMany({
+    data: [
+      {
+        articleId: article1.id,
+        title: 'Policy Goal',
+        description:
+          'Increase domestic manufacturing',
+        stepNumber: 1
+      },
+      {
+        articleId: article1.id,
+        title: 'Economic Impact',
+        description:
+          'Boost exports and jobs',
+        stepNumber: 2
+      }
+    ]
+  });
+
+  await prisma.homepagePlacement.createMany({
+    data: [
+      {
+        articleId: article1.id,
+        section: 'HERO',
+        priority: 1
+      },
+      {
+        articleId: article3.id,
+        section: 'FEATURED_ANALYSIS',
+        priority: 1
+      }
+    ]
+  });
+
+  await prisma.homepagePlacement.createMany({
+  data: [
+    {
+      articleId: article1.id,
+      section: 'HERO',
+      priority: 1
+    },
+    {
+      articleId: article3.id,
+      section: 'FEATURED_ANALYSIS',
+      priority: 1
+    }
+  ]
+})
 
   console.log("✅ Database seeded successfully");
 }

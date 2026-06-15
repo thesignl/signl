@@ -29,8 +29,6 @@ export const articleRepository = {
 
     include: {
 
-      author: true,
-
       category: true,
 
       tags: {
@@ -113,8 +111,6 @@ search: async (
 
       include: {
 
-        author: true,
-
         category: true,
 
         tags: {
@@ -149,8 +145,6 @@ search: async (
       },
 
       include: {
-
-        author: true,
 
         category: true,
 
@@ -225,8 +219,6 @@ search: async (
 
       include: {
 
-      author: true,
-
       category: true,
 
       tags: {
@@ -256,7 +248,7 @@ search: async (
 
     include: {
 
-      author: true,
+       
 
       category: true,
 
@@ -287,7 +279,7 @@ getAnalysis: async () => {
 
     include: {
 
-      author: true,
+       
 
       category: true
     },
@@ -312,7 +304,7 @@ getFeatured: async () => {
 
     include: {
 
-      author: true,
+       
 
       category: true
     },
@@ -334,7 +326,7 @@ getLearnArticles: async () => {
 
     include: {
 
-      author: true,
+       
 
       category: true
     },

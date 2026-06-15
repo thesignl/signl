@@ -68,9 +68,6 @@ export const bookmarkRepository = {
         article: {
 
           include: {
-
-            author: true,
-
             category: true
           }
         }

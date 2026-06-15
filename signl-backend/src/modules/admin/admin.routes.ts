@@ -47,24 +47,4 @@ router.delete(
  adminController.deleteUser
 )
 
-router.get(
- '/authors',
- adminController.authors
-)
-
-router.post(
- '/authors',
- adminController.createAuthor
-)
-
-router.patch(
- '/authors/:id',
- adminController.updateAuthor
-)
-
-router.delete(
- '/authors/:id',
- adminController.deleteAuthor
-)
-
 export default router
