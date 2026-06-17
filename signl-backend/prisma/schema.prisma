@@ -62,6 +62,16 @@ model User {
 
   avatar String?
 
+  slug String? @unique
+
+  title String?
+
+  bio String?
+
+  twitter String?
+
+  linkedin String?
+
   emailVerified Boolean @default(false)
 
   googleId String? @unique
@@ -181,7 +191,15 @@ model Category {
 
   slug String? @unique
 
+  short String? @unique
+
+  color String?
+
   description String?
+
+  displayOrder Int @default(0)
+
+  active Boolean @default(true)
 
   createdAt DateTime @default(now())
 

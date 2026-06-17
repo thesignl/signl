@@ -2,7 +2,7 @@
 
 import {
 
- deleteAuthor
+ deleteUser
 
 }
 from '@/services/admin.service'
@@ -19,7 +19,7 @@ AuthorTable({
   id: string
  ) => {
 
-  await deleteAuthor(id)
+  await deleteUser(id)
 
   location.reload()
  }

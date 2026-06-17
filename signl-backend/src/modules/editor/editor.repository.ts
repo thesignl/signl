@@ -4,9 +4,9 @@ import prisma from '../../infrastructure/prisma/client.js'
 /**
  * Editor repository — all persistence for the editorial workspace.
  *
- * Ownership note: `Article.authorId` is a FK to the `Author` byline entity, NOT
- * to the logged-in `User`. We therefore track "who is editing" via
- * `Article.updatedById` (FK → User) and resolve a real `Author` for the byline.
+ * Ownership note: `Article.authorId` is a FK to `User` via the "ArticleAuthor"
+ * relation. We track "who is editing" via `Article.updatedById` (FK → User).
+ * The Author model was removed in migration 20260615125528_merge_editor_author.
  */
 
 const editorInclude = {
@@ -20,29 +20,22 @@ const editorInclude = {
 } satisfies Prisma.ArticleInclude
 
 export const editorRepository = {
-  /**
-   * Ensure there is at least one Author row and return its id. New Signl
-   * installs may have no authors yet; rather than fail draft creation we
-   * lazily provision a byline from the editing user's name.
-   */
   resolveAuthorId: async (
     preferredAuthorId: string | undefined,
-    fallbackName: string,
+    _fallbackName: string,
   ): Promise<string> => {
     if (preferredAuthorId) {
-      const found = await prisma.author.findUnique({
-        where: { id: preferredAuthorId },
-      })
+      const found = await prisma.user.findUnique({ where: { id: preferredAuthorId } })
       if (found) return found.id
     }
-    const existing = await prisma.author.findFirst({
+    const editor = await prisma.user.findFirst({
+      where: { role: 'EDITOR' },
       orderBy: { createdAt: 'asc' },
     })
-    if (existing) return existing.id
-    const created = await prisma.author.create({
-      data: { name: fallbackName || 'Signl Desk' },
-    })
-    return created.id
+    if (editor) return editor.id
+    const anyUser = await prisma.user.findFirst({ orderBy: { createdAt: 'asc' } })
+    if (anyUser) return anyUser.id
+    throw new Error('No users found to assign as article author')
   },
 
   /** Ensure there is at least one Category and return its id. */
@@ -179,5 +172,9 @@ export const editorRepository = {
   },
 
   listCategories: async () => prisma.category.findMany({ orderBy: { name: 'asc' } }),
-  listAuthors: async () => prisma.author.findMany({ orderBy: { name: 'asc' } }),
+  listAuthors: async () => prisma.user.findMany({
+    where: { role: 'EDITOR' },
+    orderBy: { name: 'asc' },
+    select: { id: true, name: true },
+  }),
 }

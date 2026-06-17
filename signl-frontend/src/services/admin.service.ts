@@ -1,14 +1,8 @@
-import api
-from '@/lib/axios'
+import api from '@/lib/axios'
+import type { DashboardStats } from '@/types/admin'
 
-export const getDashboardStats =
-async () => {
-
-  const response =
-    await api.get(
-      '/admin/dashboard'
-    )
-
+export async function getDashboardStats(): Promise<DashboardStats> {
+  const response = await api.get('/admin/dashboard')
   return response.data.data
 }
 

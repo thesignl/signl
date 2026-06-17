@@ -71,7 +71,7 @@ export default function Navbar() {
       
 
       {
-        user?.role === 'EDITOR' && (
+        (user?.role === 'EDITOR' || user?.role === 'ADMIN') &&(
 
           <Link
             href="/editor"

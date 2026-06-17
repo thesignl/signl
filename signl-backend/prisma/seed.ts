@@ -428,6 +428,23 @@ async function main() {
     ],
   });
 
+  await prisma.articleDepth.createMany({
+  data: [
+    {
+      articleId: article1.id,
+      depthType: 'BEGINNER',
+      description:
+        'Simple overview of the PLI scheme'
+    },
+    {
+      articleId: article1.id,
+      depthType: 'ADVANCED',
+      description:
+        'Detailed manufacturing competitiveness analysis'
+    }
+  ]
+})
+
   console.log("✅ Database seeded successfully");
 }
 

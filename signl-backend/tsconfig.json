@@ -9,5 +9,6 @@
     "esModuleInterop": true,
 
     "skipLibCheck": true
-  }
+  },
+  "exclude": ["**/__tests__/**", "**/*.test.ts", "**/*.spec.ts"]
 }

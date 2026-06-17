@@ -10,13 +10,7 @@ import {
 import AuthProvider from '@/components/common/AuthProvider'
 import BookmarkProvider from '@/components/common/BookmarkProvider'
 import ToastProvider from '@/components/common/ToastProvider'
-
-import Navbar from '@/components/layout/Navbar'
-import Footer from '@/components/layout/Footer'
-import Ticker from '@/components/layout/Ticker'
-
-import SearchOverlay from '@/features/search/SearchOverlay'
-import SavedPanel from '@/features/bookmarks/SavedPanel'
+import PublicShell from '@/components/layout/PublicShell'
 
 const serif = Source_Serif_4({
   subsets: ['latin'],
@@ -122,19 +116,9 @@ export default function RootLayout({
         <AuthProvider>
           <BookmarkProvider>
             <ToastProvider>
-              <div className="app-shell">
-                <Ticker />
-                <Navbar />
-
-                <main id="main" className="app-shell-main">
-                  {children}
-                </main>
-
-                <Footer />
-              </div>
-
-              <SearchOverlay />
-              <SavedPanel />
+              <PublicShell>
+                {children}
+              </PublicShell>
             </ToastProvider>
           </BookmarkProvider>
         </AuthProvider>
