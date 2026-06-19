@@ -17,10 +17,8 @@ export default function ShareActions({ title, slug }: ShareActionsProps) {
   const { toast } = useToast()
   const [busy, setBusy] = useState(false)
 
-  const url =
-    typeof window !== 'undefined'
-      ? `${window.location.origin}/article/${slug}`
-      : `/article/${slug}`
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://signl.media'
+  const url = `${siteUrl}/article/${slug}`
 
   const onCopy = async () => {
     try {

@@ -365,4 +365,34 @@ deleteUser: async (
       return errorHandler(error, req, res, next)
     }
   },
+
+  // ── Placements ──────────────────────────────────────────────────
+
+  listPlacements: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const data = await adminService.listPlacements()
+      return res.status(200).json({ success: true, data })
+    } catch (error) { return errorHandler(error, req, res, next) }
+  },
+
+  createPlacement: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const data = await adminService.createPlacement(req.body)
+      return res.status(201).json({ success: true, data })
+    } catch (error) { return errorHandler(error, req, res, next) }
+  },
+
+  updatePlacement: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const data = await adminService.updatePlacement(req.params.id as string, req.body)
+      return res.status(200).json({ success: true, data })
+    } catch (error) { return errorHandler(error, req, res, next) }
+  },
+
+  deletePlacement: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await adminService.deletePlacement(req.params.id as string)
+      return res.status(200).json({ success: true, message: 'Placement deleted' })
+    } catch (error) { return errorHandler(error, req, res, next) }
+  },
 }

@@ -139,4 +139,26 @@ router.delete(
   adminController.deleteTag
 )
 
+// ── Placements ────────────────────────────────────────────────
+
+router.get(
+  '/placements',
+  adminController.listPlacements
+)
+
+router.post(
+  '/placements',
+  adminController.createPlacement
+)
+
+router.patch(
+  '/placements/:id',
+  adminController.updatePlacement
+)
+
+router.delete(
+  '/placements/:id',
+  adminController.deletePlacement
+)
+
 export default router

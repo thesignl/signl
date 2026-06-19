@@ -436,4 +436,28 @@ export const adminRepository = {
     await prisma.articleTag.deleteMany({ where: { tagId: id } })
     return prisma.tag.delete({ where: { id } })
   },
+
+  // ── Placements ──────────────────────────────────────────────────
+
+  listPlacements: async () => {
+    return prisma.homepagePlacement.findMany({
+      orderBy: [{ section: 'asc' }, { priority: 'desc' }],
+      include: { article: { select: { id: true, title: true, slug: true, status: true, articleType: true } } },
+    })
+  },
+
+  createPlacement: async (data: { articleId: string; section: string; priority?: number }) => {
+    return prisma.homepagePlacement.create({
+      data: { articleId: data.articleId, section: data.section, priority: data.priority ?? 0 },
+      include: { article: { select: { id: true, title: true, slug: true } } },
+    })
+  },
+
+  updatePlacement: async (id: string, data: { section?: string; priority?: number; active?: boolean }) => {
+    return prisma.homepagePlacement.update({ where: { id }, data })
+  },
+
+  deletePlacement: async (id: string) => {
+    return prisma.homepagePlacement.delete({ where: { id } })
+  },
 }

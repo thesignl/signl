@@ -155,4 +155,11 @@ export const adminService = {
     return adminRepository.deleteTag(id)
   },
 
+  // ── Placements ──────────────────────────────────────────────────
+
+  listPlacements: async () => adminRepository.listPlacements(),
+  createPlacement: async (data: { articleId: string; section: string; priority?: number }) => adminRepository.createPlacement(data),
+  updatePlacement: async (id: string, data: { section?: string; priority?: number; active?: boolean }) => adminRepository.updatePlacement(id, data),
+  deletePlacement: async (id: string) => adminRepository.deletePlacement(id),
+
 }
