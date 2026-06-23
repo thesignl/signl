@@ -4,6 +4,8 @@ from './article.repository.js'
 import { CreateArticleDTO }
 from './article.types.js'
 
+import { subscriptionService } from '../subscription/subscription.service.js'
+
 export const articleService = {
 
   createArticle: async (
@@ -42,7 +44,8 @@ export const articleService = {
   },
 
   getArticleBySlug: async (
-    slug: string
+    slug: string,
+    actor: { id: string; role: string } | null
   ) => {
 
     const article =
@@ -61,7 +64,23 @@ export const articleService = {
       slug
     )
 
-    return article
+    if (article.premium) {
+      const subscribed = actor
+        ? await subscriptionService.isSubscribed(actor.id)
+        : false
+
+      if (!subscribed) {
+        return {
+          ...article,
+          contentText: article.contentText?.slice(0, 350) ?? '',
+          signal: null,
+          blocks: [],
+          paywalled: true,
+        }
+      }
+    }
+
+    return { ...article, paywalled: false }
   },
 
   getAnalysisFeed: async () => {

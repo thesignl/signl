@@ -67,4 +67,7 @@ export interface Article {
 
   /** Optional — present only when the API includes it. */
   blocks?: ContentBlock[]
+
+  /** True when the article is premium and the current reader is not subscribed. */
+  paywalled?: boolean
 }

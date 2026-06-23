@@ -110,7 +110,7 @@ export const articleController = {
   },
 
   getBySlug: async (
-    req: Request,
+    req: AuthRequest,
     res: Response
   ) => {
 
@@ -118,7 +118,8 @@ export const articleController = {
 
       const article =
         await articleService.getArticleBySlug(
-          req.params.slug as string
+          req.params.slug as string,
+          req.user ?? null
         )
 
       return res.json({

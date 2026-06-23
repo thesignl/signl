@@ -4,7 +4,7 @@ import {
   articleController
 }
 from './article.controller.js'
-import { authenticate, authorize } from '../auth/auth.middleware.js'
+import { authenticate, authorize, optionalAuthenticate } from '../auth/auth.middleware.js'
 
 const router = Router()
 
@@ -45,6 +45,7 @@ router.get(
 
 router.get(
   '/:slug',
+  optionalAuthenticate,
   articleController.getBySlug
 )
 

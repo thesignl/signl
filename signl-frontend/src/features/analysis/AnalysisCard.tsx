@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Badge from '@/components/ui/Badge'
 import type { Article } from '@/types/article'
 
 export default function AnalysisCard({ article }: { article: Article }) {
@@ -8,6 +9,7 @@ export default function AnalysisCard({ article }: { article: Article }) {
         <div className="dac-label">
           <span>{article.category?.name}</span>
           <span className="type">{article.articleType}</span>
+          {article.premium ? <Badge variant="pro">Pro</Badge> : null}
         </div>
         <h2 className="dac-headline">{article.title}</h2>
         <p className="dac-deck">{article.summary}</p>

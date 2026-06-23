@@ -11,6 +11,7 @@ import StoryContent from '@/features/article/StoryContent'
 import ReadingProgress from '@/features/article/ReadingProgress'
 import ShareActions from '@/features/article/ShareActions'
 import RelatedStories from '@/features/article/RelatedStories'
+import PremiumBanner from '@/features/article/PremiumBanner'
 
 import { getArticle } from '@/services/article.service'
 import type { Article } from '@/types/article'
@@ -137,16 +138,34 @@ export default async function ArticlePage({ params }: PageProps) {
           </div>
         ) : null}
 
-        <StoryContent
-          contentText={article.contentText ?? null}
-          blocks={article.blocks}
-        />
+        {article.premium ? <PremiumBanner /> : null}
 
-        {article.signal ? <StorySignal signal={article.signal} /> : null}
+        {article.paywalled ? (
+          <div className="pw-gate">
+            <StoryContent
+              contentText={article.contentText ?? null}
+              blocks={article.blocks}
+            />
+            <div className="pw-fade" aria-hidden />
+          </div>
+        ) : (
+          <StoryContent
+            contentText={article.contentText ?? null}
+            blocks={article.blocks}
+          />
+        )}
 
-        <ShareActions title={article.title} slug={article.slug} />
+        {!article.paywalled && article.signal ? (
+          <StorySignal signal={article.signal} />
+        ) : null}
 
-        {article.premium ? <StoryPaywall /> : null}
+        {!article.paywalled ? (
+          <ShareActions title={article.title} slug={article.slug} />
+        ) : null}
+
+        {article.premium ? (
+          <StoryPaywall paywalled={article.paywalled ?? false} />
+        ) : null}
 
         <RelatedStories
           currentSlug={article.slug}

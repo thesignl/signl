@@ -16,3 +16,5 @@ build
 .claude
 designs
 .designs
+.env.local
+.env.production

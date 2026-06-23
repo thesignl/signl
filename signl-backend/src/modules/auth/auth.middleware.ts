@@ -92,3 +92,27 @@ export const authenticate =
     })
   }
 }
+
+export const optionalAuthenticate = (
+  req: AuthRequest,
+  _res: Response,
+  next: NextFunction
+) => {
+  req.user = null
+  const authHeader = req.headers.authorization
+  if (!authHeader) return next()
+
+  const token = authHeader.split(' ')[1]
+  if (!token) return next()
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET!)
+    if (typeof decoded !== 'string') {
+      req.user = decoded as Express.UserPayload
+    }
+  } catch {
+    // invalid token — treat as anonymous
+  }
+
+  next()
+}

@@ -1485,6 +1485,68 @@ a {
   margin-top: 12px;
   letter-spacing: 0.04em;
 }
+.pw-lock {
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+/* ─── PREMIUM GATE (content fade + locked overlay) ─── */
+.pw-gate {
+  position: relative;
+  overflow: hidden;
+}
+.pw-fade {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 140px;
+  background: linear-gradient(to bottom, transparent, var(--paper));
+  pointer-events: none;
+}
+
+/* ─── PREMIUM BANNER (top-of-article notice) ─── */
+.premium-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin: 0 0 28px;
+}
+.pb-icon {
+  font-size: 13px;
+  flex-shrink: 0;
+  color: var(--accent);
+}
+.pb-text {
+  font-size: 13px;
+  color: var(--ink-3);
+  line-height: 1.5;
+}
+.pb-text strong {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* ─── PRO SUBSCRIBER CONFIRMATION ─── */
+.pw-subscribed {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 20px;
+  background: var(--accent-soft);
+  border-radius: 8px;
+  margin: 40px 0 0;
+  font-size: 13px;
+  color: var(--ink-3);
+  font-family: var(--mono);
+  letter-spacing: 0.03em;
+}
 
 /* ─── AUTH PAGES ─── */
 .auth-page {
