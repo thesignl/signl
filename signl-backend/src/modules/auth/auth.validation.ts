@@ -7,11 +7,6 @@ export const signupSchema = z.object({
   email: z.string().email(),
 
   password: z.string().min(6),
-
-  role: z.enum([
-    'USER',
-    'EDITOR'
-  ]).default('USER')
 })
 
 export const loginSchema = z.object({

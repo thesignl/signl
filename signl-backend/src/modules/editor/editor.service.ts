@@ -238,14 +238,9 @@ export const editorService = {
   getAuthors: async () => editorRepository.listAuthors(),
 }
 
-/**
- * An article belongs to the editor who created/last-touched it. ADMINs may edit
- * anything. If no editor has been recorded yet (legacy rows), allow access.
- */
-function assertOwnership(article: { updatedById: string | null }, actor: Actor) {
+function assertOwnership(article: { authorId: string }, actor: Actor) {
   if (actor.role === 'ADMIN') return
-  if (!article.updatedById) return
-  if (article.updatedById !== actor.id) {
+  if (article.authorId !== actor.id) {
     throw new Error('Unauthorized')
   }
 }

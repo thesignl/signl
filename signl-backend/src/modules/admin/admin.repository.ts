@@ -529,15 +529,20 @@ export const adminRepository = {
 
   getAnalyticsViews: async (days: number) => {
     const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
-    const records = await prisma.readingHistory.findMany({
-      where: { lastReadAt: { gte: since } },
-      select: { lastReadAt: true },
-    })
+
+    const rows = await prisma.$queryRaw<{ date: string; count: number }[]>`
+      SELECT
+        TO_CHAR(DATE_TRUNC('day', "lastReadAt" AT TIME ZONE 'UTC'), 'YYYY-MM-DD') AS date,
+        COUNT(*)::int AS count
+      FROM "ReadingHistory"
+      WHERE "lastReadAt" >= ${since}
+      GROUP BY DATE_TRUNC('day', "lastReadAt" AT TIME ZONE 'UTC')
+      ORDER BY date ASC
+    `
 
     const grouped: Record<string, number> = {}
-    for (const r of records) {
-      const date = r.lastReadAt.toISOString().split('T')[0]
-      grouped[date] = (grouped[date] ?? 0) + 1
+    for (const row of rows) {
+      grouped[row.date] = row.count
     }
 
     const result: { date: string; count: number }[] = []

@@ -4,16 +4,16 @@ import { articleService }
 from './article.service.js'
 
 import {
-  createArticleSchema
+  createArticleSchema,
+  updateArticleSchema,
 }
 from './article.validation.js'
-import { any } from 'zod'
 import { AuthRequest } from '../auth/auth.middleware.js'
 
 export const articleController = {
 
   create: async (
-    req: Request,
+    req: AuthRequest,
     res: Response
   ) => {
 
@@ -26,7 +26,8 @@ export const articleController = {
 
       const article =
         await articleService.createArticle(
-          validated
+          validated,
+          req.user
         )
 
       return res.status(201).json({
@@ -174,12 +175,14 @@ export const articleController = {
 
     try {
 
+      const validated = updateArticleSchema.parse(req.body)
+
       const article =
         await articleService.updateArticle(
 
           req.params.id as string,
 
-          req.body,
+          validated,
 
           req.user
         )
@@ -245,7 +248,9 @@ export const articleController = {
       const article =
         await articleService.unpublishArticle(
 
-          req.params.id as string
+          req.params.id as string,
+
+          req.user
         )
 
       return res.json({

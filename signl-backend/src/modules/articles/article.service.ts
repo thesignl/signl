@@ -7,7 +7,8 @@ from './article.types.js'
 export const articleService = {
 
   createArticle: async (
-    data: CreateArticleDTO
+    data: any,
+    user: any
   ) => {
 
     const existing =
@@ -22,7 +23,17 @@ export const articleService = {
       )
     }
 
-    return articleRepository.create(data)
+    // EDITOR is always the author of their own article.
+    // ADMIN may supply an explicit authorId; falls back to their own id.
+    const authorId = user.role === 'EDITOR'
+      ? user.id
+      : (data.authorId ?? user.id)
+
+    return articleRepository.create({
+      ...data,
+      authorId,
+      status: 'DRAFT',
+    })
   },
 
   getHomepageFeed: async () => {
@@ -83,6 +94,12 @@ export const articleService = {
 
   ) => {
 
+    const article = await articleRepository.findById(articleId)
+    if (!article) throw new Error('Article not found')
+    if (user.role !== 'ADMIN' && article.authorId !== user.id) {
+      throw new Error('Unauthorized: you can only edit your own articles')
+    }
+
     const verified = user.role === 'ADMIN'
 
     return articleRepository.update(
@@ -108,6 +125,12 @@ export const articleService = {
 
   ) => {
 
+    const article = await articleRepository.findById(articleId)
+    if (!article) throw new Error('Article not found')
+    if (user.role !== 'ADMIN' && article.authorId !== user.id) {
+      throw new Error('Unauthorized: you can only publish your own articles')
+    }
+
     const verified = (user.role === 'ADMIN');
 
     return articleRepository.update(
@@ -128,8 +151,15 @@ export const articleService = {
   },
 
   unpublishArticle: async (
-    articleId: string
+    articleId: string,
+    user: any
   ) => {
+
+    const article = await articleRepository.findById(articleId)
+    if (!article) throw new Error('Article not found')
+    if (user.role !== 'ADMIN' && article.authorId !== user.id) {
+      throw new Error('Unauthorized: you can only unpublish your own articles')
+    }
 
     return articleRepository.update(
 

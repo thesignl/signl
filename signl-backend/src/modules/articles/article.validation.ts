@@ -12,7 +12,7 @@ export const createArticleSchema = z.object({
     z.string(),
 
   content:
-    z.any(),
+    z.any().optional(),
 
   contentText:
     z.string().optional(),
@@ -34,15 +34,6 @@ export const createArticleSchema = z.object({
       'LEARN'
     ]),
 
-  status:
-    z.enum([
-      'DRAFT',
-      'REVIEW',
-      'PUBLISHED',
-      'ARCHIVED'
-    ])
-    .default('DRAFT'),
-
   readTime:
     z.number(),
 
@@ -58,14 +49,35 @@ export const createArticleSchema = z.object({
   canonicalUrl:
     z.string().optional(),
 
+  // ADMIN may attribute an article to a specific editor; EDITOR value is ignored (forced to req.user.id)
   authorId:
-    z.string(),
+    z.string().optional(),
 
   categoryId:
     z.string()
 })
 
+// Explicit allowlist — fields not listed here cannot be set via PATCH /articles/:id
+export const updateArticleSchema = z.object({
+  title:        z.string().min(5).optional(),
+  slug:         z.string().optional(),
+  summary:      z.string().optional(),
+  contentText:  z.string().optional(),
+  signal:       z.string().optional(),
+  coverImage:   z.string().optional(),
+  premium:      z.boolean().optional(),
+  featured:     z.boolean().optional(),
+  articleType:  z.enum(['ARTICLE', 'ANALYSIS', 'BRIEF', 'LEARN']).optional(),
+  readTime:     z.number().positive().optional(),
+  seoTitle:     z.string().optional(),
+  seoDescription: z.string().optional(),
+  seoKeywords:  z.string().optional(),
+  canonicalUrl: z.string().optional(),
+  categoryId:   z.string().optional(),
+})
+
 export type CreateArticleInput =
-  z.infer<
-    typeof createArticleSchema
-  >
+  z.infer<typeof createArticleSchema>
+
+export type UpdateArticleInput =
+  z.infer<typeof updateArticleSchema>

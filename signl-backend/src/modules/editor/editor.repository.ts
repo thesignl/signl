@@ -162,10 +162,10 @@ export const editorRepository = {
     return ids
   },
 
-  /** All articles owned by this editor, newest first, across every status. */
+  /** All articles authored by this editor, newest first, across every status. */
   listByEditor: async (userId: string) => {
     return prisma.article.findMany({
-      where: { updatedById: userId, deletedAt: null },
+      where: { authorId: userId, deletedAt: null },
       orderBy: { updatedAt: 'desc' },
       include: editorInclude,
     })

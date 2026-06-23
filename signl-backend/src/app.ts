@@ -16,16 +16,18 @@ import adminRoutes from './modules/admin/admin.routes.js'
 const app = express()
 
 app.use(cors({
-  origin:
-    'http://localhost:3000',
-  credentials: true}))
-  
+  origin: process.env.CORS_ORIGIN ?? 'http://localhost:3000',
+  credentials: true,
+}))
+
 app.use(express.json())
 app.use(helmet())
-
 app.use(compression())
-
 app.use(morgan('dev'))
+
+app.get('/api/health', (_req, res) => {
+  res.status(200).json({ status: 'ok', ts: Date.now() })
+})
 
 app.use(
   '/api/auth',

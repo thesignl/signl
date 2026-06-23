@@ -39,8 +39,6 @@ export const authService = {
     email: data.email,
 
     password: hashedPassword,
-
-    role: data.role
   })
 
     const token =

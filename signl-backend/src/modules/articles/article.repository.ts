@@ -158,6 +158,13 @@ search: async (
     })
   },
 
+  findById: async (id: string) => {
+    return prisma.article.findUnique({
+      where: { id },
+      select: { id: true, authorId: true },
+    })
+  },
+
   update: async (
 
     articleId: string,
