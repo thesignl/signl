@@ -11,9 +11,10 @@ import type {
   AdminPlacement,
 } from '@/types/admin'
 
+// ── Dashboard ───────────────────────────────────────────────────
 export async function getDashboardStats(): Promise<DashboardStats> {
-  const response = await api.get('/admin/dashboard')
-  return response.data.data
+  const res = await api.get('/admin/dashboard')
+  return res.data.data
 }
 
 export async function getUsers(): Promise<AdminUser[]> {

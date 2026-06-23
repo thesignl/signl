@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt'
 // prisma/seed.ts
 
 import { PrismaClient } from "@prisma/client";
@@ -116,7 +117,7 @@ async function main() {
       update: {},
       create: {
         email: 'admin@signl.com',
-        password: 'password123',
+        password: await bcrypt.hash('password123', 10),
         name: 'Signal Admin',
         role: 'ADMIN',
         emailVerified: true
@@ -130,7 +131,7 @@ async function main() {
       update: {},
       create: {
         email: 'editor1@signl.com',
-        password: 'password123',
+        password: await bcrypt.hash('password123', 10),
         name: 'Sarah Mehta',
         role: 'EDITOR',
         emailVerified: true
@@ -144,7 +145,7 @@ async function main() {
       update: {},
       create: {
         email: 'editor2@signl.com',
-        password: 'password123',
+        password: await bcrypt.hash('password123', 10),
         name: 'Arjun Kapoor',
         role: 'EDITOR',
         emailVerified: true
@@ -158,7 +159,7 @@ async function main() {
       update: {},
       create: {
         email: 'editor3@signl.com',
-        password: 'password123',
+        password: await bcrypt.hash('password123', 10),
         name: 'Neha Bansal',
         role: 'EDITOR',
         emailVerified: true
@@ -172,7 +173,7 @@ async function main() {
       update: {},
       create: {
         email: 'user@signl.com',
-        password: 'password123',
+        password: await bcrypt.hash('password123', 10),
         name: 'John Doe',
         role: 'USER'
       }

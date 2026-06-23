@@ -437,6 +437,7 @@ export const adminRepository = {
     return prisma.tag.delete({ where: { id } })
   },
 
+<<<<<<< HEAD
   // ── Newsletter Subscribers ────────────────────────────────────
 
   listSubscribers: async (filters: { search?: string; page: number; limit: number }) => {
@@ -624,6 +625,26 @@ export const adminRepository = {
         },
       },
     })
+=======
+  // ── Placements ──────────────────────────────────────────────────
+
+  listPlacements: async () => {
+    return prisma.homepagePlacement.findMany({
+      orderBy: [{ section: 'asc' }, { priority: 'desc' }],
+      include: { article: { select: { id: true, title: true, slug: true, status: true, articleType: true } } },
+    })
+  },
+
+  createPlacement: async (data: { articleId: string; section: string; priority?: number }) => {
+    return prisma.homepagePlacement.create({
+      data: { articleId: data.articleId, section: data.section, priority: data.priority ?? 0 },
+      include: { article: { select: { id: true, title: true, slug: true } } },
+    })
+  },
+
+  updatePlacement: async (id: string, data: { section?: string; priority?: number; active?: boolean }) => {
+    return prisma.homepagePlacement.update({ where: { id }, data })
+>>>>>>> 8c010c9f9d6ce38ff5baad0c7d77261097047f5a
   },
 
   deletePlacement: async (id: string) => {
