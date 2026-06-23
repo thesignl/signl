@@ -243,6 +243,8 @@ search: async (
 
       status: 'PUBLISHED',
 
+      deletedAt: null,
+
       articleType: 'BRIEF'
     },
 
@@ -274,6 +276,8 @@ getAnalysis: async () => {
 
       status: 'PUBLISHED',
 
+      deletedAt: null,
+
       articleType: 'ANALYSIS'
     },
 
@@ -299,6 +303,8 @@ getFeatured: async () => {
 
       status: 'PUBLISHED',
 
+      deletedAt: null,
+
       featured: true
     },
 
@@ -320,6 +326,8 @@ getLearnArticles: async () => {
     where: {
 
       status: 'PUBLISHED',
+
+      deletedAt: null,
 
       articleType: 'LEARN'
     },

@@ -227,7 +227,7 @@ model ArticleTag {
 
   tagId String
 
-  article Article @relation(fields: [articleId], references: [id])
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
 
   tag Tag @relation(fields: [tagId], references: [id])
 
@@ -264,6 +264,7 @@ model ReadingHistory {
   article Article @relation(fields: [articleId], references: [id])
 
   @@unique([userId, articleId])
+  @@index([lastReadAt])
 }
 
 model ContentBlock {

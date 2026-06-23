@@ -139,7 +139,6 @@ router.delete(
   adminController.deleteTag
 )
 
-<<<<<<< HEAD
 // ── Analytics ─────────────────────────────────────────────────
 
 router.get(
@@ -169,39 +168,21 @@ router.get(
 
 router.get(
   '/placement',
-=======
-// ── Placements ────────────────────────────────────────────────
-
-router.get(
-  '/placements',
->>>>>>> 8c010c9f9d6ce38ff5baad0c7d77261097047f5a
   adminController.listPlacements
 )
 
 router.post(
-<<<<<<< HEAD
   '/placement',
-=======
-  '/placements',
->>>>>>> 8c010c9f9d6ce38ff5baad0c7d77261097047f5a
   adminController.createPlacement
 )
 
 router.patch(
-<<<<<<< HEAD
   '/placement/:id',
-=======
-  '/placements/:id',
->>>>>>> 8c010c9f9d6ce38ff5baad0c7d77261097047f5a
   adminController.updatePlacement
 )
 
 router.delete(
-<<<<<<< HEAD
   '/placement/:id',
-=======
-  '/placements/:id',
->>>>>>> 8c010c9f9d6ce38ff5baad0c7d77261097047f5a
   adminController.deletePlacement
 )
 

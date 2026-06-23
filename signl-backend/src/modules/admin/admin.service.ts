@@ -159,7 +159,6 @@ export const adminService = {
     return adminRepository.deleteTag(id)
   },
 
-<<<<<<< HEAD
   // ── Newsletter Subscribers ────────────────────────────────────
 
   listSubscribers: async (filters: ListSubscribersQuery) => {
@@ -204,13 +203,5 @@ export const adminService = {
   deletePlacement: async (id: string) => {
     return adminRepository.deletePlacement(id)
   },
-=======
-  // ── Placements ──────────────────────────────────────────────────
-
-  listPlacements: async () => adminRepository.listPlacements(),
-  createPlacement: async (data: { articleId: string; section: string; priority?: number }) => adminRepository.createPlacement(data),
-  updatePlacement: async (id: string, data: { section?: string; priority?: number; active?: boolean }) => adminRepository.updatePlacement(id, data),
-  deletePlacement: async (id: string) => adminRepository.deletePlacement(id),
->>>>>>> 8c010c9f9d6ce38ff5baad0c7d77261097047f5a
 
 }
