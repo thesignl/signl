@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useAuthStore } from '@/store/auth.store'
-import { getDashboardStats } from '@/services/admin.service'
+import { getDashboardStats, getAnalyticsViews } from '@/services/admin.service'
 import type { DashboardStats } from '@/types/admin'
 import DashboardKpis from '@/features/admin/dashboard/DashboardKpis'
 import ViewsChart from '@/features/admin/dashboard/ViewsChart'
@@ -29,6 +29,7 @@ function formatDate(): string {
 export default function AdminDashboard() {
   const user = useAuthStore((s) => s.user)
   const [stats, setStats] = useState<DashboardStats | null>(null)
+  const [sparkData, setSparkData] = useState<number[] | undefined>(undefined)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -37,6 +38,11 @@ export default function AdminDashboard() {
       .then(setStats)
       .catch((e) => setError(e?.message ?? 'Failed to load dashboard'))
       .finally(() => setLoading(false))
+
+    // Fire-and-forget — sparkline loads independently so KPIs aren't blocked
+    getAnalyticsViews(30)
+      .then(points => setSparkData(points.map(p => p.count)))
+      .catch(() => {})
   }, [])
 
   const firstName = user?.name?.split(' ')[0] ?? 'Admin'
@@ -70,7 +76,7 @@ export default function AdminDashboard() {
 
           <div className="admin-dash-grid">
             <div className="admin-dash-col">
-              <ViewsChart totalViews={stats.totalViews} />
+              <ViewsChart totalViews={stats.totalViews} sparkData={sparkData} />
               <TrendingFeed articles={stats.topTrending} />
             </div>
             <div className="admin-dash-col">

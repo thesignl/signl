@@ -56,6 +56,36 @@ export const createCategorySchema = z.object({
 
 export const updateCategorySchema = createCategorySchema.partial()
 
+// ── Placement ─────────────────────────────────────────────────
+
+export const PLACEMENT_SECTIONS = ['hero', 'featured', 'editors-picks'] as const
+export type PlacementSection = typeof PLACEMENT_SECTIONS[number]
+
+export const createPlacementSchema = z.object({
+  articleId: z.string().min(1),
+  section: z.enum(['hero', 'featured', 'editors-picks']),
+  priority: z.number().int().default(0),
+})
+
+export const updatePlacementSchema = z.object({
+  priority: z.number().int().optional(),
+  active: z.boolean().optional(),
+})
+
+// ── Analytics ─────────────────────────────────────────────────
+
+export const analyticsViewsQuerySchema = z.object({
+  days: z.coerce.number().int().positive().max(90).default(30),
+})
+
+// ── Subscribers ───────────────────────────────────────────────
+
+export const listSubscribersQuerySchema = z.object({
+  search: z.string().optional(),
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().positive().max(100).default(20),
+})
+
 // ── Tags ──────────────────────────────────────────────────────
 
 export const createTagSchema = z.object({
@@ -78,3 +108,7 @@ export type CreateCategoryInput = z.infer<typeof createCategorySchema>
 export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>
 export type CreateTagInput = z.infer<typeof createTagSchema>
 export type UpdateTagInput = z.infer<typeof updateTagSchema>
+export type ListSubscribersQuery = z.infer<typeof listSubscribersQuerySchema>
+export type AnalyticsViewsQuery = z.infer<typeof analyticsViewsQuerySchema>
+export type CreatePlacementInput = z.infer<typeof createPlacementSchema>
+export type UpdatePlacementInput = z.infer<typeof updatePlacementSchema>

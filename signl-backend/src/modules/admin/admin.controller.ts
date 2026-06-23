@@ -21,6 +21,10 @@ import {
   updateCategorySchema,
   createTagSchema,
   updateTagSchema,
+  listSubscribersQuerySchema,
+  analyticsViewsQuerySchema,
+  createPlacementSchema,
+  updatePlacementSchema,
 } from './admin.validation.js'
 
 export const adminController = {
@@ -361,6 +365,120 @@ deleteUser: async (
     try {
       await adminService.deleteTag(req.params.id as string)
       return res.status(200).json({ success: true, message: 'Tag deleted' })
+    } catch (error) {
+      return errorHandler(error, req, res, next)
+    }
+  },
+
+  // ── Newsletter Subscribers ────────────────────────────────────
+
+  listSubscribers: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const query = listSubscribersQuerySchema.parse(req.query)
+      const result = await adminService.listSubscribers(query)
+      return res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      return errorHandler(error, req, res, next)
+    }
+  },
+
+  exportSubscribers: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const subscribers = await adminService.exportSubscribers()
+      return res.status(200).json({ success: true, data: subscribers })
+    } catch (error) {
+      return errorHandler(error, req, res, next)
+    }
+  },
+
+  // ── Analytics ─────────────────────────────────────────────────
+
+  analyticsOverview: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const data = await adminService.getAnalyticsOverview()
+      return res.status(200).json({ success: true, data })
+    } catch (error) {
+      return errorHandler(error, req, res, next)
+    }
+  },
+
+  analyticsViews: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const query = analyticsViewsQuerySchema.parse(req.query)
+      const data = await adminService.getAnalyticsViews(query)
+      return res.status(200).json({ success: true, data })
+    } catch (error) {
+      return errorHandler(error, req, res, next)
+    }
+  },
+
+  // ── Placement ─────────────────────────────────────────────────
+
+  listPlacements: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const data = await adminService.listPlacements()
+      return res.status(200).json({ success: true, data })
+    } catch (error) {
+      return errorHandler(error, req, res, next)
+    }
+  },
+
+  createPlacement: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const body = createPlacementSchema.parse(req.body)
+      const placement = await adminService.createPlacement(body)
+      return res.status(201).json({ success: true, data: placement })
+    } catch (error) {
+      return errorHandler(error, req, res, next)
+    }
+  },
+
+  updatePlacement: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const body = updatePlacementSchema.parse(req.body)
+      const placement = await adminService.updatePlacement(req.params.id as string, body)
+      return res.status(200).json({ success: true, data: placement })
+    } catch (error) {
+      return errorHandler(error, req, res, next)
+    }
+  },
+
+  deletePlacement: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      await adminService.deletePlacement(req.params.id as string)
+      return res.status(200).json({ success: true, message: 'Placement removed' })
     } catch (error) {
       return errorHandler(error, req, res, next)
     }

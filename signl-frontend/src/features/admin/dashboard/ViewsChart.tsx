@@ -1,6 +1,11 @@
 import SparkLine from '@/features/admin/shared/SparkLine'
 
-export default function ViewsChart({ totalViews }: { totalViews: number }) {
+interface ViewsChartProps {
+  totalViews: number
+  sparkData?: number[]
+}
+
+export default function ViewsChart({ totalViews, sparkData }: ViewsChartProps) {
   return (
     <div className="admin-card-new">
       <div className="admin-card-head">
@@ -17,7 +22,7 @@ export default function ViewsChart({ totalViews }: { totalViews: number }) {
               <p className="admin-chart-sub">cumulative article views</p>
             </div>
           </div>
-          <SparkLine />
+          <SparkLine data={sparkData} />
         </div>
       </div>
     </div>

@@ -436,4 +436,197 @@ export const adminRepository = {
     await prisma.articleTag.deleteMany({ where: { tagId: id } })
     return prisma.tag.delete({ where: { id } })
   },
+
+  // ── Newsletter Subscribers ────────────────────────────────────
+
+  listSubscribers: async (filters: { search?: string; page: number; limit: number }) => {
+    const where = filters.search
+      ? { email: { contains: filters.search, mode: 'insensitive' as const } }
+      : {}
+
+    const [subscribers, total] = await Promise.all([
+      prisma.newsletterSubscriber.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: (filters.page - 1) * filters.limit,
+        take: filters.limit,
+      }),
+      prisma.newsletterSubscriber.count({ where }),
+    ])
+
+    return { subscribers, total }
+  },
+
+  exportSubscribers: async () => {
+    return prisma.newsletterSubscriber.findMany({
+      orderBy: { createdAt: 'asc' },
+      select: { id: true, email: true, createdAt: true },
+    })
+  },
+
+  // ── Analytics ─────────────────────────────────────────────────
+
+  getAnalyticsOverview: async () => {
+    const [topArticles, aggregates] = await Promise.all([
+      prisma.article.findMany({
+        where: { status: 'PUBLISHED', deletedAt: null },
+        orderBy: { views: 'desc' },
+        take: 10,
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          views: true,
+          readTime: true,
+          publishedAt: true,
+          category: { select: { name: true } },
+          author: { select: { name: true } },
+          analytics: {
+            select: {
+              totalViews: true,
+              uniqueViews: true,
+              bookmarks: true,
+              clicks: true,
+              shares: true,
+              avgReadTime: true,
+              bounceRate: true,
+            },
+          },
+          _count: { select: { bookmarks: true } },
+        },
+      }),
+      prisma.articleAnalytics.aggregate({
+        _sum: { clicks: true, shares: true },
+        _avg: { bounceRate: true, avgReadTime: true },
+      }),
+    ])
+
+    return {
+      topArticles: topArticles.map(a => ({
+        id: a.id,
+        title: a.title,
+        slug: a.slug,
+        views: a.views,
+        readTime: a.readTime,
+        publishedAt: a.publishedAt?.toISOString() ?? null,
+        categoryName: a.category.name,
+        authorName: a.author.name,
+        bookmarks: a._count.bookmarks,
+        analytics: a.analytics,
+      })),
+      aggregates: {
+        totalClicks: aggregates._sum.clicks ?? 0,
+        totalShares: aggregates._sum.shares ?? 0,
+        avgBounceRate: Math.round((aggregates._avg.bounceRate ?? 0) * 10) / 10,
+        avgReadTime: Math.round((aggregates._avg.avgReadTime ?? 0) * 10) / 10,
+      },
+    }
+  },
+
+  getAnalyticsViews: async (days: number) => {
+    const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+    const records = await prisma.readingHistory.findMany({
+      where: { lastReadAt: { gte: since } },
+      select: { lastReadAt: true },
+    })
+
+    const grouped: Record<string, number> = {}
+    for (const r of records) {
+      const date = r.lastReadAt.toISOString().split('T')[0]
+      grouped[date] = (grouped[date] ?? 0) + 1
+    }
+
+    const result: { date: string; count: number }[] = []
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000)
+      const date = d.toISOString().split('T')[0]
+      result.push({ date, count: grouped[date] ?? 0 })
+    }
+    return result
+  },
+
+  // ── Placement ─────────────────────────────────────────────────
+
+  listPlacements: async () => {
+    return prisma.homepagePlacement.findMany({
+      include: {
+        article: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            coverImage: true,
+            status: true,
+            publishedAt: true,
+            readTime: true,
+            views: true,
+            author: { select: { id: true, name: true } },
+            category: { select: { id: true, name: true } },
+          },
+        },
+      },
+      orderBy: [{ section: 'asc' }, { priority: 'asc' }],
+    })
+  },
+
+  createPlacement: async (data: { articleId: string; section: string; priority: number }) => {
+    const article = await prisma.article.findUnique({
+      where: { id: data.articleId },
+      select: { status: true },
+    })
+    if (!article) throw new Error('Article not found')
+    if (article.status !== 'PUBLISHED') throw new Error('Only published articles can be placed on the homepage')
+
+    const existing = await prisma.homepagePlacement.findFirst({
+      where: { articleId: data.articleId, section: data.section },
+    })
+    if (existing) throw new Error('This article is already placed in this section')
+
+    return prisma.homepagePlacement.create({
+      data,
+      include: {
+        article: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            coverImage: true,
+            status: true,
+            publishedAt: true,
+            readTime: true,
+            views: true,
+            author: { select: { id: true, name: true } },
+            category: { select: { id: true, name: true } },
+          },
+        },
+      },
+    })
+  },
+
+  updatePlacement: async (id: string, data: { priority?: number; active?: boolean }) => {
+    return prisma.homepagePlacement.update({
+      where: { id },
+      data,
+      include: {
+        article: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            coverImage: true,
+            status: true,
+            publishedAt: true,
+            readTime: true,
+            views: true,
+            author: { select: { id: true, name: true } },
+            category: { select: { id: true, name: true } },
+          },
+        },
+      },
+    })
+  },
+
+  deletePlacement: async (id: string) => {
+    return prisma.homepagePlacement.delete({ where: { id } })
+  },
 }

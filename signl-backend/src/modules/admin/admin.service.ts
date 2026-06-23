@@ -11,6 +11,10 @@ import type {
   UpdateCategoryInput,
   CreateTagInput,
   UpdateTagInput,
+  ListSubscribersQuery,
+  AnalyticsViewsQuery,
+  CreatePlacementInput,
+  UpdatePlacementInput,
 } from './admin.validation.js'
 
 export const adminService = {
@@ -153,6 +157,51 @@ export const adminService = {
 
   deleteTag: async (id: string) => {
     return adminRepository.deleteTag(id)
+  },
+
+  // ── Newsletter Subscribers ────────────────────────────────────
+
+  listSubscribers: async (filters: ListSubscribersQuery) => {
+    const { subscribers, total } = await adminRepository.listSubscribers(filters)
+    return {
+      subscribers,
+      total,
+      page: filters.page,
+      limit: filters.limit,
+      totalPages: Math.ceil(total / filters.limit),
+    }
+  },
+
+  exportSubscribers: async () => {
+    return adminRepository.exportSubscribers()
+  },
+
+  // ── Analytics ─────────────────────────────────────────────────
+
+  getAnalyticsOverview: async () => {
+    return adminRepository.getAnalyticsOverview()
+  },
+
+  getAnalyticsViews: async (query: AnalyticsViewsQuery) => {
+    return adminRepository.getAnalyticsViews(query.days)
+  },
+
+  // ── Placement ─────────────────────────────────────────────────
+
+  listPlacements: async () => {
+    return adminRepository.listPlacements()
+  },
+
+  createPlacement: async (data: CreatePlacementInput) => {
+    return adminRepository.createPlacement(data)
+  },
+
+  updatePlacement: async (id: string, data: UpdatePlacementInput) => {
+    return adminRepository.updatePlacement(id, data)
+  },
+
+  deletePlacement: async (id: string) => {
+    return adminRepository.deletePlacement(id)
   },
 
 }

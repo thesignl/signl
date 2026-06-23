@@ -139,4 +139,51 @@ router.delete(
   adminController.deleteTag
 )
 
+// ── Analytics ─────────────────────────────────────────────────
+
+router.get(
+  '/analytics/overview',
+  adminController.analyticsOverview
+)
+
+router.get(
+  '/analytics/views',
+  adminController.analyticsViews
+)
+
+// ── Newsletter Subscribers ────────────────────────────────────
+// /export before base route so Express doesn't try to treat 'export' as a query param
+
+router.get(
+  '/subscribers/export',
+  adminController.exportSubscribers
+)
+
+router.get(
+  '/subscribers',
+  adminController.listSubscribers
+)
+
+// ── Placement ─────────────────────────────────────────────────
+
+router.get(
+  '/placement',
+  adminController.listPlacements
+)
+
+router.post(
+  '/placement',
+  adminController.createPlacement
+)
+
+router.patch(
+  '/placement/:id',
+  adminController.updatePlacement
+)
+
+router.delete(
+  '/placement/:id',
+  adminController.deletePlacement
+)
+
 export default router
