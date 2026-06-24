@@ -1,126 +1,77 @@
-import { NextFunction, Request, Response } from 'express'
-import { ZodError } from 'zod'
+import { Request, Response } from 'express'
 
 import { editorService } from './editor.service.js'
 import {
   createDraftSchema,
   updateDraftSchema,
 } from './editor.validation.js'
+import { requireUser } from '../auth/auth.middleware.js'
 
 function actorFrom(req: Request) {
+  const user = requireUser(req)
   return {
-    id: req.user.id,
-    role: req.user.role,
-    name: (req.user as { name?: string }).name ?? req.user.email,
+    id: user.id,
+    role: user.role,
+    name: (user as { name?: string }).name ?? user.email,
   }
 }
 
-function fail(res: Response, error: unknown, fallbackStatus = 500) {
-  if (error instanceof ZodError) {
-    return res.status(400).json({
-      success: false,
-      message: 'Validation failed',
-      errors: error.issues.map((i) => ({
-        path: i.path.join('.'),
-        message: i.message,
-      })),
-    })
-  }
-  const message = error instanceof Error ? error.message : 'Unexpected error'
-  const status =
-    message === 'Unauthorized'
-      ? 403
-      : message.includes('not found')
-        ? 404
-        : fallbackStatus
-  return res.status(status).json({ success: false, message })
-}
-
+// All handlers throw on error; the global error handler (wired in app.ts)
+// maps Zod, AppError, Prisma and unknown errors to the correct response.
+// Routes wrap these with asyncHandler so rejections reach it.
 export const editorController = {
   createDraft: async (req: Request, res: Response) => {
-    try {
-      const input = createDraftSchema.parse(req.body)
-      const article = await editorService.createDraft(actorFrom(req), input)
-      return res.status(201).json({ success: true, data: article })
-    } catch (error) {
-      return fail(res, error)
-    }
+    const input = createDraftSchema.parse(req.body)
+    const article = await editorService.createDraft(actorFrom(req), input)
+    return res.status(201).json({ success: true, data: article })
   },
 
   updateDraft: async (req: Request, res: Response) => {
-    try {
-      const input = updateDraftSchema.parse(req.body)
-      const article = await editorService.saveDraft(
-        req.params.id as string,
-        actorFrom(req),
-        input,
-      )
-      return res.json({ success: true, data: article })
-    } catch (error) {
-      return fail(res, error)
-    }
+    const input = updateDraftSchema.parse(req.body)
+    const article = await editorService.saveDraft(
+      req.params.id as string,
+      actorFrom(req),
+      input,
+    )
+    return res.json({ success: true, data: article })
   },
 
   publish: async (req: Request, res: Response) => {
-    try {
-      const article = await editorService.publish(
-        req.params.id as string,
-        actorFrom(req),
-      )
-      return res.json({ success: true, data: article })
-    } catch (error) {
-      return fail(res, error)
-    }
+    const article = await editorService.publish(
+      req.params.id as string,
+      actorFrom(req),
+    )
+    return res.json({ success: true, data: article })
   },
 
   submitForReview: async (req: Request, res: Response) => {
-    try {
-      const article = await editorService.submitForReview(
-        req.params.id as string,
-        actorFrom(req),
-      )
-      return res.json({ success: true, data: article })
-    } catch (error) {
-      return fail(res, error)
-    }
+    const article = await editorService.submitForReview(
+      req.params.id as string,
+      actorFrom(req),
+    )
+    return res.json({ success: true, data: article })
   },
 
-  getDrafts: async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const drafts = await editorService.getDrafts(actorFrom(req))
-      return res.status(200).json({ success: true, data: drafts })
-    } catch (error) {
-      next(error)
-    }
+  getDrafts: async (req: Request, res: Response) => {
+    const drafts = await editorService.getDrafts(actorFrom(req))
+    return res.status(200).json({ success: true, data: drafts })
   },
 
   getOne: async (req: Request, res: Response) => {
-    try {
-      const article = await editorService.getEditorArticle(
-        req.params.id as string,
-        actorFrom(req),
-      )
-      return res.json({ success: true, data: article })
-    } catch (error) {
-      return fail(res, error)
-    }
+    const article = await editorService.getEditorArticle(
+      req.params.id as string,
+      actorFrom(req),
+    )
+    return res.json({ success: true, data: article })
   },
 
   getCategories: async (_req: Request, res: Response) => {
-    try {
-      const categories = await editorService.getCategories()
-      return res.json({ success: true, data: categories })
-    } catch (error) {
-      return fail(res, error)
-    }
+    const categories = await editorService.getCategories()
+    return res.json({ success: true, data: categories })
   },
 
   getAuthors: async (_req: Request, res: Response) => {
-    try {
-      const authors = await editorService.getAuthors()
-      return res.json({ success: true, data: authors })
-    } catch (error) {
-      return fail(res, error)
-    }
+    const authors = await editorService.getAuthors()
+    return res.json({ success: true, data: authors })
   },
 }

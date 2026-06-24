@@ -1,8 +1,10 @@
 'use client'
 
 import Link from 'next/link'
+import { useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuthStore } from '@/store/auth.store'
+import { useAdminUi } from '@/features/admin/layout/adminUi.store'
 import { ADMIN_NAV } from '@/features/admin/admin.config'
 import { cn } from '@/lib/cn'
 
@@ -107,6 +109,22 @@ export default function AdminSidebar() {
   const router = useRouter()
   const user = useAuthStore((s) => s.user)
   const logout = useAuthStore((s) => s.logout)
+  const sidebarOpen = useAdminUi((s) => s.sidebarOpen)
+  const closeSidebar = useAdminUi((s) => s.closeSidebar)
+
+  // Close the mobile drawer whenever the route changes.
+  useEffect(() => {
+    closeSidebar()
+  }, [pathname, closeSidebar])
+
+  // Lock body scroll while the mobile drawer is open.
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+    document.body.style.overflow = sidebarOpen ? 'hidden' : ''
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [sidebarOpen])
 
   function handleLogout() {
     logout()
@@ -118,7 +136,16 @@ export default function AdminSidebar() {
     : 'A'
 
   return (
-    <nav className="admin-sidebar" aria-label="Admin navigation">
+    <>
+      <div
+        className={cn('admin-sidebar-backdrop', sidebarOpen && 'open')}
+        onClick={closeSidebar}
+        aria-hidden="true"
+      />
+      <nav
+        className={cn('admin-sidebar', sidebarOpen && 'open')}
+        aria-label="Admin navigation"
+      >
       {/* Brand */}
       <div className="sb-brand">
         <div className="sb-logo-mark">S</div>
@@ -171,5 +198,6 @@ export default function AdminSidebar() {
         </button>
       </div>
     </nav>
+    </>
   )
 }

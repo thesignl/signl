@@ -2,6 +2,7 @@ import {
   adminRepository
 }
 from './admin.repository.js'
+import { UserRole } from '@prisma/client'
 
 import type {
   ListArticlesQuery,
@@ -42,7 +43,7 @@ export const adminService = {
 
     id: string,
 
-    role: string
+    role: UserRole
 
   ) => {
 

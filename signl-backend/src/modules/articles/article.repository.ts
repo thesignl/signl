@@ -4,6 +4,18 @@ from '../../infrastructure/prisma/client.js'
 import { CreateArticleDTO }
 from './article.types.js'
 
+/** Author fields safe to expose publicly — never includes password. */
+const publicAuthorSelect = {
+  id: true,
+  name: true,
+  slug: true,
+  avatar: true,
+  title: true,
+  bio: true,
+  twitter: true,
+  linkedin: true,
+} as const
+
 export const articleRepository = {
 
   create: async (
@@ -31,6 +43,8 @@ export const articleRepository = {
 
       category: true,
 
+      author: { select: publicAuthorSelect },
+
       tags: {
 
         include: {
@@ -41,7 +55,10 @@ export const articleRepository = {
 
     orderBy: {
       createdAt: 'desc'
-    }
+    },
+
+    // Bound the homepage feed — never return the full table.
+    take: 30
   })
 },
 
@@ -148,12 +165,24 @@ search: async (
 
         category: true,
 
+        author: { select: publicAuthorSelect },
+
         tags: {
 
           include: {
             tag: true
           }
-        }
+        },
+
+        blocks: {
+          orderBy: { position: 'asc' }
+        },
+
+        analysisSteps: {
+          orderBy: { stepNumber: 'asc' }
+        },
+
+        depths: true
       }
     })
   },
@@ -161,7 +190,7 @@ search: async (
   findById: async (id: string) => {
     return prisma.article.findUnique({
       where: { id },
-      select: { id: true, authorId: true },
+      select: { id: true, authorId: true, status: true, deletedAt: true },
     })
   },
 
@@ -183,14 +212,21 @@ search: async (
     })
   },
 
+  // Soft delete — preserves data and respects the `deletedAt: null` filter
+  // used on every read path. Hard deletes would orphan analytics/bookmarks.
   delete: async (
     articleId: string
   ) => {
 
-    return prisma.article.delete({
+    return prisma.article.update({
 
       where: {
         id: articleId
+      },
+
+      data: {
+        deletedAt: new Date(),
+        status: 'ARCHIVED'
       }
     })
   },
@@ -238,7 +274,8 @@ search: async (
     orderBy: {
 
       publishedAt: 'desc'
-    }
+    },
+    take: 40
   })
   },
 
@@ -271,7 +308,8 @@ search: async (
     orderBy: {
 
       createdAt: 'desc'
-    }
+    },
+    take: 40
   })
 },
 
@@ -298,7 +336,8 @@ getAnalysis: async () => {
     orderBy: {
 
       views: 'desc'
-    }
+    },
+    take: 12
   })
 },
 
@@ -349,7 +388,8 @@ getLearnArticles: async () => {
     orderBy: {
 
       createdAt: 'desc'
-    }
+    },
+    take: 40
   })
 },
 

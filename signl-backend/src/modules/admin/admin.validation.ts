@@ -21,6 +21,12 @@ export const bulkArticleActionSchema = z.object({
   action: z.enum(['publish', 'archive', 'delete']),
 })
 
+// ── Users ─────────────────────────────────────────────────────
+
+export const updateRoleSchema = z.object({
+  role: z.enum(['USER', 'EDITOR', 'ADMIN']),
+})
+
 // ── Authors ───────────────────────────────────────────────────
 
 export const updateAuthorSchema = z.object({
@@ -103,6 +109,7 @@ export const updateTagSchema = createTagSchema.partial()
 export type ListArticlesQuery = z.infer<typeof listArticlesQuerySchema>
 export type ChangeArticleStatusInput = z.infer<typeof changeArticleStatusSchema>
 export type BulkArticleActionInput = z.infer<typeof bulkArticleActionSchema>
+export type UpdateRoleInput = z.infer<typeof updateRoleSchema>
 export type UpdateAuthorInput = z.infer<typeof updateAuthorSchema>
 export type CreateCategoryInput = z.infer<typeof createCategorySchema>
 export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>

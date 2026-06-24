@@ -1,4 +1,5 @@
 import prisma from '../../infrastructure/prisma/client.js'
+import { Prisma } from '@prisma/client'
 
 export const subscriptionRepository = {
   findActiveByUserId: async (userId: string) => {
@@ -44,8 +45,8 @@ export const subscriptionRepository = {
   },
 
   listAll: async (filters: { status?: string; page: number; limit: number }) => {
-    const where: any = {}
-    if (filters.status) where.status = filters.status
+    const where: Prisma.SubscriptionWhereInput = {}
+    if (filters.status) where.status = filters.status as Prisma.EnumSubscriptionStatusFilter['equals']
 
     const [subscriptions, total] = await Promise.all([
       prisma.subscription.findMany({

@@ -13,22 +13,13 @@ export function useEditorGuard() {
   const router = useRouter()
   const [ready, setReady] = useState(false)
   const user = useAuthStore((s) => s.user)
-  const setAuth = useAuthStore((s) => s.setAuth)
+  const hydrate = useAuthStore((s) => s.hydrate)
 
   useEffect(() => {
     let current = user
-    if (!current && typeof window !== 'undefined') {
-      const token = localStorage.getItem('token')
-      const stored = localStorage.getItem('user')
-      if (token && stored) {
-        try {
-          const parsed = JSON.parse(stored)
-          setAuth(parsed, token)
-          current = parsed
-        } catch {
-          /* ignore malformed storage */
-        }
-      }
+    if (!current) {
+      hydrate()
+      current = useAuthStore.getState().user
     }
 
     if (!current) {
@@ -40,7 +31,7 @@ export function useEditorGuard() {
       return
     }
     setReady(true)
-  }, [user, setAuth, router])
+  }, [user, hydrate, router])
 
   return { ready, user }
 }

@@ -37,7 +37,7 @@ export default function LoginPage() {
     setSubmitting(true)
     try {
       const response = await loginUser(email, password)
-      setAuth(response.data.user, response.data.token)
+      setAuth(response.data.user, response.data.accessToken)
       toast(`Welcome back, ${response.data.user.name.split(' ')[0]}.`, 'success')
       const next = params?.get('next') || '/'
       router.push(next)

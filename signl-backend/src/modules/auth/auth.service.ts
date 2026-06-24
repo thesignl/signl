@@ -1,94 +1,75 @@
 import bcrypt from 'bcrypt'
 
-import { authRepository }
-from './auth.repository.js'
+import { authRepository } from './auth.repository.js'
+import { generateAccessToken, generateRefreshToken } from './jwt.js'
+import { AppError } from '../../shared/errors/errorHandler.js'
+import type { SignupInput, LoginInput, AuthResult } from './auth.types.js'
 
-import {
-  generateAccessToken
-}
-from './jwt.js'
+const BCRYPT_ROUNDS = Number(process.env.BCRYPT_ROUNDS ?? 12)
 
 export const authService = {
+  signup: async (data: SignupInput): Promise<AuthResult> => {
+    const email = data.email.toLowerCase().trim()
 
-  signup: async (
-    data: any
-  ) => {
-
-    const existing =
-      await authRepository.findByEmail(
-        data.email
-      )
-
+    const existing = await authRepository.findByEmail(email)
     if (existing) {
-
-      throw new Error(
-        'Email already exists'
-      )
+      throw AppError.conflict('An account with this email already exists')
     }
 
-    const hashedPassword =
-      await bcrypt.hash(
-        data.password,
-        10
-      )
+    const hashedPassword = await bcrypt.hash(data.password, BCRYPT_ROUNDS)
 
     const user = await authRepository.createUser({
-
-    name: data.name,
-
-    email: data.email,
-
-    password: hashedPassword,
-  })
-
-    const token =
-      generateAccessToken(user)
+      name: data.name.trim(),
+      email,
+      password: hashedPassword,
+    })
 
     return {
-
       user,
-
-      token
+      accessToken: generateAccessToken(user),
+      refreshToken: generateRefreshToken(user),
     }
   },
 
-  login: async (
-    data: any
-  ) => {
+  login: async (data: LoginInput): Promise<AuthResult> => {
+    const email = data.email.toLowerCase().trim()
 
-    const user =
-      await authRepository.findByEmail(
-        data.email
-      )
+    const account = await authRepository.findByEmailWithPassword(email)
 
-    if (!user) {
+    // Always run a bcrypt compare to keep response timing uniform whether or
+    // not the account exists (mitigates user-enumeration via timing).
+    const hash =
+      account?.password ??
+      '$2b$12$0000000000000000000000000000000000000000000000000000a'
+    const isValid = await bcrypt.compare(data.password, hash)
 
-      throw new Error(
-        'Invalid credentials'
-      )
+    if (!account || !isValid) {
+      throw AppError.unauthorized('Invalid email or password')
     }
 
-    const isValid =
-      await bcrypt.compare(
-        data.password,
-        user.password
-      )
-
-    if (!isValid) {
-
-      throw new Error(
-        'Invalid credentials'
-      )
+    const user = {
+      id: account.id,
+      email: account.email,
+      name: account.name,
+      role: account.role,
+      avatar: account.avatar,
+      slug: account.slug,
+      title: account.title,
+      bio: account.bio,
+      emailVerified: account.emailVerified,
+      createdAt: account.createdAt,
     }
-
-    const token =
-      generateAccessToken(user)
 
     return {
-
       user,
-
-      token
+      accessToken: generateAccessToken(user),
+      refreshToken: generateRefreshToken(user),
     }
-  }
+  },
+
+  me: async (userId: string) => {
+    const user = await authRepository.findById(userId)
+    if (!user) throw AppError.notFound('User not found')
+    return user
+  },
 }

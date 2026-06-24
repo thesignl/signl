@@ -49,7 +49,6 @@
   --container-max: 1200px;
   --reading-max: 720px;
   --nav-h: 60px;
-  --ticker-h: 32px;
 }
 
 /* Legacy variable aliases — keep existing component CSS working
@@ -126,6 +125,23 @@ svg {
   display: block;
   max-width: 100%;
 }
+img {
+  height: auto;
+}
+
+/* Prevent long unbroken strings (URLs, tickers, tokens) from forcing
+   horizontal scroll on small screens. */
+p,
+h1,
+h2,
+h3,
+h4,
+li,
+a,
+span,
+td {
+  overflow-wrap: break-word;
+}
 
 input,
 button,
@@ -133,6 +149,16 @@ textarea,
 select {
   font: inherit;
   color: inherit;
+}
+
+/* iOS zooms the page when focusing an input whose font-size < 16px.
+   Guarantee ≥16px on form controls at mobile widths. */
+@media (max-width: 768px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
 }
 
 a {
@@ -181,9 +207,6 @@ a {
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
-  .ticker-track {
-    animation: none !important;
-  }
 }
 
 /* ─── App shell ─── */
@@ -198,66 +221,12 @@ a {
   display: block;
 }
 
-/* ─── TICKER ─── */
-.ticker {
-  background: var(--ink);
-  color: var(--paper-2);
-  height: var(--ticker-h);
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-}
-.ticker-label {
-  background: var(--accent);
-  color: #fff;
-  font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 0 14px;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-.ticker-wrapper {
-  overflow: hidden;
-  flex: 1;
-  display: flex;
-}
-.ticker-track {
-  display: flex;
-  animation: ticker 60s linear infinite;
-  white-space: nowrap;
-}
-.ticker-track:hover {
-  animation-play-state: paused;
-}
-.ticker-item {
-  font-family: var(--mono);
-  font-size: 11px;
-  padding: 0 28px;
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: rgba(243, 240, 232, 0.78);
-}
-.ticker-item .label {
-  color: rgba(243, 240, 232, 0.5);
-  font-weight: 500;
-}
+/* ─── TICKER ─── removed for MVP launch (mock market data) ─── */
 .up {
   color: #4caf7d;
 }
 .dn {
   color: #e05c5c;
-}
-@keyframes ticker {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
 }
 
 /* ─── NAV ─── */
@@ -1056,7 +1025,7 @@ a {
 }
 .analysis-sidebar-col {
   position: sticky;
-  top: calc(var(--nav-h) + var(--ticker-h) + 20px);
+  top: calc(var(--nav-h) + 20px);
   align-self: start;
 }
 .deep-analysis-card {
@@ -1419,6 +1388,59 @@ a {
   border-radius: 6px;
   background: var(--paper-2);
 }
+
+/* Article data tables (editor "datatable" blocks) */
+.story-table-wrap {
+  margin: 32px 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.story-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  font-family: var(--sans);
+}
+.story-table th,
+.story-table td {
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--paper-3);
+  white-space: nowrap;
+}
+.story-table thead th {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  border-bottom: 2px solid var(--paper-4);
+}
+.story-table tbody tr:hover { background: var(--paper-2); }
+
+/* Article code + list blocks */
+.story-code {
+  margin: 28px 0;
+  padding: 16px 18px;
+  background: var(--ink);
+  color: var(--paper-2);
+  border-radius: 8px;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.story-list {
+  margin: 24px 0 24px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.story-list li {
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
 .story-signal-rule {
   border: none;
   border-top: 1px solid var(--paper-3);
@@ -1550,7 +1572,7 @@ a {
 
 /* ─── AUTH PAGES ─── */
 .auth-page {
-  min-height: calc(100vh - var(--nav-h) - var(--ticker-h));
+  min-height: calc(100vh - var(--nav-h));
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -1705,7 +1727,7 @@ a {
 .footer-logo span { color: var(--accent); }
 .footer-tagline {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(255, 255, 255, 0.7);
   line-height: 1.65;
   max-width: 320px;
 }
@@ -1720,7 +1742,7 @@ a {
   font-size: 10.5px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.42);
+  color: rgba(255, 255, 255, 0.66);
   margin-bottom: 10px;
   font-weight: 500;
 }
@@ -1737,7 +1759,7 @@ a {
   align-items: center;
   font-family: var(--mono);
   font-size: 10.5px;
-  color: rgba(255, 255, 255, 0.32);
+  color: rgba(255, 255, 255, 0.62);
   letter-spacing: 0.04em;
   flex-wrap: wrap;
   gap: 12px;
@@ -1877,8 +1899,87 @@ a {
 .bookmark-btn-icon[aria-pressed="true"] { color: var(--accent); }
 
 /* ─── RESPONSIVE ─── */
+/* ─── Mobile navigation (burger + slide-down menu) ─── */
+.nav-burger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--paper-3);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.nav-burger:active { background: var(--paper-2); }
+
+.nav-mobile-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 190;
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.nav-mobile {
+  display: none;
+  position: fixed;
+  top: var(--nav-h);
+  left: 0;
+  right: 0;
+  z-index: 195;
+  background: var(--paper);
+  border-bottom: 1px solid var(--paper-3);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+  padding: 16px 20px 22px;
+  transform: translateY(-12px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.nav-mobile.open {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.nav-mobile-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.nav-mobile-links {
+  display: flex;
+  flex-direction: column;
+}
+.nav-mobile-link {
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--paper-3);
+}
+.nav-mobile-link:active { color: var(--accent); }
+.nav-mobile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 18px;
+}
+.nav-mobile-actions .btn { width: 100%; justify-content: center; }
+
+@media (max-width: 1024px) {
+  .nav-mobile-backdrop { display: block; }
+  .nav-mobile { display: block; }
+}
+
 @media (max-width: 1024px) {
   .nav-links { display: none; }
+  .nav-burger { display: inline-flex; }
   .analysis-main-grid { grid-template-columns: 1fr; }
   .analysis-sidebar-col { position: static; }
 }
@@ -1886,8 +1987,7 @@ a {
 @media (max-width: 768px) {
   .container { padding: 0 20px; }
   .nav { padding: 0 20px; }
-  .nav .btn, .nav .kbd { display: none; }
-  .ticker-item { font-size: 12px; padding: 0 22px; }
+  .nav-right .btn, .nav .kbd { display: none; }
 
   .hero-grid { grid-template-columns: 1fr; }
   .hero-lead {
@@ -2009,7 +2109,7 @@ a {
 /* Reading-progress bar (fixed at top of viewport on /article) */
 .story-progress {
   position: fixed;
-  top: calc(var(--ticker-h) + var(--nav-h));
+  top: var(--nav-h);
   left: 0;
   right: 0;
   height: 2px;
@@ -2176,7 +2276,6 @@ a {
 }
 
 /* Tabular numerics on data-heavy chrome */
-.ticker-item,
 .story-meta,
 .art-meta,
 .hs-meta,
@@ -2231,7 +2330,8 @@ a {
   }
   .share-action {
     font-size: 12px;
-    padding: 6px 10px;
+    padding: 6px 12px;
+    min-height: 40px;
   }
   .error-title {
     font-size: 24px;
@@ -2259,7 +2359,6 @@ a {
 
 /* Print friendliness on the article page */
 @media print {
-  .ticker,
   .nav,
   .footer,
   .story-actions,
@@ -3215,10 +3314,67 @@ margin-bottom: 10px;
   .admin-kpi-grid { grid-template-columns: repeat(2, 1fr); }
   .admin-dash-grid { grid-template-columns: 1fr; }
 }
+
+/* Hamburger is desktop-hidden; backdrop never shows on desktop. */
+.tb-menu-btn { display: none; }
+.admin-sidebar-backdrop { display: none; }
+
 @media (max-width: 768px) {
   .admin-shell { grid-template-columns: 1fr; }
-  .admin-sidebar { display: none; }
   .admin-content { padding: 20px; }
+
+  /* Sidebar becomes an off-canvas drawer. */
+  .admin-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 400;
+    width: 84vw;
+    max-width: 300px;
+    transform: translateX(-100%);
+    transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+  }
+  .admin-sidebar.open {
+    transform: translateX(0);
+    box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0); /* no-op; backdrop handles dim */
+  }
+
+  .admin-sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 390;
+    background: rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease;
+  }
+  .admin-sidebar-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Show hamburger in the topbar. */
+  .tb-menu-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--paper-3);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .tb-menu-btn:active { background: var(--paper-2); }
+
+  /* Hide the desktop-only search field on small screens. */
+  .admin-search-shell { display: none; }
+  .tb-user-name { display: none; }
 }
 /* ═══════════════════════════════════════════════════════════════════════
    ADMIN — Phase 2: table, filters, buttons, bulk bar, modal, forms, etc.

@@ -29,7 +29,14 @@ export default function SearchOverlay() {
 
   // Search debounce
   useEffect(() => {
-    if (!query.trim()) {
+    const q = query.trim()
+    if (!q) {
+      setResults([])
+      setLoading(false)
+      return
+    }
+    // Backend requires ≥2 chars; don't fire a request that would 400.
+    if (q.length < 2) {
       setResults([])
       setLoading(false)
       return
@@ -37,7 +44,7 @@ export default function SearchOverlay() {
     setLoading(true)
     const t = window.setTimeout(async () => {
       try {
-        const data = await searchArticles(query.trim())
+        const data = await searchArticles(q)
         setResults(data ?? [])
         setActiveIndex(0)
       } catch {
@@ -112,10 +119,10 @@ export default function SearchOverlay() {
             <Skeleton width="40%" height={12} />
             <Skeleton width="70%" height={14} />
           </div>
-        ) : query.trim().length === 0 ? (
+        ) : query.trim().length < 2 ? (
           <EmptyState
             title="What are you looking for?"
-            description="Search across analysis, briefs, learn tracks and authors."
+            description="Type at least two characters to search analysis, briefs, learn tracks and authors."
           />
         ) : results.length === 0 ? (
           <EmptyState

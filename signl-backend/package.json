@@ -8,7 +8,14 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "dev": "tsx watch src/server.ts",
-    "prisma:seed": "tsx prisma/seed.ts"
+    "build": "tsc -p tsconfig.build.json && node -e \"require('fs').cpSync('prisma','dist/prisma',{recursive:true})\"",
+    "start": "node dist/server.js",
+    "start:prod": "NODE_ENV=production node dist/server.js",
+    "typecheck": "tsc --noEmit",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:seed": "tsx prisma/seed.ts",
+    "lint": "tsc --noEmit"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -42,6 +49,7 @@
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
     "@types/compression": "^1.8.1",
+    "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
