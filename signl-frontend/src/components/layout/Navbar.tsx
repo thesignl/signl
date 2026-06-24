@@ -4,7 +4,9 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
+import Badge from '@/components/ui/Badge'
 import { useAuthStore } from '@/store/auth.store'
+import { useSubscriptionStore } from '@/store/subscription.store'
 import { useSearchStore } from '@/store/search.store'
 import { useBookmarkStore } from '@/store/bookmark.store'
 import { SearchIcon, BookmarkIcon } from '@/components/ui/Icon'
@@ -19,11 +21,12 @@ export default function Navbar() {
   const pathname = usePathname() ?? '/'
   const user = useAuthStore((s) => s.user)
   const logout = useAuthStore((s) => s.logout)
+  const subPlan = useSubscriptionStore((s) => s.plan)
+  const subLoading = useSubscriptionStore((s) => s.loading)
   const openSearch = useSearchStore((s) => s.openSearch)
   const bookmarksCount = useBookmarkStore((s) => s.bookmarks.length)
   const [isMac, setIsMac] = useState(false)
 
-  // ⌘K / Ctrl+K to open the command palette
   useEffect(() => {
     setIsMac(
       typeof navigator !== 'undefined' &&
@@ -68,36 +71,19 @@ export default function Navbar() {
             </Link>
           )
         })}
-      
 
-      {
-        (user?.role === 'EDITOR' || user?.role === 'ADMIN') &&(
-
-          <Link
-            href="/editor"
-            className="nav-link"
-          >
+        {(user?.role === 'EDITOR' || user?.role === 'ADMIN') && (
+          <Link href="/editor" className="nav-link">
             Editor
           </Link>
+        )}
 
-        )
-      }
-
-      {
-        user?.role === 'ADMIN' && (
-
-          <Link
-            href="/admin"
-            className="nav-link"
-          >
+        {user?.role === 'ADMIN' && (
+          <Link href="/admin" className="nav-link">
             Admin
           </Link>
-
-        )
-      }
-
+        )}
       </div>
-
 
       <div className="nav-right">
         <button
@@ -127,13 +113,26 @@ export default function Navbar() {
         ) : null}
 
         {user ? (
-          <button
-            type="button"
-            className="btn btn-sm btn-ghost"
-            onClick={logout}
-          >
-            Sign out
-          </button>
+          <>
+            <Link
+              href="/account/subscription"
+              className="btn btn-sm btn-ghost nav-acct-btn"
+            >
+              Account
+              {!subLoading && subPlan ? (
+                <Badge variant={subPlan === 'PRO' ? 'pro' : 'free'}>
+                  {subPlan === 'PRO' ? 'Pro' : 'Free'}
+                </Badge>
+              ) : null}
+            </Link>
+            <button
+              type="button"
+              className="btn btn-sm btn-ghost"
+              onClick={logout}
+            >
+              Sign out
+            </button>
+          </>
         ) : (
           <>
             <Link href="/login" className="btn btn-sm btn-ghost">

@@ -9,6 +9,7 @@ import {
 
 import AuthProvider from '@/components/common/AuthProvider'
 import BookmarkProvider from '@/components/common/BookmarkProvider'
+import SubscriptionBootstrap from '@/components/common/SubscriptionBootstrap'
 import ToastProvider from '@/components/common/ToastProvider'
 import PublicShell from '@/components/layout/PublicShell'
 
@@ -114,13 +115,15 @@ export default function RootLayout({
         </a>
 
         <AuthProvider>
-          <BookmarkProvider>
-            <ToastProvider>
-              <PublicShell>
-                {children}
-              </PublicShell>
-            </ToastProvider>
-          </BookmarkProvider>
+          <SubscriptionBootstrap>
+            <BookmarkProvider>
+              <ToastProvider>
+                <PublicShell>
+                  {children}
+                </PublicShell>
+              </ToastProvider>
+            </BookmarkProvider>
+          </SubscriptionBootstrap>
         </AuthProvider>
       </body>
     </html>
