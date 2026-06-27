@@ -74,4 +74,21 @@ export const razorpayClient = {
     if (expectedBuf.length !== providedBuf.length) return false
     return crypto.timingSafeEqual(expectedBuf, providedBuf)
   },
+
+  // Verifies the signature Razorpay sends on webhook events.
+  // Formula: HMAC-SHA256(raw_request_body, WEBHOOK_SECRET)
+  // The raw body MUST be the exact bytes received (no re-stringify), which is
+  // why /subscription/webhook uses express.raw in app.ts.
+  verifyWebhookSignature: (rawBody: Buffer, signature: string): boolean => {
+    const secret = process.env.RAZORPAY_WEBHOOK_SECRET
+    if (!secret) return false
+    if (typeof signature !== 'string' || !/^[a-f0-9]{64}$/i.test(signature)) {
+      return false
+    }
+    const expected = crypto.createHmac('sha256', secret).update(rawBody).digest('hex')
+    const expectedBuf = Buffer.from(expected, 'hex')
+    const providedBuf = Buffer.from(signature, 'hex')
+    if (expectedBuf.length !== providedBuf.length) return false
+    return crypto.timingSafeEqual(expectedBuf, providedBuf)
+  },
 }

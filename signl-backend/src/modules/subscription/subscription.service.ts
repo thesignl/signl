@@ -215,4 +215,103 @@ export const subscriptionService = {
       accessUntil: subscription.expiresAt?.toISOString() ?? null,
     }
   },
+
+  /**
+   * Server-to-server webhook from Razorpay. The authoritative source of truth
+   * for payment outcomes — covers the case where a user closes the browser
+   * between payment and the client-side /verify call.
+   *
+   * Idempotent: identical events arriving multiple times are safe to process.
+   * Signature verification (HMAC-SHA256 of the raw body with RAZORPAY_WEBHOOK_SECRET)
+   * is the only authentication; the route runs without `authenticate` middleware.
+   */
+  handleWebhook: async (rawBody: Buffer, signature: string) => {
+    if (!razorpayClient.verifyWebhookSignature(rawBody, signature)) {
+      throw AppError.unauthorized('Invalid webhook signature')
+    }
+
+    let event: {
+      event?: string
+      payload?: {
+        payment?: { entity?: Record<string, unknown> }
+      }
+    }
+    try {
+      event = JSON.parse(rawBody.toString('utf8'))
+    } catch {
+      throw AppError.badRequest('Invalid webhook payload')
+    }
+
+    const eventName = event.event ?? ''
+    const entity = event.payload?.payment?.entity ?? {}
+    const orderId = typeof entity.order_id === 'string' ? entity.order_id : undefined
+    const paymentId = typeof entity.id === 'string' ? entity.id : undefined
+
+    if (eventName === 'payment.captured' || eventName === 'order.paid') {
+      if (!orderId || !paymentId) {
+        // Acknowledge — nothing to do, but don't make Razorpay retry forever.
+        return { ok: true, event: eventName, action: 'skipped:missing-ids' }
+      }
+      await activateOnCapture(orderId, paymentId)
+      return { ok: true, event: eventName, action: 'activated' }
+    }
+
+    if (eventName === 'payment.failed') {
+      if (!orderId) {
+        return { ok: true, event: eventName, action: 'skipped:missing-order-id' }
+      }
+      const reason =
+        typeof entity.error_description === 'string'
+          ? entity.error_description
+          : 'Payment failed'
+      await markPaymentFailed(orderId, reason)
+      return { ok: true, event: eventName, action: 'marked-failed' }
+    }
+
+    // Other events (refunded, dispute.created, etc.) — acknowledge so Razorpay
+    // does not retry, but we don't act on them yet.
+    return { ok: true, event: eventName, action: 'ignored' }
+  },
+}
+
+/**
+ * Atomically capture the payment and activate the subscription. Idempotent:
+ * if the payment is already CAPTURED, this is a no-op so re-delivered webhooks
+ * (or a race between webhook + /verify) cannot double-activate.
+ */
+async function activateOnCapture(orderId: string, paymentId: string) {
+  const payment = await paymentRepository.findByRazorpayOrderId(orderId)
+  if (!payment) return // unknown order — nothing to activate
+  if (payment.status === 'CAPTURED') return
+
+  const startedAt = new Date()
+  const expiresAt = new Date(startedAt)
+  expiresAt.setDate(expiresAt.getDate() + PRO_PLAN_DURATION_DAYS)
+
+  await prisma.$transaction(async (tx) => {
+    await tx.payment.update({
+      where: { id: payment.id },
+      data: { status: 'CAPTURED', razorpayPaymentId: paymentId },
+    })
+    if (payment.subscriptionId) {
+      await tx.subscription.update({
+        where: { id: payment.subscriptionId },
+        data: {
+          status: 'ACTIVE',
+          startedAt,
+          expiresAt,
+          razorpayPaymentId: paymentId,
+        },
+      })
+    }
+  })
+}
+
+async function markPaymentFailed(orderId: string, failureReason: string) {
+  const payment = await paymentRepository.findByRazorpayOrderId(orderId)
+  if (!payment) return
+  // Don't overwrite a payment that has already been captured (success races
+  // with a later spurious 'failed' event — captured wins).
+  if (payment.status === 'CAPTURED') return
+  await paymentRepository.updateStatus(payment.id, 'FAILED', { failureReason })
 }

@@ -37,4 +37,22 @@ export const subscriptionController = {
     const result = await subscriptionService.cancel(user.id)
     return res.status(200).json({ success: true, data: result })
   },
+
+  /**
+   * Razorpay webhook receiver. The route uses express.raw, so req.body is a
+   * Buffer — signature verification needs the exact bytes received.
+   * No `authenticate` middleware: the webhook is authenticated by signature.
+   */
+  webhook: async (req: Request, res: Response) => {
+    const signature = req.headers['x-razorpay-signature']
+    if (typeof signature !== 'string' || !signature) {
+      return res.status(400).json({ success: false, message: 'Missing signature' })
+    }
+    const rawBody = req.body
+    if (!Buffer.isBuffer(rawBody)) {
+      return res.status(400).json({ success: false, message: 'Invalid body' })
+    }
+    const result = await subscriptionService.handleWebhook(rawBody, signature)
+    return res.status(200).json({ success: true, ...result })
+  },
 }
