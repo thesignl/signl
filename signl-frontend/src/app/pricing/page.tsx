@@ -24,7 +24,7 @@ export default function PricingPage() {
   const setSubscription = useSubscriptionStore((s) => s.setSubscription)
   const { toast } = useToast()
   const router = useRouter()
-  const { loaded: razorpayLoaded, openCheckout } = useRazorpay()
+  const { loaded: razorpayLoaded, failed: razorpayFailed, openCheckout } = useRazorpay()
 
   useEffect(() => {
     getPlans()
@@ -36,6 +36,13 @@ export default function PricingPage() {
   const handleUpgrade = async () => {
     if (!user) {
       router.push('/login?next=/pricing')
+      return
+    }
+    if (razorpayFailed) {
+      toast(
+        'Payment system could not load. Disable ad-blockers or try a different network.',
+        'error',
+      )
       return
     }
     if (!razorpayLoaded) {
