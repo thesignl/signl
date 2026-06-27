@@ -25,6 +25,9 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
       router.replace('/')
       return
     }
+    // One-shot guard gate: flips `ready` exactly once after the admin check
+    // passes. Not a cascading render — deps are stable post-hydration.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setReady(true)
   }, [user, hydrate, router])
 

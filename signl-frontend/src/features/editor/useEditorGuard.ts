@@ -30,6 +30,9 @@ export function useEditorGuard() {
       router.replace('/')
       return
     }
+    // One-shot guard gate: flips `ready` exactly once after the auth check
+    // passes. Not a cascading render — deps are stable post-hydration.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setReady(true)
   }, [user, hydrate, router])
 

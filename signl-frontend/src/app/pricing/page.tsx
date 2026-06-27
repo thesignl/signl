@@ -55,9 +55,10 @@ export default function PricingPage() {
     let orderData: Awaited<ReturnType<typeof checkout>>
     try {
       orderData = await checkout('PRO')
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { message?: string } } }
       setUpgrading(false)
-      toast(err?.response?.data?.message ?? 'Could not initiate checkout.', 'error')
+      toast(e?.response?.data?.message ?? 'Could not initiate checkout.', 'error')
       return
     }
 
