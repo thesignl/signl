@@ -17,6 +17,9 @@ export const createArticleSchema = z.object({
   contentText:
     z.string().optional(),
 
+  signal:
+    z.string().optional(),
+
   coverImage:
     z.string().optional(),
 
