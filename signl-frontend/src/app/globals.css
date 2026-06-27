@@ -1946,6 +1946,10 @@ a {
   color: var(--ink-4);
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  /* Ensure an accessible ≥40px touch target without enlarging the icon. */
+  min-width: 40px;
+  min-height: 40px;
   transition: color 0.15s ease, background 0.15s ease;
 }
 .bookmark-btn-icon:hover {
