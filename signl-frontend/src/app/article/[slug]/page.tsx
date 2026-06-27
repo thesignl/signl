@@ -142,6 +142,9 @@ export default async function ArticlePage({ params }: PageProps) {
 
         {article.paywalled ? (
           <div className="pw-gate">
+            <p className="pw-teaser-label" aria-label="Reading preview">
+              Reading preview
+            </p>
             <StoryContent
               contentText={article.contentText ?? null}
               blocks={article.blocks}

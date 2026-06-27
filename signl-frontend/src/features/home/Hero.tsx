@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import HeroSidebar from './HeroSidebar'
+import Badge from '@/components/ui/Badge'
 import type { Article } from '@/types/article'
 
 interface HeroProps {
@@ -36,10 +37,7 @@ export default function Hero({ article, supporting = [] }: HeroProps) {
                 </>
               ) : null}
               {article.premium ? (
-                <>
-                  <span className="sep">·</span>
-                  <span>Pro</span>
-                </>
+                <Badge variant="pro">Pro</Badge>
               ) : null}
             </div>
           </div>

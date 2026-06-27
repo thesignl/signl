@@ -2,11 +2,13 @@ import prisma from '../../infrastructure/prisma/client.js'
 import { Prisma } from '@prisma/client'
 
 export const subscriptionRepository = {
+  // Includes CANCELLED subscriptions still within their paid period (grace access).
+  // Phase A bug fix: status was 'ACTIVE' only, which cut off cancelled users immediately.
   findActiveByUserId: async (userId: string) => {
     return prisma.subscription.findFirst({
       where: {
         userId,
-        status: 'ACTIVE',
+        status: { in: ['ACTIVE', 'CANCELLED'] },
         OR: [
           { expiresAt: null },
           { expiresAt: { gt: new Date() } },
@@ -35,13 +37,27 @@ export const subscriptionRepository = {
     return prisma.subscription.create({ data })
   },
 
-  update: async (id: string, data: Partial<{
-    status: 'PENDING' | 'ACTIVE' | 'EXPIRED' | 'CANCELLED'
-    expiresAt: Date | null
-    razorpayPaymentId: string
-    razorpaySubscriptionId: string
-  }>) => {
+  update: async (
+    id: string,
+    data: Partial<{
+      status: 'PENDING' | 'ACTIVE' | 'EXPIRED' | 'CANCELLED'
+      startedAt: Date
+      expiresAt: Date | null
+      razorpayPaymentId: string
+      razorpaySubscriptionId: string
+    }>
+  ) => {
     return prisma.subscription.update({ where: { id }, data })
+  },
+
+  cancelSubscription: async (id: string) => {
+    return prisma.subscription.update({
+      where: { id },
+      data: {
+        status: 'CANCELLED',
+        cancelledAt: new Date(),
+      },
+    })
   },
 
   listAll: async (filters: { status?: string; page: number; limit: number }) => {

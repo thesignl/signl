@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Badge from '@/components/ui/Badge'
 import type { Article } from '@/types/article'
 
 interface Props {
@@ -39,6 +40,7 @@ export default function IntelligenceGrid({ articles = [] }: Props) {
             <div>
               <div className="art-meta-top">
                 <span className="art-tag">{article.category?.name}</span>
+                {article.premium ? <Badge variant="pro">Pro</Badge> : null}
               </div>
               <h3 className="art-headline">{article.title}</h3>
               <p className="art-deck">{article.summary}</p>

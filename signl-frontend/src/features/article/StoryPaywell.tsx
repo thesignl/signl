@@ -25,8 +25,8 @@ export default function StoryPaywall({ paywalled }: Props) {
         Deeper research, frameworks and operational insight — calibrated for
         investors, founders and analysts who think in systems.
       </p>
-      <Link href="/signup" className="btn btn-lg btn-accent">
-        Start free trial
+      <Link href="/pricing" className="btn btn-lg btn-accent">
+        See plans
       </Link>
       <div className="pw-note">₹499 / month · cancel anytime</div>
     </aside>
