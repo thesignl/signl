@@ -4000,7 +4000,7 @@ margin-bottom: 10px;
 .account-shell {
   display: grid;
   grid-template-columns: 220px 1fr;
-  min-height: calc(100vh - var(--nav-h) - var(--ticker-h) - 1px);
+  min-height: calc(100vh - var(--nav-h) - 1px);
   border-top: 1px solid var(--paper-3);
 }
 .account-sidebar {
@@ -4031,7 +4031,26 @@ margin-bottom: 10px;
 }
 .acct-sb-link:hover { color: var(--ink); background: var(--paper-2); }
 .acct-sb-link.active { color: var(--ink); background: var(--paper-2); font-weight: 600; }
-.account-content { padding: 40px 48px; }
+.account-content {
+  padding: 40px 48px;
+  /* Allow the grid track to shrink below its content's min-content width so
+     wide children (e.g. the billing table) scroll internally instead of
+     blowing out the page width. */
+  min-width: 0;
+}
+
+/* Account area responsive — stack the sidebar above content on mobile. */
+@media (max-width: 768px) {
+  .account-shell { grid-template-columns: 1fr; }
+  .account-sidebar {
+    border-right: none;
+    border-bottom: 1px solid var(--paper-3);
+    padding: 20px 16px;
+  }
+  .acct-sb-nav { flex-direction: row; gap: 6px; }
+  .acct-sb-link { flex: 1; text-align: center; }
+  .account-content { padding: 28px 20px; }
+}
 
 /* ─── ACCOUNT PAGES ─── */
 .acct-page { max-width: 620px; }
@@ -4147,7 +4166,8 @@ margin-bottom: 10px;
   background: var(--white);
   border: 1px solid var(--paper-3);
   border-radius: 10px;
-  overflow: hidden;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .billing-table {
   width: 100%;
