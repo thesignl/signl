@@ -13,6 +13,11 @@ import {
 } from '@/services/article.service'
 import type { Article } from '@/types/article'
 
+// ISR: re-generate the homepage at most once per minute so newly published
+// articles appear without a full redeploy, while keeping static-fast delivery.
+// Without this the page is frozen with build-time data (new content never shows).
+export const revalidate = 60
+
 export default async function HomePage() {
   // Fetch what each section actually needs. Errors isolated per call
   // so a flaky endpoint cannot blank the entire homepage.

@@ -719,6 +719,20 @@ a {
 
 /* ─── HOME FEED ─── */
 .home-feed { padding: 40px 0; }
+.intelligence-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 48px;
+}
+.intelligence-grid--two {
+  grid-template-columns: 1fr 1fr;
+}
+@media (max-width: 768px) {
+  .intelligence-grid--two {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
 .article-stack { display: flex; flex-direction: column; }
 .article-item {
   display: grid;
