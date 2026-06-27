@@ -58,13 +58,20 @@ export const razorpayClient = {
   ): boolean => {
     const secret = process.env.RAZORPAY_KEY_SECRET
     if (!secret) return false
+    // Reject obviously malformed signatures up front. Without this guard,
+    // Buffer.from('xx', 'hex') of an odd-length / non-hex input returns a
+    // truncated buffer and crypto.timingSafeEqual throws RangeError on
+    // mismatched lengths — turning a forged-signature request into a 500.
+    if (typeof signature !== 'string' || !/^[a-f0-9]{64}$/i.test(signature)) {
+      return false
+    }
     const expected = crypto
       .createHmac('sha256', secret)
       .update(`${orderId}|${paymentId}`)
       .digest('hex')
-    return crypto.timingSafeEqual(
-      Buffer.from(expected, 'hex'),
-      Buffer.from(signature, 'hex')
-    )
+    const expectedBuf = Buffer.from(expected, 'hex')
+    const providedBuf = Buffer.from(signature, 'hex')
+    if (expectedBuf.length !== providedBuf.length) return false
+    return crypto.timingSafeEqual(expectedBuf, providedBuf)
   },
 }
