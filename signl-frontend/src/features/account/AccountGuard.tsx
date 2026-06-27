@@ -9,30 +9,23 @@ export default function AccountGuard({ children }: { children: React.ReactNode }
   const pathname = usePathname()
   const [ready, setReady] = useState(false)
   const user = useAuthStore((s) => s.user)
-  const setAuth = useAuthStore((s) => s.setAuth)
+  const hydrate = useAuthStore((s) => s.hydrate)
 
   useEffect(() => {
     let current = user
-    if (!current && typeof window !== 'undefined') {
-      const token = localStorage.getItem('token')
-      const stored = localStorage.getItem('user')
-      if (token && stored) {
-        try {
-          const parsed = JSON.parse(stored)
-          setAuth(parsed, token)
-          current = parsed
-        } catch {
-          // ignore malformed storage
-        }
-      }
+    if (!current) {
+      hydrate()
+      current = useAuthStore.getState().user
     }
 
     if (!current) {
       router.replace(`/login?next=${encodeURIComponent(pathname ?? '/account/subscription')}`)
       return
     }
+    // One-shot guard gate: flips `ready` once the auth check passes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setReady(true)
-  }, [user, setAuth, router, pathname])
+  }, [user, hydrate, router, pathname])
 
   if (!ready) return null
   return <>{children}</>
