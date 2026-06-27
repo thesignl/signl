@@ -82,6 +82,26 @@ export const subscriptionService = {
       throw new AppError(503, 'Payment processing is not configured. Contact support.', 'PAYMENT_NOT_CONFIGURED')
     }
 
+    // Reuse a recent still-open PENDING checkout instead of creating a
+    // duplicate order + subscription on repeated "Upgrade" clicks. This
+    // prevents orphan Razorpay orders and DB bloat from double-submits.
+    const reusable = await subscriptionRepository.findReusablePending(userId)
+    if (reusable && reusable.razorpayOrderId) {
+      const existingPayment = await paymentRepository.findByRazorpayOrderId(
+        reusable.razorpayOrderId,
+      )
+      if (existingPayment && existingPayment.status === 'PENDING') {
+        return {
+          razorpayOrderId: reusable.razorpayOrderId,
+          razorpayKeyId: keyId,
+          amount: existingPayment.amount,
+          currency: existingPayment.currency,
+          plan,
+          subscriptionId: reusable.id,
+        }
+      }
+    }
+
     // Create Razorpay order
     const receipt = `rcpt_${userId.slice(-8)}_${Date.now()}`
     const order = await razorpayClient.createOrder(planDef.price, planDef.currency, receipt)
