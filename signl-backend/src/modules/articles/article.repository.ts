@@ -1,5 +1,6 @@
 import prisma
 from '../../infrastructure/prisma/client.js'
+import { Prisma } from '@prisma/client'
 
 import { CreateArticleDTO }
 from './article.types.js'
@@ -245,6 +246,59 @@ search: async (
         }
       }
     })
+  },
+
+  /**
+   * Records a view accurately.
+   * - Logged-in reader: a view is counted only on their FIRST read of the
+   *   article. Subsequent reads/refreshes update their ReadingHistory
+   *   timestamp but do NOT inflate the view count — so `views` reflects
+   *   unique signed-in readers, not raw page hits.
+   * - Anonymous reader: best-effort single increment (no identity to dedupe
+   *   against), which is the standard limitation without session tracking.
+   */
+  recordView: async (
+    articleId: string,
+    slug: string,
+    userId: string | null,
+  ) => {
+    if (!userId) {
+      // Anonymous — cannot dedupe without a session identity.
+      await prisma.article.update({
+        where: { slug },
+        data: { views: { increment: 1 } },
+      })
+      return
+    }
+
+    // Logged-in — only the first read counts as a view. We rely on the
+    // @@unique([userId, articleId]) constraint as the atomic guard rather
+    // than a check-then-act (which can double-count under concurrent reads):
+    // attempt to CREATE the history row; if it succeeds this is the reader's
+    // first read → increment. If it throws P2002 the row already exists →
+    // just refresh the timestamp, no increment.
+    try {
+      await prisma.readingHistory.create({
+        data: { userId, articleId, progress: 0 },
+      })
+      await prisma.article.update({
+        where: { id: articleId },
+        data: { views: { increment: 1 } },
+      })
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2002'
+      ) {
+        // Already read before — update last-read time only, no new view.
+        await prisma.readingHistory.update({
+          where: { userId_articleId: { userId, articleId } },
+          data: { lastReadAt: new Date() },
+        })
+        return
+      }
+      throw err
+    }
   },
 
   getAnalysisArticles: async () => {

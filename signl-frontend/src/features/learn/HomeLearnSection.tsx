@@ -41,7 +41,6 @@ export default function HomeLearnSection({
               <h3 className="learn-strip-title">{article.title}</h3>
               <div className="learn-strip-meta">
                 {article.author?.name}
-                {article.readTime ? ` · ${article.readTime} min read` : ''}
               </div>
             </Link>
           ))}

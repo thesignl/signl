@@ -1,7 +1,7 @@
 'use client'
 
 import { useEditorStore } from '@/store/editor.store'
-import { countAllWords, estReadTime } from './editor.helpers'
+import { countAllWords } from './editor.helpers'
 import { Pill } from './EditorBits'
 
 export default function StatsStrip({
@@ -14,7 +14,6 @@ export default function StatsStrip({
   if (!state) return null
 
   const words = countAllWords(state)
-  const read = estReadTime(state)
   const saveText =
     saveStatus === 'saving'
       ? 'Saving…'
@@ -27,9 +26,6 @@ export default function StatsStrip({
       <div className="ed-stats-group">
         <span className="ed-stat">
           <strong>{words}</strong>words
-        </span>
-        <span className="ed-stat">
-          <strong>{read}</strong>min read
         </span>
         <span className="ed-stat">
           {state.depths.length} depth{state.depths.length > 1 ? 's' : ''}

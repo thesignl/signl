@@ -11,6 +11,7 @@ import type {
   UpdateDraftInput,
 } from './editor.validation.js'
 import { AppError } from '../../shared/errors/errorHandler.js'
+import { sanitizeArticleHtml, htmlToPlainText } from '../../shared/sanitize.js'
 
 type Actor = { id: string; name?: string; role: string }
 
@@ -36,6 +37,12 @@ function serializeForEditor(article: EditorArticlePayload | null) {
     deck: meta.deck,
     summary: article.summary ?? '',
     synopsis: article.summary ?? '',
+    // Universal editor (post-refactor) shape — these are non-null when the
+    // article was written in the new editor; null on legacy block-based ones.
+    subheading: article.summary ?? '',
+    contentHtml: article.contentHtml ?? '',
+    contentJson: article.contentJson ?? null,
+    contentText: article.contentText ?? '',
     summaryPoints: meta.summaryPoints,
     depths: meta.depths,
     signal: article.signal ?? '',
@@ -116,13 +123,31 @@ export const editorService = {
     assertOwnership(existing, actor)
 
     const title = data.headline ?? data.title
-    const summary = data.synopsis ?? data.summary
+    // The new universal editor sends `subheading`; legacy callers send
+    // `summary` / `synopsis`. They all map to the same Article.summary column.
+    const summary = data.subheading ?? data.synopsis ?? data.summary
 
     const scalar: Record<string, unknown> = {
       updatedById: actor.id,
     }
     if (title !== undefined) scalar.title = title
     if (summary !== undefined) scalar.summary = summary
+
+    // Universal editor body — sanitize HTML on every write so the DB never
+    // holds anything dangerous. Derive plaintext from sanitized HTML so
+    // contentText, search, and paywall truncation stay accurate without an
+    // additional client field.
+    if (data.contentHtml !== undefined) {
+      const safeHtml = data.contentHtml === null ? '' : sanitizeArticleHtml(data.contentHtml)
+      scalar.contentHtml = safeHtml || null
+      scalar.contentText = htmlToPlainText(safeHtml) || null
+    }
+    if (data.contentJson !== undefined) {
+      // contentJson is the editor's native round-trip format — stored verbatim
+      // (it never reaches the reader, so no sanitization needed).
+      scalar.contentJson = data.contentJson === null ? null : (data.contentJson as object)
+    }
+
     if (data.signal !== undefined) scalar.signal = data.signal
     if (data.coverImage !== undefined) scalar.coverImage = data.coverImage
     if (data.premium !== undefined) scalar.premium = data.premium

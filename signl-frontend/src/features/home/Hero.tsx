@@ -28,8 +28,6 @@ export default function Hero({ article, supporting = [] }: HeroProps) {
 
             <div className="hero-meta">
               <span>{article.author?.name}</span>
-              <span className="sep">·</span>
-              <span>{article.readTime} min read</span>
               {article.verified ? (
                 <>
                   <span className="sep">·</span>

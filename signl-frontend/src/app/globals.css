@@ -1449,6 +1449,7 @@ a {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  list-style-type: disc;
 }
 .story-list li {
   font-size: 17px;
@@ -4217,3 +4218,321 @@ margin-bottom: 10px;
 }
 
 
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   UNIVERSAL EDITOR — TipTap-based writing surface (Title + Subheading + Body)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.universal-editor {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+/* ── Top bar ──────────────────────────────────────────────────────────── */
+.ue-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 22px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--paper-3);
+}
+.ue-iconbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  color: var(--ink-3);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 18px;
+}
+.ue-iconbtn:hover { background: var(--paper-2); color: var(--ink); }
+.ue-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ue-pill {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--paper-2);
+  color: var(--ink-3);
+  justify-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.ue-pill::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--ink-4);
+  display: inline-block;
+}
+.ue-pill-synced { color: #1a6b3c; }
+.ue-pill-synced::before { background: #1a6b3c; }
+.ue-pill-saving { color: var(--ink-3); }
+.ue-pill-saving::before { background: var(--accent); animation: ue-pulse 1s ease-in-out infinite; }
+.ue-pill-error { color: var(--accent); }
+.ue-pill-error::before { background: var(--accent); }
+@keyframes ue-pulse { 0%,100% { opacity: 0.4 } 50% { opacity: 1 } }
+
+.ue-drafts-btn {
+  padding: 8px 16px;
+  border: 1px solid var(--paper-4);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+}
+.ue-drafts-btn:hover { background: var(--paper-2); }
+.ue-publish-btn {
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: none;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 38px;
+}
+.ue-publish-btn:hover:not(:disabled) { background: var(--accent); }
+.ue-publish-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Formatting toolbar ────────────────────────────────────────────────── */
+.ue-toolbar {
+  position: sticky;
+  top: 65px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 22px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--paper-3);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.ue-tb-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink-3);
+  font-family: var(--serif);
+  font-size: 14px;
+  cursor: pointer;
+}
+.ue-tb-btn:hover { background: var(--paper-2); color: var(--ink); }
+.ue-tb-btn.is-active {
+  background: var(--paper-3);
+  color: var(--ink);
+  border-color: var(--paper-4);
+}
+.ue-tb-sep {
+  width: 1px;
+  height: 22px;
+  background: var(--paper-3);
+  margin: 0 6px;
+}
+
+/* ── Document ─────────────────────────────────────────────────────────── */
+.ue-document {
+  max-width: 760px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 48px 24px 200px;
+  display: flex;
+  flex-direction: column;
+}
+.ue-title {
+  font-family: var(--serif);
+  font-size: 44px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--ink);
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0;
+  margin-bottom: 16px;
+  width: 100%;
+}
+.ue-title::placeholder { color: var(--ink-4); }
+.ue-subheading {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--ink-3);
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0;
+  margin-bottom: 32px;
+  width: 100%;
+  resize: none;
+  overflow: hidden;
+  font-weight: 400;
+}
+.ue-subheading::placeholder { color: var(--ink-4); }
+
+/* TipTap content surface */
+.universal-editor-body {
+  outline: none;
+  min-height: 60vh;
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.7;
+  color: var(--ink);
+}
+.universal-editor-body > * + * { margin-top: 1em; }
+.universal-editor-body h1 {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  margin-top: 1.4em;
+}
+.universal-editor-body h2 {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-top: 1.4em;
+}
+.universal-editor-body h3 {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 1.2em;
+}
+.universal-editor-body p { font-size: 19px; }
+.universal-editor-body a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+.universal-editor-body ul,
+.universal-editor-body ol {
+  padding-left: 28px;
+}
+.universal-editor-body ul { list-style-type: disc; }
+.universal-editor-body ol { list-style-type: decimal; }
+.universal-editor-body blockquote {
+  border-left: 3px solid var(--accent);
+  padding: 6px 0 6px 20px;
+  font-style: italic;
+  color: var(--ink-2);
+}
+.universal-editor-body hr {
+  border: none;
+  border-top: 1px solid var(--paper-3);
+  margin: 32px 0;
+}
+.universal-editor-body code {
+  font-family: var(--mono);
+  font-size: 0.9em;
+  background: var(--paper-2);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.universal-editor-body p.is-editor-empty:first-child::before,
+.universal-editor-body.is-empty::before {
+  content: attr(data-placeholder);
+  color: var(--ink-4);
+  pointer-events: none;
+  height: 0;
+  float: left;
+}
+
+/* Reader: style server-rendered story-body-rich (sanitized HTML) the same
+   way as the editor's writing surface, so WYSIWYG holds. */
+.story-body.story-body-rich h1,
+.story-body.story-body-rich h2,
+.story-body.story-body-rich h3 {
+  font-family: var(--serif);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 1.4em 0 0.4em;
+}
+.story-body.story-body-rich h1 { font-size: 30px; }
+.story-body.story-body-rich h2 { font-size: 24px; }
+.story-body.story-body-rich h3 { font-size: 19px; }
+.story-body.story-body-rich p {
+  margin: 1em 0;
+  font-size: 18px;
+  line-height: 1.75;
+}
+.story-body.story-body-rich a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+.story-body.story-body-rich blockquote {
+  border-left: 3px solid var(--accent);
+  padding: 6px 0 6px 20px;
+  margin: 28px 0;
+  font-style: italic;
+  font-family: var(--serif);
+  font-size: 19px;
+  color: var(--ink-2);
+}
+.story-body.story-body-rich ul,
+.story-body.story-body-rich ol {
+  padding-left: 26px;
+  margin: 1em 0;
+}
+.story-body.story-body-rich ul { list-style-type: disc; }
+.story-body.story-body-rich ol { list-style-type: decimal; }
+.story-body.story-body-rich li { margin: 0.3em 0; line-height: 1.7; }
+.story-body.story-body-rich hr {
+  border: none;
+  border-top: 1px solid var(--paper-3);
+  margin: 32px 0;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .ue-topbar { padding: 10px 14px; gap: 8px; }
+  .ue-pill { font-size: 10.5px; padding: 5px 9px; }
+  .ue-drafts-btn { padding: 6px 12px; font-size: 12px; min-height: 36px; }
+  .ue-publish-btn { padding: 6px 14px; font-size: 12px; min-height: 36px; }
+  .ue-toolbar { padding: 6px 12px; top: 58px; }
+  .ue-document { padding: 28px 18px 180px; }
+  .ue-title { font-size: 30px; }
+  .ue-subheading { font-size: 17px; margin-bottom: 24px; }
+  .universal-editor-body { font-size: 17px; }
+  .universal-editor-body h1 { font-size: 26px; }
+  .universal-editor-body h2 { font-size: 22px; }
+  .universal-editor-body h3 { font-size: 18px; }
+}

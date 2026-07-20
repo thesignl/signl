@@ -46,6 +46,8 @@ export interface Article {
   slug: string
   summary: string
   contentText?: string | null
+  /** Sanitized HTML from the universal editor (new shape). Renders verbatim. */
+  contentHtml?: string | null
   signal?: string | null
   coverImage?: string | null
 

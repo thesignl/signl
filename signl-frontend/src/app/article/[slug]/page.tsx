@@ -100,10 +100,6 @@ export default async function ArticlePage({ params }: PageProps) {
               <span>{dateLabel}</span>
             </>
           ) : null}
-          <span className="sep">·</span>
-          <span>{article.readTime} min read</span>
-          <span className="sep">·</span>
-          <span>{article.views?.toLocaleString() ?? 0} views</span>
           {article.verified ? (
             <>
               <span className="sep">·</span>
@@ -147,6 +143,7 @@ export default async function ArticlePage({ params }: PageProps) {
             </p>
             <StoryContent
               contentText={article.contentText ?? null}
+              contentHtml={article.contentHtml ?? null}
               blocks={article.blocks}
             />
             <div className="pw-fade" aria-hidden />
@@ -154,6 +151,7 @@ export default async function ArticlePage({ params }: PageProps) {
         ) : (
           <StoryContent
             contentText={article.contentText ?? null}
+            contentHtml={article.contentHtml ?? null}
             blocks={article.blocks}
           />
         )}

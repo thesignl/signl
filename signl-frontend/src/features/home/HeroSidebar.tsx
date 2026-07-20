@@ -24,7 +24,6 @@ export default function HeroSidebar({ articles }: { articles: Article[] }) {
           <h3 className="hs-headline">{article.title}</h3>
           <span className="hs-meta">
             {article.author?.name}
-            {article.readTime ? ` · ${article.readTime} min` : ''}
           </span>
         </Link>
       ))}

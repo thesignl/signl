@@ -36,14 +36,6 @@ export default function ArticleCard({ article }: { article: Article }) {
           <span>{article.author?.name}</span>
           <span className="sep">·</span>
           <span>{formatDate(article.publishedAt ?? article.createdAt)}</span>
-          {article.readTime ? (
-            <>
-              <span className="sep">·</span>
-              <span>{article.readTime} min read</span>
-            </>
-          ) : null}
-          <span className="sep">·</span>
-          <span>{article.views?.toLocaleString() ?? 0} views</span>
           <span style={{ marginLeft: 'auto' }}>
             <BookmarkButton article={article} variant="compact" />
           </span>

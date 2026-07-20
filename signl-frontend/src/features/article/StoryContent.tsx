@@ -13,19 +13,36 @@ interface BlockContent {
 }
 
 /**
- * Renders the article body. The Signl API delivers long-form copy
- * either as a single `contentText` string or (eventually) as an
- * ordered list of typed `blocks`. We support both shapes so we can
- * lift the renderer to richer content without churn.
+ * Renders the article body. The reader supports three shapes, in priority:
+ * 1. `contentHtml` — sanitized HTML from the universal editor (new shape).
+ *    Trusted because the backend ran sanitize-html on every save before
+ *    persistence. Rendered via dangerouslySetInnerHTML.
+ * 2. `blocks` — legacy block list (older articles still render correctly).
+ * 3. `contentText` — final fallback, plain text split into paragraphs.
  */
 export default function StoryContent({
   contentText,
   blocks,
+  contentHtml,
 }: {
   contentText: string | null
   blocks?: ContentBlock[]
+  contentHtml?: string | null
 }) {
-  // Rich-block path
+  // 1. Universal editor path — render sanitized HTML directly.
+  if (contentHtml && contentHtml.trim().length > 0) {
+    return (
+      <div
+        className="story-body story-body-rich"
+        // Server-sanitized via sanitize-html on every save (see
+        // signl-backend/src/shared/sanitize.ts). Allowlist policy disallows
+        // script, on* handlers, javascript: URLs, etc.
+        dangerouslySetInnerHTML={{ __html: contentHtml }}
+      />
+    )
+  }
+
+  // 2. Legacy block path
   if (blocks && blocks.length > 0) {
     const sorted = [...blocks].sort((a, b) => a.position - b.position)
     return (

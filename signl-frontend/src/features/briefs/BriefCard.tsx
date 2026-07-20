@@ -8,7 +8,6 @@ export default function BriefCard({ article }: { article: Article }) {
     <Link href={`/article/${article.slug}`} className="brief-card">
       <div className="brief-card-tag">
         <span className="cat">{article.category?.name}</span>
-        <span>{article.readTime} min</span>
       </div>
 
       <h3 className="brief-card-headline">{article.title}</h3>
@@ -17,7 +16,6 @@ export default function BriefCard({ article }: { article: Article }) {
       <div className="brief-card-footer">
         <span>{article.author?.name}</span>
         <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <span>{article.views?.toLocaleString() ?? 0} views</span>
           {article.premium ? <Badge variant="pro">Pro</Badge> : null}
         </span>
       </div>

@@ -90,6 +90,10 @@ export interface EditorArticle {
   deck: string
   summary: string
   synopsis: string
+  // Universal editor (post-refactor). Null/empty on legacy block articles.
+  subheading?: string
+  contentHtml?: string
+  contentJson?: unknown
   summaryPoints: string[]
   depths: Depth[]
   signal: string

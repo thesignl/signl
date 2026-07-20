@@ -49,8 +49,6 @@ export default function IntelligenceGrid({ articles = [] }: Props) {
               <p className="art-deck">{article.summary}</p>
               <div className="art-meta">
                 <span>{article.author?.name}</span>
-                <span className="sep">·</span>
-                <span>{article.readTime} min read</span>
               </div>
             </div>
           </Link>

@@ -63,9 +63,6 @@ export default function SavedPanel() {
                 </div>
                 <div className="saved-item-meta">
                   {bookmark.article.author?.name}
-                  {bookmark.article.readTime
-                    ? ` · ${bookmark.article.readTime} min read`
-                    : ''}
                 </div>
               </Link>
             ))}

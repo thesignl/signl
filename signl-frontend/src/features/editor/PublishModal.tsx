@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { useEditorStore } from '@/store/editor.store'
 import {
   countAllWords,
-  estReadTime,
   prePublishWarnings,
 } from './editor.helpers'
 import { DepthChips } from './EditorBits'
@@ -89,7 +88,7 @@ export default function PublishModal({
                   marginLeft: 6,
                 }}
               >
-                {countAllWords(state)} words · {estReadTime(state)} min
+                {countAllWords(state)} words
               </span>
             </div>
           </div>

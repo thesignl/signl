@@ -61,8 +61,12 @@ export const articleService = {
       throw AppError.notFound('Article not found')
     }
 
-    // Fire-and-forget view increment — never block or fail the read on it.
-    void articleRepository.incrementViews(slug).catch(() => {})
+    // Fire-and-forget, accuracy-aware view recording — never block or fail
+    // the read on it. Logged-in readers are deduped (one view per reader);
+    // anonymous reads are best-effort.
+    void articleRepository
+      .recordView(article.id, slug, actor?.id ?? null)
+      .catch(() => {})
 
     if (article.premium) {
       const subscribed = actor

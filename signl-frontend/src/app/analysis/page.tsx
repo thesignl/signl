@@ -3,7 +3,6 @@ import type { Metadata } from 'next'
 import { getAnalysisFeed } from '@/services/article.service'
 
 import AnalysisFeed from '@/features/analysis/AnalysisFeed'
-import FrameworkTabs from '@/features/analysis/FrameworkTabs'
 import EmptyState from '@/components/ui/EmptyState'
 import type { Article } from '@/types/article'
 
@@ -13,21 +12,8 @@ export const metadata: Metadata = {
     'Deep, framework-driven analysis on macro, markets, policy and capital flows.',
 }
 
-interface PageProps {
-  searchParams?: Promise<{ topic?: string }>
-}
-
-export default async function AnalysisPage({ searchParams }: PageProps) {
-  const params = (await searchParams) ?? {}
+export default async function AnalysisPage() {
   const articles = await getAnalysisFeed().catch(() => [] as Article[])
-
-  const topic = (params.topic ?? 'all').toLowerCase()
-  const filtered =
-    topic === 'all'
-      ? articles
-      : articles.filter(
-          (a) => a.category?.name?.toLowerCase() === topic,
-        )
 
   return (
     <>
@@ -45,15 +31,13 @@ export default async function AnalysisPage({ searchParams }: PageProps) {
 
       <div className="page-shell">
         <div className="container">
-          <FrameworkTabs current={topic} />
-
-          {filtered.length === 0 ? (
+          {articles.length === 0 ? (
             <EmptyState
-              title="No analysis in this topic yet"
-              description="New work will appear here as it publishes. Try a different topic, or browse all analysis."
+              title="No analysis published yet"
+              description="New work will appear here as it publishes. Check back shortly."
             />
           ) : (
-            <AnalysisFeed articles={filtered} />
+            <AnalysisFeed articles={articles} />
           )}
         </div>
       </div>
