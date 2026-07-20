@@ -24,7 +24,7 @@ export default function PricingPage() {
   const setSubscription = useSubscriptionStore((s) => s.setSubscription)
   const { toast } = useToast()
   const router = useRouter()
-  const { loaded: razorpayLoaded, openCheckout } = useRazorpay()
+  const { loaded: razorpayLoaded, failed: razorpayFailed, openCheckout } = useRazorpay()
 
   useEffect(() => {
     getPlans()
@@ -38,6 +38,13 @@ export default function PricingPage() {
       router.push('/login?next=/pricing')
       return
     }
+    if (razorpayFailed) {
+      toast(
+        'Payment system could not load. Disable ad-blockers or try a different network.',
+        'error',
+      )
+      return
+    }
     if (!razorpayLoaded) {
       toast('Payment system is loading. Please try again in a moment.', 'info')
       return
@@ -48,9 +55,10 @@ export default function PricingPage() {
     let orderData: Awaited<ReturnType<typeof checkout>>
     try {
       orderData = await checkout('PRO')
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { message?: string } } }
       setUpgrading(false)
-      toast(err?.response?.data?.message ?? 'Could not initiate checkout.', 'error')
+      toast(e?.response?.data?.message ?? 'Could not initiate checkout.', 'error')
       return
     }
 

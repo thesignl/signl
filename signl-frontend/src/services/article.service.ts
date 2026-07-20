@@ -12,7 +12,7 @@ export const getArticle = async (slug: string): Promise<Article | null> => {
 }
 
 export const searchArticles = async (query: string): Promise<Article[]> => {
-  const response = await api.get(`/articles/search?q=${query}`)
+  const response = await api.get('/articles/search', { params: { q: query } })
   return response.data.data
 }
 

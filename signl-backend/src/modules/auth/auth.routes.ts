@@ -1,39 +1,18 @@
-import { Router }
-from 'express'
+import { Router } from 'express'
 
-import {
-  authController
-}
-from './auth.controller.js'
-
-import rateLimit from 'express-rate-limit'
+import { authController } from './auth.controller.js'
+import { authenticate } from './auth.middleware.js'
+import { asyncHandler } from '../../shared/utils/asyncHandler.js'
 
 const router = Router()
 
-const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 10,
-  standardHeaders: 'draft-7',
-  legacyHeaders: false,
-})
+// Note: /api/auth is already rate-limited at the app level (authLimiter:
+// 20 req / 15 min per IP). These per-route limits add defense-in-depth.
 
-const signupLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000,
-  limit: 5,
-  standardHeaders: 'draft-7',
-  legacyHeaders: false,
-})
-
-router.post(
-  '/signup',
-  signupLimiter,
-  authController.signup
-)
-
-router.post(
-  '/login',
-  loginLimiter,
-  authController.login
-)
+router.post('/signup', asyncHandler(authController.signup))
+router.post('/login', asyncHandler(authController.login))
+router.post('/refresh', asyncHandler(authController.refresh))
+router.post('/logout', asyncHandler(authController.logout))
+router.get('/me', authenticate, asyncHandler(authController.me))
 
 export default router

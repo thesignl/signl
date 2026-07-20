@@ -4,7 +4,6 @@ import { getLearnFeed } from '@/services/article.service'
 
 import LearnHero from '@/features/learn/LearnHero'
 import LearnFeed from '@/features/learn/LearnFeed'
-import LearningTracks from '@/features/learn/LearningTracks'
 import EmptyState from '@/components/ui/EmptyState'
 import type { Article } from '@/types/article'
 
@@ -14,34 +13,20 @@ export const metadata: Metadata = {
     'Durable learn tracks — macroeconomics, markets, AI systems, startup mechanics, geopolitical structures.',
 }
 
-interface PageProps {
-  searchParams?: Promise<{ track?: string }>
-}
-
-export default async function LearnPage({ searchParams }: PageProps) {
-  const params = (await searchParams) ?? {}
+export default async function LearnPage() {
   const articles = await getLearnFeed().catch(() => [] as Article[])
-
-  const track = (params.track ?? 'all').toLowerCase()
-  const filtered =
-    track === 'all'
-      ? articles
-      : articles.filter(
-          (a) => a.category?.name?.toLowerCase() === track,
-        )
 
   return (
     <main className="learn-page">
       <div className="container">
         <LearnHero />
-        <LearningTracks current={track} />
-        {filtered.length === 0 ? (
+        {articles.length === 0 ? (
           <EmptyState
-            title="No tracks in this category yet"
-            description="More learn tracks will appear here. Try a different track, or browse all."
+            title="No learn tracks yet"
+            description="New learn tracks will appear here as they publish. Check back shortly."
           />
         ) : (
-          <LearnFeed articles={filtered} />
+          <LearnFeed articles={articles} />
         )}
       </div>
     </main>

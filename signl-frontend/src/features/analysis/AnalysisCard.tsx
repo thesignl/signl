@@ -18,10 +18,6 @@ export default function AnalysisCard({ article }: { article: Article }) {
       <div className="dac-footer">
         <div className="dac-footer-meta">
           <span>{article.author?.name}</span>
-          <span>·</span>
-          <span>{article.readTime} min read</span>
-          <span>·</span>
-          <span>{article.views?.toLocaleString() ?? 0} views</span>
         </div>
         <span
           className="btn btn-sm btn-ghost"

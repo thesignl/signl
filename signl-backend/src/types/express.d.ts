@@ -9,7 +9,10 @@ declare global {
     }
 
     interface Request {
-      user: UserPayload
+      // Optional: only present after `authenticate` middleware succeeds.
+      // Use `requireAuth(req)` from auth.middleware to assert presence.
+      user?: UserPayload
+      id?: string
     }
   }
 }

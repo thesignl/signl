@@ -28,11 +28,18 @@ export default function SignupPage() {
   const validate = () => {
     const next: typeof errors = {}
     if (!name.trim()) next.name = 'Please enter your name.'
+    else if (name.trim().length < 2) next.name = 'Name must be at least 2 characters.'
     if (!email) next.email = 'Email is required.'
     else if (!/^\S+@\S+\.\S+$/.test(email)) next.email = 'Enter a valid email address.'
     if (!password) next.password = 'Choose a password.'
     else if (password.length < 8)
       next.password = 'Use at least 8 characters.'
+    else if (!/[a-z]/.test(password))
+      next.password = 'Include at least one lowercase letter.'
+    else if (!/[A-Z]/.test(password))
+      next.password = 'Include at least one uppercase letter.'
+    else if (!/[0-9]/.test(password))
+      next.password = 'Include at least one number.'
     setErrors(next)
     return Object.keys(next).length === 0
   }

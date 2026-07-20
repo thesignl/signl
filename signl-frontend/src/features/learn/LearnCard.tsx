@@ -15,8 +15,6 @@ export default function LearnCard({ article }: { article: Article }) {
 
       <div className="learn-card-meta">
         <span>{article.author?.name}</span>
-        <span>·</span>
-        <span>{article.readTime} min read</span>
       </div>
     </Link>
   )

@@ -44,6 +44,11 @@ export const createDraftSchema = z.object({
   headline: z.string().max(300).optional(),
   summary: z.string().optional(),
   synopsis: z.string().optional(),
+  // Universal editor fields (post-refactor). All optional — legacy callers
+  // that don't send these are unaffected.
+  subheading: z.string().max(500).optional(),
+  contentHtml: z.string().optional(),
+  contentJson: z.unknown().optional(),
   articleType: z
     .enum(['ARTICLE', 'ANALYSIS', 'BRIEF', 'LEARN'])
     .optional(),
@@ -57,6 +62,10 @@ export const updateDraftSchema = z.object({
   headline: z.string().max(300).optional(),
   summary: z.string().optional(),
   synopsis: z.string().optional(),
+  // Universal editor fields (post-refactor). All optional.
+  subheading: z.string().max(500).optional().nullable(),
+  contentHtml: z.string().optional().nullable(),
+  contentJson: z.unknown().optional(),
   deck: z.string().optional(),
   signal: z.string().optional(),
   slug: z.string().max(120).optional().nullable(),

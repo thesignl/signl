@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useEditorStore } from '@/store/editor.store'
-import { countAllWords, estReadTime } from './editor.helpers'
+import { countAllWords } from './editor.helpers'
 import type { Depth, EditorBlock } from '@/types/editor'
 
 function BlockView({ block }: { block: EditorBlock }) {
@@ -120,8 +120,7 @@ export default function PreviewModal({
             </div>
 
             <div className="ed-preview-meta">
-              By {authorName} · {estReadTime(state)} min read ·{' '}
-              {countAllWords(state)} words
+              By {authorName} · {countAllWords(state)} words
             </div>
 
             {bodyDepth !== 'summary' && state.depths.includes('article') ? (

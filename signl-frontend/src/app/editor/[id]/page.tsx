@@ -4,18 +4,16 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 
-import EditorWorkspace from '@/features/editor/EditorWorkspace'
+import UniversalEditor from '@/features/editor/UniversalEditor'
 import { useEditorGuard } from '@/features/editor/useEditorGuard'
-import { useEditorStore } from '@/store/editor.store'
-import { getDraft } from '@/services/editor.service'
+import { getDraft, type EditorArticle } from '@/services/editor.service'
 
 export default function EditDraftPage() {
   const { ready } = useEditorGuard()
   const params = useParams()
   const id = params.id as string
-  const hydrate = useEditorStore((s) => s.hydrate)
-  const reset = useEditorStore((s) => s.reset)
 
+  const [draft, setDraft] = useState<EditorArticle | null>(null)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
 
   useEffect(() => {
@@ -24,16 +22,15 @@ export default function EditDraftPage() {
     getDraft(id)
       .then((article) => {
         if (alive) {
-          hydrate(article)
+          setDraft(article)
           setStatus('ready')
         }
       })
       .catch(() => alive && setStatus('error'))
     return () => {
       alive = false
-      reset()
     }
-  }, [ready, id, hydrate, reset])
+  }, [ready, id])
 
   if (!ready) return null
 
@@ -54,7 +51,7 @@ export default function EditDraftPage() {
     )
   }
 
-  if (status === 'error') {
+  if (status === 'error' || !draft) {
     return (
       <div
         style={{
@@ -76,5 +73,5 @@ export default function EditDraftPage() {
     )
   }
 
-  return <EditorWorkspace />
+  return <UniversalEditor draft={draft} />
 }

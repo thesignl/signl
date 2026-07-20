@@ -36,6 +36,7 @@ declare global {
 
 export function useRazorpay() {
   const [loaded, setLoaded] = useState(false)
+  const [failed, setFailed] = useState(false)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -43,11 +44,26 @@ export function useRazorpay() {
       setLoaded(true)
       return
     }
+    // Reuse an existing tag if another mount already injected it.
+    const existing = document.querySelector<HTMLScriptElement>(
+      'script[src="https://checkout.razorpay.com/v1/checkout.js"]',
+    )
+    if (existing) {
+      if (window.Razorpay) setLoaded(true)
+      else {
+        existing.addEventListener('load', () => setLoaded(true))
+        existing.addEventListener('error', () => setFailed(true))
+      }
+      return
+    }
     const script = document.createElement('script')
     script.src = 'https://checkout.razorpay.com/v1/checkout.js'
     script.async = true
     script.onload = () => setLoaded(true)
-    script.onerror = () => console.error('[Razorpay] Failed to load checkout.js')
+    script.onerror = () => {
+      setFailed(true)
+      console.error('[Razorpay] Failed to load checkout.js')
+    }
     document.head.appendChild(script)
     // Script is intentionally not removed on cleanup — keep it for reuse across navigations
   }, [])
@@ -57,5 +73,5 @@ export function useRazorpay() {
     new window.Razorpay(options).open()
   }
 
-  return { loaded, openCheckout }
+  return { loaded, failed, openCheckout }
 }

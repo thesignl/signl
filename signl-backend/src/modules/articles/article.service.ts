@@ -5,24 +5,23 @@ import { CreateArticleDTO }
 from './article.types.js'
 
 import { subscriptionService } from '../subscription/subscription.service.js'
+import { AppError } from '../../shared/errors/errorHandler.js'
+import type { CreateArticleInput, UpdateArticleInput } from './article.validation.js'
+
+interface Actor { id: string; role: string }
 
 export const articleService = {
 
   createArticle: async (
-    data: any,
-    user: any
+    data: CreateArticleInput,
+    user: Actor
   ) => {
 
-    const existing =
-      await articleRepository.findBySlug(
-        data.slug
-      )
-
-    if (existing) {
-
-      throw new Error(
-        'Article slug already exists'
-      )
+    if (data.slug) {
+      const existing = await articleRepository.findBySlug(data.slug)
+      if (existing) {
+        throw AppError.conflict('Article slug already exists')
+      }
     }
 
     // EDITOR is always the author of their own article.
@@ -31,8 +30,13 @@ export const articleService = {
       ? user.id
       : (data.authorId ?? user.id)
 
+    // `content` is an editor-side convenience field with no Article column;
+    // the body persists via contentText / ContentBlock rows. Strip it before
+    // handing the payload to Prisma.
+    const { content: _content, authorId: _authorId, ...rest } = data
+
     return articleRepository.create({
-      ...data,
+      ...rest,
       authorId,
       status: 'DRAFT',
     })
@@ -54,15 +58,15 @@ export const articleService = {
       )
 
     if (!article) {
-
-      throw new Error(
-        'Article not found'
-      )
+      throw AppError.notFound('Article not found')
     }
 
-    await articleRepository.incrementViews(
-      slug
-    )
+    // Fire-and-forget, accuracy-aware view recording — never block or fail
+    // the read on it. Logged-in readers are deduped (one view per reader);
+    // anonymous reads are best-effort.
+    void articleRepository
+      .recordView(article.id, slug, actor?.id ?? null)
+      .catch(() => {})
 
     if (article.premium) {
       const subscribed = actor
@@ -107,16 +111,16 @@ export const articleService = {
 
     articleId: string,
 
-    data: any,
+    data: UpdateArticleInput,
 
-    user: any
+    user: Actor
 
   ) => {
 
     const article = await articleRepository.findById(articleId)
-    if (!article) throw new Error('Article not found')
+    if (!article) throw AppError.notFound('Article not found')
     if (user.role !== 'ADMIN' && article.authorId !== user.id) {
-      throw new Error('Unauthorized: you can only edit your own articles')
+      throw AppError.forbidden('You can only edit your own articles')
     }
 
     const verified = user.role === 'ADMIN'
@@ -140,14 +144,14 @@ export const articleService = {
 
     articleId: string,
 
-    user: any
+    user: Actor
 
   ) => {
 
     const article = await articleRepository.findById(articleId)
-    if (!article) throw new Error('Article not found')
+    if (!article) throw AppError.notFound('Article not found')
     if (user.role !== 'ADMIN' && article.authorId !== user.id) {
-      throw new Error('Unauthorized: you can only publish your own articles')
+      throw AppError.forbidden('You can only publish your own articles')
     }
 
     const verified = (user.role === 'ADMIN');
@@ -171,13 +175,13 @@ export const articleService = {
 
   unpublishArticle: async (
     articleId: string,
-    user: any
+    user: Actor
   ) => {
 
     const article = await articleRepository.findById(articleId)
-    if (!article) throw new Error('Article not found')
+    if (!article) throw AppError.notFound('Article not found')
     if (user.role !== 'ADMIN' && article.authorId !== user.id) {
-      throw new Error('Unauthorized: you can only unpublish your own articles')
+      throw AppError.forbidden('You can only unpublish your own articles')
     }
 
     return articleRepository.update(
@@ -193,6 +197,9 @@ export const articleService = {
   deleteArticle: async (
     articleId: string
   ) => {
+
+    const article = await articleRepository.findById(articleId)
+    if (!article) throw AppError.notFound('Article not found')
 
     return articleRepository.delete(
       articleId

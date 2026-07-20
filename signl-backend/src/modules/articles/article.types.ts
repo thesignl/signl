@@ -6,11 +6,17 @@ export interface CreateArticleDTO {
 
   summary: string
 
-  content: any
+  content?: any
+
+  contentText?: string
+
+  signal?: string
 
   coverImage?: string
 
   premium: boolean
+
+  featured?: boolean
 
   articleType:
     | 'ARTICLE'
@@ -27,6 +33,14 @@ export interface CreateArticleDTO {
 
 
   readTime: number
+
+  seoTitle?: string
+
+  seoDescription?: string
+
+  seoKeywords?: string
+
+  canonicalUrl?: string
 
   authorId: string
 

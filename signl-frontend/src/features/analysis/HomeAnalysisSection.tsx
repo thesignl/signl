@@ -36,8 +36,6 @@ export default async function HomeAnalysisSection() {
               <p className="ac-deck">{article.summary}</p>
               <div className="ac-meta">
                 <span>{article.author?.name}</span>
-                <span>·</span>
-                <span>{article.readTime} min read</span>
               </div>
             </Link>
           ))}

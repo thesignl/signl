@@ -58,13 +58,37 @@ export const razorpayClient = {
   ): boolean => {
     const secret = process.env.RAZORPAY_KEY_SECRET
     if (!secret) return false
+    // Reject obviously malformed signatures up front. Without this guard,
+    // Buffer.from('xx', 'hex') of an odd-length / non-hex input returns a
+    // truncated buffer and crypto.timingSafeEqual throws RangeError on
+    // mismatched lengths — turning a forged-signature request into a 500.
+    if (typeof signature !== 'string' || !/^[a-f0-9]{64}$/i.test(signature)) {
+      return false
+    }
     const expected = crypto
       .createHmac('sha256', secret)
       .update(`${orderId}|${paymentId}`)
       .digest('hex')
-    return crypto.timingSafeEqual(
-      Buffer.from(expected, 'hex'),
-      Buffer.from(signature, 'hex')
-    )
+    const expectedBuf = Buffer.from(expected, 'hex')
+    const providedBuf = Buffer.from(signature, 'hex')
+    if (expectedBuf.length !== providedBuf.length) return false
+    return crypto.timingSafeEqual(expectedBuf, providedBuf)
+  },
+
+  // Verifies the signature Razorpay sends on webhook events.
+  // Formula: HMAC-SHA256(raw_request_body, WEBHOOK_SECRET)
+  // The raw body MUST be the exact bytes received (no re-stringify), which is
+  // why /subscription/webhook uses express.raw in app.ts.
+  verifyWebhookSignature: (rawBody: Buffer, signature: string): boolean => {
+    const secret = process.env.RAZORPAY_WEBHOOK_SECRET
+    if (!secret) return false
+    if (typeof signature !== 'string' || !/^[a-f0-9]{64}$/i.test(signature)) {
+      return false
+    }
+    const expected = crypto.createHmac('sha256', secret).update(rawBody).digest('hex')
+    const expectedBuf = Buffer.from(expected, 'hex')
+    const providedBuf = Buffer.from(signature, 'hex')
+    if (expectedBuf.length !== providedBuf.length) return false
+    return crypto.timingSafeEqual(expectedBuf, providedBuf)
   },
 }

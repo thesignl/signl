@@ -8,13 +8,16 @@ interface Props {
 }
 
 export default function IntelligenceGrid({ articles = [] }: Props) {
-  // Light client-side bucketing by category name. Resilient to
-  // the API not returning these particular categories.
-  const macro = articles
-    .filter((a) => a.category?.name === 'Macro')
-    .slice(0, 3)
+  // Bucket by category name. Matches the actual category names used in the
+  // product ("Macro and Policy", "Market and Capital") with tolerant fallbacks
+  // so the section still works if a category is renamed or abbreviated.
+  const inBucket = (a: Article, keys: string[]) => {
+    const name = a.category?.name?.toLowerCase() ?? ''
+    return keys.some((k) => name.includes(k))
+  }
+  const macro = articles.filter((a) => inBucket(a, ['macro', 'policy'])).slice(0, 3)
   const markets = articles
-    .filter((a) => a.category?.name === 'Markets')
+    .filter((a) => inBucket(a, ['market', 'capital']))
     .slice(0, 3)
 
   if (macro.length === 0 && markets.length === 0) return null
@@ -46,8 +49,6 @@ export default function IntelligenceGrid({ articles = [] }: Props) {
               <p className="art-deck">{article.summary}</p>
               <div className="art-meta">
                 <span>{article.author?.name}</span>
-                <span className="sep">·</span>
-                <span>{article.readTime} min read</span>
               </div>
             </div>
           </Link>
@@ -64,11 +65,11 @@ export default function IntelligenceGrid({ articles = [] }: Props) {
     >
       <div className="container">
         <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: macro.length && markets.length ? '1fr 1fr' : '1fr',
-            gap: 48,
-          }}
+          className={
+            macro.length && markets.length
+              ? 'intelligence-grid intelligence-grid--two'
+              : 'intelligence-grid'
+          }
         >
           {macro.length > 0 ? renderColumn('Macro & Policy', macro, 'macro-h') : null}
           {markets.length > 0 ? renderColumn('Markets & Capital', markets, 'markets-h') : null}

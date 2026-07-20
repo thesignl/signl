@@ -5,6 +5,9 @@ import type {
   EditorCategory,
 } from '@/types/editor'
 
+// Re-export the article type so callers can import it from the service.
+export type { EditorArticle, EditorAuthor, EditorCategory } from '@/types/editor'
+
 /**
  * Editor API client. Thin, typed wrappers over the `/api/editor` routes. The
  * axios interceptor attaches the JWT, so these stay token-agnostic.

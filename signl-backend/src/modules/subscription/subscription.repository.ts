@@ -1,4 +1,5 @@
 import prisma from '../../infrastructure/prisma/client.js'
+import { Prisma } from '@prisma/client'
 
 export const subscriptionRepository = {
   // Includes CANCELLED subscriptions still within their paid period (grace access).
@@ -20,6 +21,22 @@ export const subscriptionRepository = {
   findLatestByUserId: async (userId: string) => {
     return prisma.subscription.findFirst({
       where: { userId },
+      orderBy: { createdAt: 'desc' },
+    })
+  },
+
+  // A recent still-open PENDING checkout for this user, if any. Used to avoid
+  // creating duplicate orders when a user clicks "Upgrade" multiple times.
+  // Only considers very recent attempts (Razorpay orders are short-lived).
+  findReusablePending: async (userId: string, withinMinutes = 15) => {
+    const cutoff = new Date(Date.now() - withinMinutes * 60 * 1000)
+    return prisma.subscription.findFirst({
+      where: {
+        userId,
+        status: 'PENDING',
+        createdAt: { gt: cutoff },
+        razorpayOrderId: { not: null },
+      },
       orderBy: { createdAt: 'desc' },
     })
   },
@@ -60,8 +77,8 @@ export const subscriptionRepository = {
   },
 
   listAll: async (filters: { status?: string; page: number; limit: number }) => {
-    const where: any = {}
-    if (filters.status) where.status = filters.status
+    const where: Prisma.SubscriptionWhereInput = {}
+    if (filters.status) where.status = filters.status as Prisma.EnumSubscriptionStatusFilter['equals']
 
     const [subscriptions, total] = await Promise.all([
       prisma.subscription.findMany({

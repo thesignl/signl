@@ -1,33 +1,17 @@
-import prisma
-from '../../infrastructure/prisma/client.js'
+import prisma from '../../infrastructure/prisma/client.js'
 
 export const newsletterService = {
+  subscribe: async (email: string) => {
+    const normalized = email.toLowerCase().trim()
 
-  subscribe: async (
-    email: string
-  ) => {
-
-    const existing =
-
-      await prisma.newsletterSubscriber.findUnique({
-
-        where: {
-          email
-        }
-      })
-
-    if (existing) {
-
-      throw new Error(
-        'Already subscribed'
-      )
-    }
-
-    return prisma.newsletterSubscriber.create({
-
-      data: {
-        email
-      }
+    // Idempotent: re-subscribing is a no-op success, not an error.
+    // upsert avoids a race between the existence check and the insert.
+    await prisma.newsletterSubscriber.upsert({
+      where: { email: normalized },
+      update: {},
+      create: { email: normalized },
     })
-  }
+
+    return { email: normalized }
+  },
 }

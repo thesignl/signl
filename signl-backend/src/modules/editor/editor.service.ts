@@ -1,14 +1,17 @@
-import { editorRepository } from './editor.repository.js'
+import { editorRepository, type EditorArticlePayload } from './editor.repository.js'
 import {
   buildContentBlocks,
   buildAnalysisSteps,
   decodeContentBlocks,
   decodeAnalysisSteps,
+  type EditorBlock,
 } from './editor.mapper.js'
 import type {
   CreateDraftInput,
   UpdateDraftInput,
 } from './editor.validation.js'
+import { AppError } from '../../shared/errors/errorHandler.js'
+import { sanitizeArticleHtml, htmlToPlainText } from '../../shared/sanitize.js'
 
 type Actor = { id: string; name?: string; role: string }
 
@@ -23,7 +26,7 @@ function slugify(s: string) {
 }
 
 /** Shape returned to the editor client — flattened + decoded for the UI. */
-function serializeForEditor(article: any) {
+function serializeForEditor(article: EditorArticlePayload | null) {
   if (!article) return null
   const { meta, blocks, analysisBlocks } = decodeContentBlocks(
     article.blocks ?? [],
@@ -34,6 +37,12 @@ function serializeForEditor(article: any) {
     deck: meta.deck,
     summary: article.summary ?? '',
     synopsis: article.summary ?? '',
+    // Universal editor (post-refactor) shape — these are non-null when the
+    // article was written in the new editor; null on legacy block-based ones.
+    subheading: article.summary ?? '',
+    contentHtml: article.contentHtml ?? '',
+    contentJson: article.contentJson ?? null,
+    contentText: article.contentText ?? '',
     summaryPoints: meta.summaryPoints,
     depths: meta.depths,
     signal: article.signal ?? '',
@@ -65,7 +74,9 @@ function serializeForEditor(article: any) {
     authorId: article.authorId,
     category: article.category ?? null,
     author: article.author ?? null,
-    tags: (article.tags ?? []).map((t: any) => t.tag?.name).filter(Boolean),
+    tags: (article.tags ?? [])
+      .map((t: { tag?: { name?: string } }) => t.tag?.name)
+      .filter(Boolean),
     blocks,
     analysisBlocks,
     analysisSteps: decodeAnalysisSteps(article.analysisSteps ?? []),
@@ -76,8 +87,13 @@ function serializeForEditor(article: any) {
 
 export const editorService = {
   createDraft: async (actor: Actor, data: CreateDraftInput) => {
+    // The author defaults to the creating actor. Only an ADMIN may author
+    // a draft on behalf of another user by passing an explicit authorId.
+    const requestedAuthorId =
+      actor.role === 'ADMIN' ? data.authorId ?? actor.id : actor.id
+
     const authorId = await editorRepository.resolveAuthorId(
-      data.authorId,
+      requestedAuthorId,
       actor.name ?? 'Signl Desk',
     )
     const categoryId = await editorRepository.resolveCategoryId(
@@ -103,17 +119,35 @@ export const editorService = {
 
   saveDraft: async (id: string, actor: Actor, data: UpdateDraftInput) => {
     const existing = await editorRepository.findById(id)
-    if (!existing) throw new Error('Draft not found')
+    if (!existing) throw AppError.notFound('Draft not found')
     assertOwnership(existing, actor)
 
     const title = data.headline ?? data.title
-    const summary = data.synopsis ?? data.summary
+    // The new universal editor sends `subheading`; legacy callers send
+    // `summary` / `synopsis`. They all map to the same Article.summary column.
+    const summary = data.subheading ?? data.synopsis ?? data.summary
 
     const scalar: Record<string, unknown> = {
       updatedById: actor.id,
     }
     if (title !== undefined) scalar.title = title
     if (summary !== undefined) scalar.summary = summary
+
+    // Universal editor body — sanitize HTML on every write so the DB never
+    // holds anything dangerous. Derive plaintext from sanitized HTML so
+    // contentText, search, and paywall truncation stay accurate without an
+    // additional client field.
+    if (data.contentHtml !== undefined) {
+      const safeHtml = data.contentHtml === null ? '' : sanitizeArticleHtml(data.contentHtml)
+      scalar.contentHtml = safeHtml || null
+      scalar.contentText = htmlToPlainText(safeHtml) || null
+    }
+    if (data.contentJson !== undefined) {
+      // contentJson is the editor's native round-trip format — stored verbatim
+      // (it never reaches the reader, so no sanitization needed).
+      scalar.contentJson = data.contentJson === null ? null : (data.contentJson as object)
+    }
+
     if (data.signal !== undefined) scalar.signal = data.signal
     if (data.coverImage !== undefined) scalar.coverImage = data.coverImage
     if (data.premium !== undefined) scalar.premium = data.premium
@@ -161,8 +195,8 @@ export const editorService = {
           deck: data.deck,
           summaryPoints: data.summaryPoints,
           depths: data.depths,
-          blocks: data.blocks as any,
-          analysisBlocks: data.analysisBlocks as any,
+          blocks: data.blocks as EditorBlock[] | undefined,
+          analysisBlocks: data.analysisBlocks as EditorBlock[] | undefined,
         })
       : undefined
 
@@ -187,7 +221,7 @@ export const editorService = {
 
   publish: async (id: string, actor: Actor) => {
     const existing = await editorRepository.findById(id)
-    if (!existing) throw new Error('Draft not found')
+    if (!existing) throw AppError.notFound('Draft not found')
     assertOwnership(existing, actor)
 
     const verified = actor.role === 'ADMIN'
@@ -211,7 +245,7 @@ export const editorService = {
 
   submitForReview: async (id: string, actor: Actor) => {
     const existing = await editorRepository.findById(id)
-    if (!existing) throw new Error('Draft not found')
+    if (!existing) throw AppError.notFound('Draft not found')
     assertOwnership(existing, actor)
 
     const saved = await editorRepository.saveArticle(
@@ -229,7 +263,7 @@ export const editorService = {
 
   getEditorArticle: async (id: string, actor: Actor) => {
     const article = await editorRepository.findById(id)
-    if (!article) throw new Error('Article not found')
+    if (!article) throw AppError.notFound('Article not found')
     assertOwnership(article, actor)
     return serializeForEditor(article)
   },
@@ -241,6 +275,6 @@ export const editorService = {
 function assertOwnership(article: { authorId: string }, actor: Actor) {
   if (actor.role === 'ADMIN') return
   if (article.authorId !== actor.id) {
-    throw new Error('Unauthorized')
+    throw AppError.forbidden('You can only modify your own articles')
   }
 }

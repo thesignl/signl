@@ -56,7 +56,7 @@ export default function SummaryEditor() {
       </div>
 
       <p className="ed-note">
-        The summary is the <strong>contract</strong> with every reader. Even
+        The summary is the <strong>contract</strong>{' '}with every reader. Even
         non-subscribers will see this. Write it as if the article behind it
         didn&apos;t exist.
       </p>

@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuthStore } from '@/store/auth.store'
+import { useAdminUi } from '@/features/admin/layout/adminUi.store'
 
 const CRUMB_LABELS: Record<string, string> = {
   admin: 'Admin',
@@ -43,11 +44,22 @@ function ChevronIcon() {
   )
 }
 
+function MenuIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7">
+      <line x1="2" y1="4" x2="14" y2="4" />
+      <line x1="2" y1="8" x2="14" y2="8" />
+      <line x1="2" y1="12" x2="14" y2="12" />
+    </svg>
+  )
+}
+
 export default function AdminTopbar() {
   const pathname = usePathname()
   const router = useRouter()
   const user = useAuthStore((s) => s.user)
   const logout = useAuthStore((s) => s.logout)
+  const openSidebar = useAdminUi((s) => s.openSidebar)
 
   const segments = pathname.split('/').filter(Boolean)
   const currentSegment = segments[segments.length - 1] ?? 'admin'
@@ -65,6 +77,13 @@ export default function AdminTopbar() {
   return (
     <header className="admin-topbar">
       <div className="tb-left">
+        <button
+          className="tb-menu-btn"
+          onClick={openSidebar}
+          aria-label="Open navigation menu"
+        >
+          <MenuIcon />
+        </button>
         <nav className="admin-crumb" aria-label="Breadcrumb">
           <span>Admin</span>
           {currentSegment !== 'admin' && (

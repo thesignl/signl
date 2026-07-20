@@ -26,6 +26,7 @@ export default function Navbar() {
   const openSearch = useSearchStore((s) => s.openSearch)
   const bookmarksCount = useBookmarkStore((s) => s.bookmarks.length)
   const [isMac, setIsMac] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
     setIsMac(
@@ -41,6 +42,20 @@ export default function Navbar() {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [openSearch])
+
+  // Close the mobile menu on route change.
+  useEffect(() => {
+    setMenuOpen(false)
+  }, [pathname])
+
+  // Lock body scroll while the mobile menu is open.
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+    document.body.style.overflow = menuOpen ? 'hidden' : ''
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [menuOpen])
 
   const openSaved = () => {
     if (typeof window !== 'undefined' && window.__signl_savedPanel) {
@@ -143,6 +158,63 @@ export default function Navbar() {
             </Link>
           </>
         )}
+
+        <button
+          type="button"
+          className="nav-burger"
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((v) => !v)}
+        >
+          <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7">
+            {menuOpen ? (
+              <>
+                <line x1="3" y1="3" x2="13" y2="13" />
+                <line x1="13" y1="3" x2="3" y2="13" />
+              </>
+            ) : (
+              <>
+                <line x1="2" y1="4" x2="14" y2="4" />
+                <line x1="2" y1="8" x2="14" y2="8" />
+                <line x1="2" y1="12" x2="14" y2="12" />
+              </>
+            )}
+          </svg>
+        </button>
+      </div>
+
+      {/* Mobile menu — full nav + auth actions, shown ≤1024px */}
+      <div
+        className={`nav-mobile-backdrop${menuOpen ? ' open' : ''}`}
+        onClick={() => setMenuOpen(false)}
+        aria-hidden="true"
+      />
+      <div className={`nav-mobile${menuOpen ? ' open' : ''}`} role="dialog" aria-label="Menu">
+        <nav className="nav-mobile-links" aria-label="Mobile primary">
+          {NAV_ITEMS.map((item) => (
+            <Link key={item.href} href={item.href} className="nav-mobile-link">
+              {item.label}
+            </Link>
+          ))}
+          {(user?.role === 'EDITOR' || user?.role === 'ADMIN') && (
+            <Link href="/editor" className="nav-mobile-link">Editor</Link>
+          )}
+          {user?.role === 'ADMIN' && (
+            <Link href="/admin" className="nav-mobile-link">Admin</Link>
+          )}
+        </nav>
+        <div className="nav-mobile-actions">
+          {user ? (
+            <button type="button" className="btn btn-md btn-ghost" onClick={logout}>
+              Sign out
+            </button>
+          ) : (
+            <>
+              <Link href="/login" className="btn btn-md btn-ghost">Sign in</Link>
+              <Link href="/signup" className="btn btn-md btn-primary">Get started</Link>
+            </>
+          )}
+        </div>
       </div>
     </nav>
   )

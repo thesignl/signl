@@ -1,4 +1,5 @@
 import prisma from "../../infrastructure/prisma/client.js"
+import { Prisma, UserRole, ArticleStatus } from "@prisma/client"
 
 function relativeTime(date: Date): string {
   const diffMs = Date.now() - date.getTime()
@@ -152,7 +153,7 @@ export const adminRepository = {
 
   updateUserRole: async (
     id: string,
-    role: any
+    role: UserRole
   ) => {
 
     return prisma.user.update({
@@ -201,9 +202,9 @@ export const adminRepository = {
   }) => {
     const { status, categoryId, search, page, limit } = filters
 
-    const where: any = {
+    const where: Prisma.ArticleWhereInput = {
       deletedAt: null,
-      ...(status && { status }),
+      ...(status && { status: status as ArticleStatus }),
       ...(categoryId && { categoryId }),
       ...(search && {
         title: { contains: search, mode: 'insensitive' },
@@ -254,7 +255,7 @@ export const adminRepository = {
   },
 
   updateArticleStatus: async (id: string, status: string) => {
-    const data: any = { status }
+    const data: Prisma.ArticleUpdateInput = { status: status as ArticleStatus }
     if (status === 'PUBLISHED') {
       data.publishedAt = new Date()
     }
@@ -266,7 +267,7 @@ export const adminRepository = {
   },
 
   bulkUpdateArticleStatus: async (ids: string[], status: string) => {
-    const data: any = { status }
+    const data: Prisma.ArticleUpdateManyMutationInput = { status: status as ArticleStatus }
     if (status === 'PUBLISHED') {
       data.publishedAt = new Date()
     }

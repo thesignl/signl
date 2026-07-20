@@ -150,6 +150,13 @@ model Article {
 
   contentText String?
 
+  // Universal editor body (post-refactor). Both stored together:
+  // - contentHtml: server-sanitized HTML for SSR rendering by the reader.
+  // - contentJson: TipTap native JSON for round-trip editing without lossy
+  //   HTML re-parse. Null on legacy articles that still render via blocks.
+  contentHtml String?
+  contentJson Json?
+
   signal String?
 
   coverImage String?

@@ -16,6 +16,7 @@ import {
   listArticlesQuerySchema,
   changeArticleStatusSchema,
   bulkArticleActionSchema,
+  updateRoleSchema,
   updateAuthorSchema,
   createCategorySchema,
   updateCategorySchema,
@@ -98,10 +99,21 @@ next: NextFunction
 
 try {
 
+  const { role } = updateRoleSchema.parse(req.body)
+
+  // Prevent an admin from demoting their own account and locking
+  // themselves (and possibly the platform) out of admin access.
+  if (req.params.id === (req.user as { id: string })?.id && role !== 'ADMIN') {
+    return res.status(400).json({
+      success: false,
+      message: 'You cannot change your own admin role.',
+    })
+  }
+
   const user =
     await adminService.updateRole(
       req.params.id as string,
-      req.body.role
+      role
     )
 
   return res.status(200).json({

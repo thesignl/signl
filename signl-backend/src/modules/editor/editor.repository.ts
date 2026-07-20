@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client'
+import { Prisma, BlockType } from '@prisma/client'
 import prisma from '../../infrastructure/prisma/client.js'
 
 /**
@@ -14,10 +14,24 @@ const editorInclude = {
   analysisSteps: { orderBy: { stepNumber: 'asc' } },
   tags: { include: { tag: true } },
   category: true,
-  author: true,
+  author: {
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      avatar: true,
+      title: true,
+      email: true,
+    },
+  },
   analytics: true,
   _count: { select: { bookmarks: true } },
 } satisfies Prisma.ArticleInclude
+
+/** The exact Article payload returned by every editor repository read. */
+export type EditorArticlePayload = Prisma.ArticleGetPayload<{
+  include: typeof editorInclude
+}>
 
 export const editorRepository = {
   resolveAuthorId: async (
@@ -28,14 +42,10 @@ export const editorRepository = {
       const found = await prisma.user.findUnique({ where: { id: preferredAuthorId } })
       if (found) return found.id
     }
-    const editor = await prisma.user.findFirst({
-      where: { role: 'EDITOR' },
-      orderBy: { createdAt: 'asc' },
-    })
-    if (editor) return editor.id
-    const anyUser = await prisma.user.findFirst({ orderBy: { createdAt: 'asc' } })
-    if (anyUser) return anyUser.id
-    throw new Error('No users found to assign as article author')
+    // No valid author id supplied. Rather than silently assigning the draft
+    // to an unrelated "oldest editor" (which breaks ownership checks), fail
+    // loudly — the caller must supply a real authoring identity.
+    throw new Error('Could not resolve a valid author for this draft')
   },
 
   /** Ensure there is at least one Category and return its id. */
@@ -78,7 +88,7 @@ export const editorRepository = {
     id: string,
     scalar: Prisma.ArticleUncheckedUpdateInput,
     relations: {
-      blocks?: { type: any; content: unknown; position: number }[]
+      blocks?: { type: BlockType; content: unknown; position: number }[]
       analysisSteps?: {
         title: string
         description: string

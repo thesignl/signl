@@ -52,7 +52,6 @@ export default async function RelatedStories({ currentSlug, category }: Props) {
             <h3 className="related-card-headline">{article.title}</h3>
             <div className="related-card-meta">
               {article.author?.name}
-              {article.readTime ? ` · ${article.readTime} min read` : ''}
             </div>
           </Link>
         ))}

@@ -1,5 +1,12 @@
 node_modules
 # Keep environment variables out of version control
 .env
+*.env.production.example
 
 /generated/prisma
+
+# Build output
+dist
+
+# Logs (local dev / test run artifacts)
+*.log
