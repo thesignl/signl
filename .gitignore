@@ -21,3 +21,7 @@ designs
 
 # Internal operational docs — never commit to a public repo
 LAUNCH_RUNBOOK.md
+
+# Stray root package files (each app is self-contained)
+/package.json
+/package-lock.json
