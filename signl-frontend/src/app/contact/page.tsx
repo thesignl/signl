@@ -25,7 +25,7 @@ const channels = [
   {
     label: 'Readers',
     email: 'hello@signl.media',
-    description: 'Subscription help, feedback, anything else.',
+    description: 'Reader help, feedback, anything else.',
   },
 ]
 

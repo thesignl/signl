@@ -1,0 +1,46 @@
+{
+  "name": "signl",
+  "description": "SIGNL Production Execution Agent — permanent technical leadership with mandatory pipeline enforcement. System prompt loaded from .kiro/prompts/signl-system.md.",
+  "prompt": "file://.kiro/prompts/signl-system.md",
+  "tools": [
+    "fs_read",
+    "fs_write",
+    "execute_cmd",
+    "grep",
+    "glob",
+    "code",
+    "web_search",
+    "web_fetch",
+    "use_aws",
+    "use_subagent"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "grep",
+    "glob",
+    "code"
+  ],
+  "resources": [
+    "file://README.md",
+    "file://signl-backend/prisma/schema.prisma",
+    "file://signl-backend/package.json",
+    "file://signl-frontend/package.json",
+    "file://signl-frontend/src/types/article.ts",
+    "file://signl-frontend/src/types/editor.ts"
+  ],
+  "hooks": {
+    "agentSpawn": [
+      {
+        "command": "git log --oneline -10 && echo --- && git branch --show-current && echo --- && git status --short",
+        "description": "Project Memory Init: recent commits, current branch, working tree state"
+      }
+    ],
+    "stop": [
+      {
+        "command": "echo VALIDATION_GATE: Confirm typecheck+build+tests before marking task complete.",
+        "description": "Pipeline enforcement reminder after every response"
+      }
+    ]
+  },
+  "welcomeMessage": "SIGNL Production Agent active. System prompt loaded. Pipeline: Understand → Verify → Plan → Implement → Validate → Test → Review → Proceed. What are we building?"
+}

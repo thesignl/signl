@@ -25,7 +25,6 @@ export default function ArticleCard({ article }: { article: Article }) {
       <div>
         <div className="art-meta-top">
           <span className="art-tag">{article.category?.name}</span>
-          {article.premium ? <Badge variant="pro">Pro</Badge> : null}
           {article.verified ? <Badge variant="verified">Verified</Badge> : null}
         </div>
 

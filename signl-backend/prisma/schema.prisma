@@ -63,6 +63,41 @@ enum PaymentStatus {
   REFUNDED
 }
 
+enum SubscriberStatus {
+  PENDING
+  ACTIVE
+  UNSUBSCRIBED
+  BOUNCED
+  COMPLAINED
+}
+
+enum NewsletterStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  SENT
+  FAILED
+  ARCHIVED
+}
+
+enum DeliveryStatus {
+  QUEUED
+  SENT
+  DELIVERED
+  OPENED
+  CLICKED
+  BOUNCED
+  FAILED
+  COMPLAINED
+}
+
 model User {
   id String @id @default(cuid())
 
@@ -105,6 +140,12 @@ model User {
   subscriptions Subscription[]
 
   payments Payment[]
+
+  authoredNewsletters Newsletter[]         @relation("NewsletterAuthor")
+
+  createdCampaigns    Campaign[]           @relation("CampaignCreatedBy")
+
+  createdTemplates    NewsletterTemplate[] @relation("TemplateCreatedBy")
 }
 
 model NewsletterSubscriber {
@@ -112,7 +153,30 @@ model NewsletterSubscriber {
 
   email String @unique
 
+  name String?
+
+  status SubscriberStatus @default(ACTIVE)
+
+  unsubscribeToken String  @unique @default(cuid())
+
+  confirmToken String? @unique
+
+  source String?
+
+  confirmedAt DateTime?
+
+  unsubscribedAt DateTime?
+
   createdAt DateTime @default(now())
+
+  updatedAt DateTime @default(now()) @updatedAt
+
+  preferences EmailPreference[]
+
+  recipients CampaignRecipient[]
+
+  @@index([status])
+  @@index([createdAt])
 }
 
 model Subscription {
@@ -446,4 +510,215 @@ model Payment {
   @@index([userId])
   @@index([subscriptionId])
   @@index([status])
+}
+
+model NewsletterCategory {
+  id String @id @default(cuid())
+
+  name String @unique
+
+  slug String @unique
+
+  description String?
+
+  active Boolean @default(true)
+
+  displayOrder Int @default(0)
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @default(now()) @updatedAt
+
+  newsletters Newsletter[]
+
+  preferences EmailPreference[]
+
+  @@index([active])
+}
+
+model EmailPreference {
+  id String @id @default(cuid())
+
+  subscriberId String
+
+  categoryId String
+
+  subscribed Boolean @default(true)
+
+  subscriber NewsletterSubscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+
+  category NewsletterCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([subscriberId, categoryId])
+  @@index([categoryId])
+}
+
+model NewsletterTemplate {
+  id String @id @default(cuid())
+
+  name String @unique
+
+  description String?
+
+  contentHtml String
+
+  contentJson Json?
+
+  isDefault Boolean @default(false)
+
+  createdById String?
+
+  createdBy User? @relation("TemplateCreatedBy", fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  newsletters Newsletter[]
+
+  @@index([isDefault])
+}
+
+model Newsletter {
+  id String @id @default(cuid())
+
+  title String
+
+  subject String
+
+  preheader String?
+
+  contentHtml String?
+
+  contentJson Json?
+
+  status NewsletterStatus @default(DRAFT)
+
+  authorId String
+
+  author User @relation("NewsletterAuthor", fields: [authorId], references: [id])
+
+  categoryId String?
+
+  category NewsletterCategory? @relation(fields: [categoryId], references: [id])
+
+  templateId String?
+
+  template NewsletterTemplate? @relation(fields: [templateId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  campaigns Campaign[]
+
+  @@index([status])
+  @@index([authorId])
+  @@index([categoryId])
+}
+
+model Campaign {
+  id String @id @default(cuid())
+
+  newsletterId String
+
+  newsletter Newsletter @relation(fields: [newsletterId], references: [id], onDelete: Cascade)
+
+  status CampaignStatus @default(DRAFT)
+
+  subject String
+
+  scheduledAt DateTime?
+
+  startedAt DateTime?
+
+  completedAt DateTime?
+
+  totalRecipients Int @default(0)
+
+  sentCount Int @default(0)
+
+  deliveredCount Int @default(0)
+
+  openCount Int @default(0)
+
+  clickCount Int @default(0)
+
+  bounceCount Int @default(0)
+
+  failedCount Int @default(0)
+
+  unsubscribeCount Int @default(0)
+
+  createdById String?
+
+  createdBy User? @relation("CampaignCreatedBy", fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  recipients CampaignRecipient[]
+
+  deliveryLogs DeliveryLog[]
+
+  @@index([status])
+  @@index([scheduledAt])
+  @@index([newsletterId])
+}
+
+model CampaignRecipient {
+  id String @id @default(cuid())
+
+  campaignId String
+
+  subscriberId String
+
+  status DeliveryStatus @default(QUEUED)
+
+  providerMessageId String?
+
+  sentAt DateTime?
+
+  openedAt DateTime?
+
+  clickedAt DateTime?
+
+  error String?
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  subscriber NewsletterSubscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([campaignId, subscriberId])
+  @@index([status])
+  @@index([subscriberId])
+  @@index([providerMessageId])
+}
+
+model DeliveryLog {
+  id String @id @default(cuid())
+
+  campaignId String?
+
+  recipientId String?
+
+  event DeliveryStatus
+
+  providerMessageId String?
+
+  detail String?
+
+  meta Json?
+
+  campaign Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([campaignId])
+  @@index([event])
+  @@index([providerMessageId])
+  @@index([createdAt])
 }

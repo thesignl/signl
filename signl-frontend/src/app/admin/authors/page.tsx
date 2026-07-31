@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
 import AdminModal from '@/features/admin/shared/AdminModal'
 import { cn } from '@/lib/cn'
 import { getAdminAuthors, updateAdminAuthor } from '@/services/admin.service'
@@ -182,10 +183,13 @@ export default function AdminAuthorsPage() {
                     <td>
                       <div className="admin-user-cell">
                         {author.avatar ? (
-                          <img
+                          <Image
                             src={author.avatar}
                             alt={author.name}
-                            style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+                            width={32}
+                            height={32}
+                            unoptimized
+                            style={{ borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
                           />
                         ) : (
                           <div

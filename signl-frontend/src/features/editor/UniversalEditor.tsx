@@ -81,6 +81,11 @@ export default function UniversalEditor({ draft }: Props) {
     },
     onUpdate: () => {
       dirtyRef.current = true
+      // `scheduleSave` is declared below; the reference is safe because TipTap's
+      // onUpdate only fires on later user edits (well after mount), by which
+      // point the debounced saver exists. Verified working (autosave →
+      // "Synchronised" in the browser).
+      // eslint-disable-next-line react-hooks/immutability
       scheduleSave()
     },
   })

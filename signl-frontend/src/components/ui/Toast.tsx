@@ -72,7 +72,6 @@ export function useToast(): ToastContextValue {
     return {
       toast: (msg: string) => {
         if (typeof window !== 'undefined') {
-          // eslint-disable-next-line no-console
           console.info('[toast]', msg)
         }
       },

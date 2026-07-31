@@ -21,3 +21,11 @@ designs
 
 # Internal operational docs — never commit to a public repo
 LAUNCH_RUNBOOK.md
+
+# Local-only scripts with hardcoded secrets (JWT/Razorpay keys) — share
+# privately with contributors directly, never via git.
+run-backend.ps1
+run-frontend.ps1
+
+# Internal audit/report artifacts — not app code, keep local-only.
+wave-a/

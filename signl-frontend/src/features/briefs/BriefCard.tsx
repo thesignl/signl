@@ -1,6 +1,5 @@
 import Link from 'next/link'
 
-import Badge from '@/components/ui/Badge'
 import type { Article } from '@/types/article'
 
 export default function BriefCard({ article }: { article: Article }) {
@@ -15,9 +14,6 @@ export default function BriefCard({ article }: { article: Article }) {
 
       <div className="brief-card-footer">
         <span>{article.author?.name}</span>
-        <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          {article.premium ? <Badge variant="pro">Pro</Badge> : null}
-        </span>
       </div>
     </Link>
   )

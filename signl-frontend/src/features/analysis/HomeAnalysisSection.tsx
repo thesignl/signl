@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import Badge from '@/components/ui/Badge'
 
 import { getAnalysisFeed } from '@/services/article.service'
 import type { Article } from '@/types/article'
@@ -30,7 +29,6 @@ export default async function HomeAnalysisSection() {
             >
               <div className="ac-header">
                 <div className="ac-label">{article.category?.name}</div>
-                {article.premium ? <Badge variant="pro">Pro</Badge> : null}
               </div>
               <h3 className="ac-headline">{article.title}</h3>
               <p className="ac-deck">{article.summary}</p>

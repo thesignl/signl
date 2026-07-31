@@ -3,6 +3,7 @@ import 'dotenv/config'
 import app from './app.js'
 import { logger } from './infrastructure/logger/logger.js'
 import prisma from './infrastructure/prisma/client.js'
+import { startNewsletterScheduler, stopNewsletterScheduler } from './modules/newsletter/newsletter.scheduler.js'
 
 const PORT = Number(process.env.PORT ?? 5000)
 const NODE_ENV = process.env.NODE_ENV ?? 'development'
@@ -49,6 +50,8 @@ process.on('uncaughtException', (err) => {
 // ── Server boot ───────────────────────────────────────────────────────────
 const server = app.listen(PORT, () => {
   logger.info('server_started', { port: PORT, env: NODE_ENV, pid: process.pid })
+  // Start the scheduled-newsletter poller once the server is accepting traffic.
+  startNewsletterScheduler()
 })
 
 server.keepAliveTimeout = 65_000 // > Nginx default 60s; avoids 502 races
@@ -61,6 +64,9 @@ async function shutdown(exitCode = 0) {
   if (shuttingDown) return
   shuttingDown = true
   logger.info('shutdown_initiated', { exitCode })
+
+  // Stop the newsletter scheduler poller.
+  stopNewsletterScheduler()
 
   // Stop accepting new connections.
   server.close((err) => {

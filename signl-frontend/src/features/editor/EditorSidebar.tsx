@@ -20,6 +20,7 @@ export type EditorNav =
   | 'review'
   | 'scheduled'
   | 'published'
+  | 'newsletters'
   | 'my-analytics'
   | 'profile'
   | 'shortcuts'
@@ -118,6 +119,18 @@ export default function EditorSidebar({
           href="/editor?status=published"
           icon={<CheckIcon />}
           count={counts.published}
+          active={active}
+          go={go}
+        />
+      </div>
+
+      <div className="ed-group">
+        <div className="ed-group-label">Newsletter</div>
+        <NavLink
+          nav="newsletters"
+          label="Newsletters"
+          href="/editor/newsletters"
+          icon={<FileIcon />}
           active={active}
           go={go}
         />

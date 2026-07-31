@@ -132,7 +132,8 @@ export default function AdminArticlesPage() {
   function toggleRow(id: string) {
     setSelectedIds(prev => {
       const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
       return next
     })
   }
@@ -334,20 +335,6 @@ export default function AdminArticlesPage() {
                         <span>{a.category.name}</span>
                         <span>·</span>
                         <span>{a.articleType}</span>
-                        {a.premium && (
-                          <span style={{
-                            fontFamily: 'var(--mono)',
-                            fontSize: '9px',
-                            fontWeight: 600,
-                            color: 'var(--accent)',
-                            background: 'var(--accent-soft)',
-                            padding: '1px 5px',
-                            borderRadius: '3px',
-                            letterSpacing: '0.06em',
-                          }}>
-                            PRO
-                          </span>
-                        )}
                       </div>
                     </td>
                     <td>

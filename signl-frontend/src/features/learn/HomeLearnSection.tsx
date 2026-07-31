@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import Badge from '@/components/ui/Badge'
 import type { Article } from '@/types/article'
 
 /**
@@ -36,7 +35,6 @@ export default function HomeLearnSection({
                 <div className="learn-strip-eyebrow">
                   {article.category?.name ?? 'Track'}
                 </div>
-                {article.premium ? <Badge variant="pro">Pro</Badge> : null}
               </div>
               <h3 className="learn-strip-title">{article.title}</h3>
               <div className="learn-strip-meta">

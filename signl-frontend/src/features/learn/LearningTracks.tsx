@@ -32,7 +32,7 @@ export default function LearningTracks({
             href={href}
             className={cn('track-pill')}
             role="tab"
-            aria-pressed={isActive}
+            aria-selected={isActive}
             scroll={false}
           >
             {track.label}

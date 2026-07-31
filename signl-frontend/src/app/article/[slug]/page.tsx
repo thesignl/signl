@@ -5,13 +5,11 @@ import type { Metadata } from 'next'
 
 import Badge from '@/components/ui/Badge'
 import BookmarkButton from '@/features/bookmarks/BookmarkButton'
-import StoryPaywall from '@/features/article/StoryPaywell'
 import StorySignal from '@/features/article/StorySignal'
 import StoryContent from '@/features/article/StoryContent'
 import ReadingProgress from '@/features/article/ReadingProgress'
 import ShareActions from '@/features/article/ShareActions'
 import RelatedStories from '@/features/article/RelatedStories'
-import PremiumBanner from '@/features/article/PremiumBanner'
 
 import { getArticle } from '@/services/article.service'
 import type { Article } from '@/types/article'
@@ -106,12 +104,6 @@ export default async function ArticlePage({ params }: PageProps) {
               <Badge variant="verified">Verified</Badge>
             </>
           ) : null}
-          {article.premium ? (
-            <>
-              <span className="sep">·</span>
-              <Badge variant="pro">Pro</Badge>
-            </>
-          ) : null}
         </div>
 
         <div className="story-actions">
@@ -134,39 +126,15 @@ export default async function ArticlePage({ params }: PageProps) {
           </div>
         ) : null}
 
-        {article.premium ? <PremiumBanner /> : null}
+        <StoryContent
+          contentText={article.contentText ?? null}
+          contentHtml={article.contentHtml ?? null}
+          blocks={article.blocks}
+        />
 
-        {article.paywalled ? (
-          <div className="pw-gate">
-            <p className="pw-teaser-label" aria-label="Reading preview">
-              Reading preview
-            </p>
-            <StoryContent
-              contentText={article.contentText ?? null}
-              contentHtml={article.contentHtml ?? null}
-              blocks={article.blocks}
-            />
-            <div className="pw-fade" aria-hidden />
-          </div>
-        ) : (
-          <StoryContent
-            contentText={article.contentText ?? null}
-            contentHtml={article.contentHtml ?? null}
-            blocks={article.blocks}
-          />
-        )}
+        {article.signal ? <StorySignal signal={article.signal} /> : null}
 
-        {!article.paywalled && article.signal ? (
-          <StorySignal signal={article.signal} />
-        ) : null}
-
-        {!article.paywalled ? (
-          <ShareActions title={article.title} slug={article.slug} />
-        ) : null}
-
-        {article.premium ? (
-          <StoryPaywall paywalled={article.paywalled ?? false} />
-        ) : null}
+        <ShareActions title={article.title} slug={article.slug} />
 
         <RelatedStories
           currentSlug={article.slug}

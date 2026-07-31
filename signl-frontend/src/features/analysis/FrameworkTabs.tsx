@@ -33,7 +33,7 @@ export default function FrameworkTabs({
             href={href}
             className={cn('fw-tab')}
             role="tab"
-            aria-pressed={isActive}
+            aria-selected={isActive}
             aria-current={isActive ? 'page' : undefined}
             scroll={false}
           >

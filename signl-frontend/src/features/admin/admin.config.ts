@@ -42,15 +42,9 @@ export const ADMIN_NAV: NavGroup[] = [
   {
     label: 'Growth',
     items: [
-      { href: '/admin/newsletter', label: 'Newsletter', icon: 'newsletter' },
+      { href: '/admin/campaigns', label: 'Campaigns', icon: 'newsletter' },
+      { href: '/admin/newsletter', label: 'Subscribers', icon: 'users' },
       { href: '/admin/analytics', label: 'Analytics', icon: 'analytics' },
-    ],
-  },
-  {
-    label: 'System',
-    items: [
-      { href: '/admin/activity', label: 'Activity Log', icon: 'activity' },
-      { href: '/admin/settings', label: 'Settings', icon: 'settings' },
     ],
   },
 ]

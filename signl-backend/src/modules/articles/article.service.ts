@@ -4,7 +4,6 @@ from './article.repository.js'
 import { CreateArticleDTO }
 from './article.types.js'
 
-import { subscriptionService } from '../subscription/subscription.service.js'
 import { AppError } from '../../shared/errors/errorHandler.js'
 import type { CreateArticleInput, UpdateArticleInput } from './article.validation.js'
 
@@ -68,23 +67,9 @@ export const articleService = {
       .recordView(article.id, slug, actor?.id ?? null)
       .catch(() => {})
 
-    if (article.premium) {
-      const subscribed = actor
-        ? await subscriptionService.isSubscribed(actor.id)
-        : false
-
-      if (!subscribed) {
-        return {
-          ...article,
-          contentText: article.contentText?.slice(0, 350) ?? '',
-          signal: null,
-          blocks: [],
-          paywalled: true,
-        }
-      }
-    }
-
-    return { ...article, paywalled: false }
+    // All published content is free to read. The former premium/subscription
+    // gate was removed — analysis and every other article render in full.
+    return article
   },
 
   getAnalysisFeed: async () => {

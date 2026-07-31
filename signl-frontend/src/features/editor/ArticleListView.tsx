@@ -124,16 +124,6 @@ export default function ArticleListView({
                       Updated{' '}
                       {new Date(a.updatedAt).toLocaleDateString()}
                     </span>
-                    {a.premium ? (
-                      <>
-                        <span className="sep">·</span>
-                        <span
-                          style={{ color: 'var(--accent)', fontWeight: 500 }}
-                        >
-                          Pro
-                        </span>
-                      </>
-                    ) : null}
                   </div>
                 </div>
                 <DepthChips depths={a.depths} />

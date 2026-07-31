@@ -1,30 +1,47 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 
-import EditorWorkspace from '@/features/editor/EditorWorkspace'
 import { useEditorGuard } from '@/features/editor/useEditorGuard'
-import { useEditorStore } from '@/store/editor.store'
+import { createDraft } from '@/services/editor.service'
 
+/**
+ * New-article bootstrap. Creates a blank draft via the API and redirects to
+ * the unified editor at /editor/[id], so create and edit share one editor
+ * (UniversalEditor) and one content model — no divergent authoring surfaces.
+ */
 export default function NewArticlePage() {
   const { ready } = useEditorGuard()
-  const initNew = useEditorStore((s) => s.initNew)
+  const router = useRouter()
   const started = useRef(false)
-  const [mounted, setMounted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (ready && !started.current) {
-      started.current = true
-      initNew()
-      setMounted(true)
-    }
-    // initNew is a stable store action.
+    if (!ready || started.current) return
+    started.current = true
+    createDraft({ articleType: 'ARTICLE' })
+      .then((draft) => router.replace(`/editor/${draft.id}`))
+      .catch(() => setError('Could not create a new article. Please try again.'))
+    // router is stable; createDraft is a module fn.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready])
 
-  // Once initialized we keep rendering the workspace even after autosave
-  // creates the draft and flips `isNew` to false — otherwise the editor would
-  // unmount the instant the first edit persists.
-  if (!ready || !mounted) return null
-  return <EditorWorkspace />
+  if (!ready) return null
+
+  return (
+    <div
+      style={{
+        minHeight: '60vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: 'var(--ink-4)',
+        fontFamily: 'var(--font-mono, monospace)',
+        fontSize: 13,
+      }}
+    >
+      {error ?? 'Creating new article…'}
+    </div>
+  )
 }

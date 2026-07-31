@@ -11,9 +11,9 @@ import articleRoutes from './modules/articles/article.routes.js'
 import authRoutes from './modules/auth/auth.routes.js'
 import bookmarkRoutes from './modules/bookmark/bookmark.routes.js'
 import newsletterRoutes from './modules/newsletter/newsletter.routes.js'
+import campaignRoutes from './modules/newsletter/campaign.routes.js'
 import editorRoutes from './modules/editor/editor.routes.js'
 import adminRoutes from './modules/admin/admin.routes.js'
-import subscriptionRoutes from './modules/subscription/subscription.routes.js'
 
 import { errorHandler, notFoundHandler } from './shared/errors/errorHandler.js'
 import { logger } from './infrastructure/logger/logger.js'
@@ -69,8 +69,8 @@ app.use(
 )
 
 // Body parsers — explicit limits. JSON is the default; raw is needed for
-// webhook signature verification (e.g. Razorpay).
-app.use('/api/subscription/webhook', express.raw({ type: 'application/json', limit: '1mb' }))
+// webhook signature verification (Resend/Svix signs the raw payload).
+app.use('/api/newsletter/webhook/resend', express.raw({ type: '*/*', limit: '1mb' }))
 app.use(express.json({ limit: '1mb' }))
 app.use(express.urlencoded({ extended: true, limit: '1mb' }))
 app.use(cookieParser())
@@ -154,9 +154,9 @@ app.use('/api/auth', authLimiter, authRoutes)
 app.use('/api/articles', articleRoutes)
 app.use('/api/bookmarks', bookmarkRoutes)
 app.use('/api/newsletter', writeLimiter, newsletterRoutes)
+app.use('/api/campaigns', campaignRoutes)
 app.use('/api/editor', editorRoutes)
 app.use('/api/admin', adminRoutes)
-app.use('/api/subscription', subscriptionRoutes)
 
 // ── 404 + global error handler (must be last) ──────────────────────────────
 app.use(notFoundHandler)

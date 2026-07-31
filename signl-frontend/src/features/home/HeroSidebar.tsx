@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import Badge from '@/components/ui/Badge'
 import type { Article } from '@/types/article'
 
 /**
@@ -19,7 +18,6 @@ export default function HeroSidebar({ articles }: { articles: Article[] }) {
         >
           <div className="hs-top">
             <span className="hs-tag">{article.category?.name ?? 'Article'}</span>
-            {article.premium ? <Badge variant="pro">Pro</Badge> : null}
           </div>
           <h3 className="hs-headline">{article.title}</h3>
           <span className="hs-meta">
