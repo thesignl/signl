@@ -29,3 +29,10 @@ run-frontend.ps1
 
 # Internal audit/report artifacts — not app code, keep local-only.
 wave-a/
+
+# ── Local tooling & stray artifacts — never publish ───────────────────────────
+# Kiro agent config + master prompts (team-local, shared out-of-band, not public)
+.kiro/
+# Stray root package files (each app is self-contained; these are accidental)
+/package.json
+/package-lock.json
