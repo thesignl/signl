@@ -18,3 +18,6 @@ designs
 .designs
 .env.local
 .env.production
+# Stray root package files (each app is self-contained)
+/package.json
+/package-lock.json
